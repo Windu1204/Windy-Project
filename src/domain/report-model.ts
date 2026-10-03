@@ -21,6 +21,7 @@ export interface ReportContext {
   rows: Payload[]; dataset: Payload[]; person: string; selected: readonly string[]; period: string; presentationPeriod: string;
   productCategory: (value: string) => string; productName: (value: string) => string; validDate: (value: Value) => boolean;
   PptxGenJS?: typeof import('pptxgenjs').default; docx?: typeof import('docx'); coverPhoto?: string; brandLogo?: string;
+  saveFile?: (blob: Blob, name: string) => void;
 }
 export const reportTitles: Record<DatasetKind, string> = {
   ijr: 'IJR - BNIdirect', regional: 'Regional - Non BNIDirect', corporate: 'Corporate - Non Piloting',
