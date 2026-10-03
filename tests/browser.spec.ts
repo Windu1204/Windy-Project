@@ -19,7 +19,7 @@ test('navigation, filtering, pagination, record details and all three dashboards
     await expect(page.locator('.detail-grid')).toContainText('Application Number');
     await page.getByRole('button', { name: 'Close details' }).click();
     await page.getByRole('button', { name: 'Implementation Process', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Completion Duration' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Branch Processing Time' })).toBeVisible();
     await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'KPI per Person', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
@@ -121,7 +121,7 @@ for (const [kind, dashboard] of [['ijr', 'IJR - BNIdirect'], ['regional', 'Regio
 
 test('IJR duration buckets, chart drilldown and person workload follow source flows', async ({ page }) => {
     await page.getByRole('button', { name: 'Implementation Process', exact: true }).click();
-    await expect(page.locator('.duration-card')).toHaveCount(3);
+    await expect(page.locator('.duration-card')).toHaveCount(2);
     await expect(page.locator('.records')).toHaveCount(0);
     const bucket = page.locator('.duration-card').first().getByRole('button').first();
     const count = (await bucket.locator('strong').innerText()).trim();

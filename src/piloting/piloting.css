@@ -1,0 +1,16 @@
+.dash-piloting .pilot-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.dash-piloting .pilot-filters label{display:flex;flex-direction:column;gap:8px;min-width:0;color:#173a63;font-size:12px}
+.dash-piloting .pilot-filters input,.dash-piloting .pilot-filters select{width:100%;min-width:0}
+.dash-piloting .pilot-note{font-size:12px;color:#64748b;margin:8px 0 18px}
+.dashboard-content.dash-piloting .kpis.pilot-cards{grid-template-columns:repeat(5,minmax(0,1fr))}
+.dash-piloting .pilot-table-number{font-variant-numeric:tabular-nums}
+.dash-piloting .table-wrap{overflow:auto;max-width:100%}
+.dash-piloting .table-wrap table{min-width:680px}
+.dash-piloting .duration-card .duration-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+.dash-piloting .pilot-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0}
+.dash-piloting .pilot-toolbar input{max-width:360px}
+.dash-piloting .pilot-kpi td:not(:nth-child(2)){text-align:center}
+.dash-piloting .pilot-sections{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.dash-piloting .pilot-sections label{display:flex;gap:8px;align-items:center}
+@media(max-width:1100px){.dashboard-content.dash-piloting .kpis.pilot-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.dash-piloting .pilot-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.dashboard-content.dash-piloting .kpis.pilot-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-piloting .pilot-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-piloting .pilot-filters>label:first-child{grid-column:1/-1}.dash-piloting .duration-card .duration-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
