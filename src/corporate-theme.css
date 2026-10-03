@@ -1,0 +1,110 @@
+/* Approved corporate theme. Presentation only: no data or report renderer changes. */
+:root{--corporate-navy:#142c4c;--corporate-teal:#087f8c;--corporate-line:#dde5ec;--corporate-muted:#65758a;--corporate-bg:#f3f6f8}
+html,body,.app-shell>.main{background:var(--corporate-bg)!important;color:var(--corporate-navy)}
+.app-shell{grid-template-columns:250px minmax(0,1fr)!important}
+.app-shell .side.sidebar{position:sticky!important;top:0;height:100dvh;padding:24px 16px!important;background:#fff!important;border-right:1px solid var(--corporate-line)!important;box-shadow:none!important;overflow-y:auto!important}
+.sidebar::before,.sidebar::after,.sidebar .side-building,.sidebar .side-wave,.sidebar .side-left-edge-mask{display:none!important}
+.sidebar .brand{padding:0 10px 28px!important}
+.sidebar .brand .bni-logo{width:130px!important;height:50px!important;margin-bottom:12px!important}
+.sidebar .brand b{font-size:13px!important;font-weight:400!important;line-height:1.55!important;max-width:210px!important;color:var(--corporate-muted)!important}
+.sidebar nav{margin-top:12px;gap:8px}
+.sidebar nav .nav{position:relative;display:flex;align-items:center;gap:10px;width:100%;min-height:58px!important;margin:0!important;padding:12px 10px!important;border:0!important;border-radius:6px!important;background:transparent!important;color:var(--corporate-navy)!important;font-size:12px!important;font-weight:500!important;box-shadow:none!important}
+.sidebar nav .nav.active{background:#e9f4f4!important;color:#075e69!important;font-weight:600!important}
+.sidebar nav .nav.active::before{display:block!important;content:''!important;position:absolute!important;left:0!important;right:auto!important;top:9px!important;bottom:9px!important;width:3px!important;min-width:0!important;max-width:3px!important;height:auto!important;border-radius:3px!important;background:var(--corporate-teal)!important;box-shadow:none!important;transform:none!important}
+.sidebar nav .nav:hover{background:#f2f6f8!important}
+.sidebar nav .nav .side-ico{width:25px!important;height:28px!important;flex:0 0 25px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:inherit!important;box-shadow:none!important}
+.sidebar nav .nav .side-ico svg{width:19px!important;height:19px!important}
+.sidebar nav .nav>svg{display:none}
+.topbar{background:#fff;border-bottom:1px solid var(--corporate-line);padding:22px 24px;box-shadow:none}
+.app-shell .topbar h2{color:var(--corporate-navy);font-size:28px}
+.dashboard-title>span{display:none}
+.profile-button>span{background:#e8f2f4;color:var(--corporate-teal)}
+.dashboard-content{padding:20px 24px 32px}
+.dashboard-content .tabs{gap:8px;border-bottom:1px solid var(--corporate-line);border-radius:0;flex-wrap:wrap;margin-bottom:18px}
+.dashboard-content .tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:var(--corporate-muted);padding:12px 14px;box-shadow:none;font-weight:500;min-height:44px}
+.dashboard-content .tabs button.active{background:transparent;border-color:var(--corporate-teal);color:var(--corporate-teal);box-shadow:none;font-weight:600}
+.dashboard-content .tabs button:hover{background:#eaf1f3}
+.filter-panel,.dashboard-content .panel,.profile-panel,.duration-card,.person-list,.person-detail{background:#fff;border:1px solid var(--corporate-line);border-radius:8px;box-shadow:none}
+.filter-panel{padding:18px;margin-bottom:18px}
+.primary-filters,.filter-regional,.filter-corporate{gap:14px}
+.primary-filters input,.primary-filters select,.period-trigger,input,select,textarea{border-color:var(--corporate-line);border-radius:6px}
+.primary-filters label,.filter-label,.filters label{color:#485c74}
+.app-shell .primary,#wciLogin .login-btn{background:var(--corporate-teal);box-shadow:none;border-radius:6px}
+.app-shell .primary:hover,#wciLogin .login-btn:hover{background:#066c76}
+.app-shell .secondary,.app-shell .icon-button{border-color:var(--corporate-line);border-radius:6px;background:#fff;color:var(--corporate-teal);box-shadow:none}
+.app-shell .secondary:hover,.app-shell .icon-button:hover{background:#eef5f5}
+.app-shell .text-button{color:var(--corporate-teal)}
+.dashboard-content .kpis{gap:14px;margin-bottom:18px}
+.dashboard-content .kpi{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:9px;min-height:142px;padding:20px 14px;background:#fff;border:1px solid var(--corporate-line);border-radius:8px;box-shadow:none;--kpi-accent:#3179be}
+.dashboard-content .kpi::before{width:3px;background:var(--kpi-accent)}
+.dashboard-content .kpi::after,.dashboard-content .kpi:nth-child(n)::after{display:none;content:none}
+.dashboard-content .kpi svg{display:none}
+.dashboard-content .kpi small{color:#40546d;font-size:12px;font-weight:500}
+.dashboard-content .kpi strong{color:var(--corporate-navy);font-size:32px;font-weight:600;line-height:1.2}
+.dashboard-content .kpi span{color:var(--corporate-muted);font-size:11px;line-height:1.5}
+.dashboard-content .kpi.source-blue{--kpi-accent:#3179be}
+.dashboard-content .kpi.source-green{--kpi-accent:#289870}
+.dashboard-content .kpi.source-teal{--kpi-accent:#138b94}
+.dashboard-content .kpi.source-amber{--kpi-accent:#cc8e2d}
+.dashboard-content .kpi.source-purple{--kpi-accent:#8072a4}
+.dashboard-content .kpi.source-red{--kpi-accent:#ce626e}
+.dash-corporate .kpis:not(.sla-kpis) .kpi:nth-child(5){--kpi-accent:#cc8e2d}
+.dashboard-content .kpi:not(:disabled):hover{background:#f6f9fa;border-color:var(--kpi-accent);box-shadow:none}
+.dashboard-content .kpis:has(>.kpi:nth-child(7)){grid-template-columns:repeat(12,minmax(0,1fr))}
+.dashboard-content .kpis:has(>.kpi:nth-child(7))>.kpi{grid-column:span 4}
+.dashboard-content .kpis:has(>.kpi:nth-child(7))>.kpi:nth-child(n+4){grid-column:span 3}
+.dashboard-content .panel{padding:20px;margin-bottom:18px}
+.grid-two,.grid-three{gap:16px;margin-bottom:18px}
+.dashboard-content .panel-head h3{color:var(--corporate-navy);font-size:15px}
+.dashboard-content .panel-head p{color:var(--corporate-muted)}
+.dashboard-content .bar-track{height:10px;background:#edf2f4;border-radius:2px}
+.dashboard-content .bar-track i{border-radius:2px}
+.dashboard-content .bar-row{min-height:36px;gap:12px}
+.dashboard-content .bar-row b{color:#40546d}
+.dashboard-content th{background:#f1f5f7;color:#53677e;border-bottom:1px solid var(--corporate-line)}
+.dashboard-content tbody tr:nth-child(even){background:#fafcfd}
+.dashboard-content tbody tr:hover{background:#eef5f5}
+.dashboard-content td{border-bottom-color:#e9eef2}
+.selected-row td,.person-row.active,.person-status-filters button.active{background:#eaf4f4;color:#076774}
+.duration-grid button,.person-kpis>div,.quality-grid>div,.detail-grid>div{border-color:var(--corporate-line);border-radius:6px;background:#f8fafb}
+.duration-grid button.active{background:var(--corporate-teal);border-color:var(--corporate-teal);color:#fff}
+.person-row>i>span{background:var(--corporate-teal)}
+.person-status-filters button,.person-combo-control,.person-combo-menu{border-color:var(--corporate-line);border-radius:6px}
+.person-combo-option:hover,.person-combo-option:focus{background:#eaf4f4}
+.report-shell .report-active-filter,.report-shell .report-detail-preview,.report-shell .report-contents .checkbox,.report-shell .report-format-label .radio{background:#fafcfd;border-color:var(--corporate-line);border-radius:6px}
+.report-shell .report-format-label .radio:has(input:checked){background:#eef6f5;border-color:#6ea8ad;color:#086b75}
+.report-shell .report-active-filter span{background:#eef5f5;border-color:#d9e8e9;color:#32636b}
+.detail-dialog,.done-confirmation{color:var(--corporate-navy)}
+.app-shell button:focus-visible,.app-shell input:focus-visible,.app-shell select:focus-visible,.app-shell textarea:focus-visible{outline:2px solid var(--corporate-teal);outline-offset:3px}
+.page-footer{color:var(--corporate-muted);border-color:var(--corporate-line)}
+#wciLogin{font-family:'WCI Inter','Segoe UI',Arial,sans-serif}
+#wciLogin .login-form-side{background:#fff}
+#wciLogin .login-title{color:var(--corporate-navy)}
+#wciLogin .login-input-wrap{border-color:var(--corporate-line);border-radius:6px;box-shadow:none}
+@media(max-width:1050px){
+ .app-shell{grid-template-columns:220px minmax(0,1fr)!important}
+ .dashboard-content .kpis:has(>.kpi:nth-child(7)){grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dashboard-content .kpis:has(>.kpi:nth-child(7))>.kpi:nth-child(n){grid-column:auto}
+}
+@media(max-width:760px){
+ .app-shell{display:block}
+ .app-shell .side.sidebar{position:relative!important;height:auto;padding:16px!important;overflow:visible!important}
+ .sidebar .brand{padding:0 4px 14px!important}
+ .sidebar .brand .bni-logo{width:110px!important;height:40px!important;margin-bottom:8px!important}
+ .sidebar .brand b{max-width:none!important;font-size:12px!important}
+ .sidebar nav{margin-top:0;gap:6px}
+ .sidebar nav .nav{flex:1;min-width:100px;min-height:52px!important;font-size:11px!important;padding:10px 8px!important}
+ .sidebar nav .nav .side-ico{flex-basis:20px!important;width:20px!important}
+ .topbar{padding:16px}
+ .app-shell .topbar h2{font-size:24px}
+ .dashboard-content{padding:16px}
+ .dashboard-content .panel,.filter-panel{padding:16px}
+ .dashboard-content .tabs{gap:2px}
+ .dashboard-content .tabs button{padding:10px 12px}
+ .dashboard-content .kpis,.dashboard-content .kpis:has(>.kpi:nth-child(7)){grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .dashboard-content .kpi{padding:16px 10px;min-height:140px}
+ .dashboard-content .kpi strong{font-size:28px}
+ .dashboard-content .kpi span{font-size:10px}
+ .dashboard-content .bar-row{gap:8px}
+}
+@media(max-width:360px){.dashboard-content .kpis,.dashboard-content .kpis:has(>.kpi:nth-child(7)){grid-template-columns:1fr}}

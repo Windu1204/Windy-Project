@@ -6,3 +6,4 @@ createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictM
 
 import './reference-shell.css';
 import './reference-dashboard.css';
+import './corporate-theme.css';
