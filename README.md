@@ -68,7 +68,7 @@ Viewers can read/export/report. Editors and admins can import/restore datasets, 
 
 ## Verification
 
-Nine calculation/import tests pass with the original private fixture present, including every-record SLA parity against whitelisted original calculation functions. Without private fixtures, the three original-data checks are skipped and the six synthetic boundary/integrity tests run.
+Twelve calculation/import/report parity tests pass with the original private fixture present, including every-record SLA parity against whitelisted original calculation functions. Without private fixtures, the six original-data checks are skipped and the six synthetic boundary/integrity tests run.
 
 Four browser tests cover all dashboards, filtering, pagination/details, spreadsheet quarantine/apply/restore, CSV/Word/PowerPoint downloads and a 390px mobile viewport. After extraction, start `pnpm dev`, install/use local Chrome, then run `pnpm exec playwright test`.
 
@@ -86,5 +86,11 @@ Production sign-in uses email/password and does not require an Auth redirect. If
 
 ## Compatibility notes
 
-The source SLA policy and its effective date (14 July 2025), inclusive weekdays, null handling, unavailable-SLA exclusions and product mappings are preserved. Original incomplete values remain visible instead of being silently removed (the Area source has blank statuses). Custom rule precedence follows the original Corporate memo mapping. New imports validate required fields and real calendar dates. Duplicate requests are retained with a warning, preserving source counts. PowerPoint tables use explicit page chunks; Word detail tables include every selected record. Very large reports may take longer to generate in the browser.
+The source SLA policy and its effective date (14 July 2025), inclusive weekdays, null handling, unavailable-SLA exclusions and product mappings are preserved. Original incomplete values remain visible instead of being silently removed (the Area source has blank statuses). Custom rule precedence follows the original Corporate memo mapping. New imports validate required fields and real calendar dates. Duplicate requests are retained with a warning, preserving source counts. Report generators preserve the original v78 layouts: branded photo covers, editable charts, monthly overview pagination, management summaries and individual operational detail. All Name reports include every implementor KPI and intentionally omit the raw-record appendix, matching the HTML. Individual reports include the selected implementor’s detail records. Word uses the original portrait layout. Very large reports may take longer to generate in the browser.
 
+
+## v78 visual and report compatibility
+
+The original sidebar/login brand images and styles, overview card arrangement, request-period picker, and SLA panels have been restored. Authentication uses Supabase email/password in the original login design. React owns filter state and dataset selection; the original export renderers are isolated behind typed report models in `src/domain/report-model.ts` and `src/domain/report-renderers`. They do not discover state from the DOM, execute the source HTML, embed private company data, or reuse its login credentials.
+
+Report filters default to the independent Custom Report dataset, with All Name management mode or one PIC / Implementor. The source report model was compared against all 6,607 fixtures in both modes. Twelve Word/PowerPoint downloads across all three dashboards and both modes were checked for valid Office packages, editable charts, cover images, portrait Word sections, and the expected presence/absence of operational detail. Browser tests include filter, import/restore, export, navigation and mobile flows. For a non-default dev-server port, set `PLAYWRIGHT_BASE_URL` when running browser tests.
