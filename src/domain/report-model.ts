@@ -20,7 +20,7 @@ export interface ReportOptions { person?: string; filters?: Filters; source?: 'c
 export interface ReportContext {
   rows: Payload[]; dataset: Payload[]; person: string; selected: readonly string[]; period: string; presentationPeriod: string;
   productCategory: (value: string) => string; productName: (value: string) => string; validDate: (value: Value) => boolean;
-  PptxGenJS?: typeof import('pptxgenjs').default; docx?: typeof import('docx'); coverPhoto?: string;
+  PptxGenJS?: typeof import('pptxgenjs').default; docx?: typeof import('docx'); coverPhoto?: string; brandLogo?: string;
 }
 export const reportTitles: Record<DatasetKind, string> = {
   ijr: 'IJR - BNIdirect', regional: 'Regional - Non BNIDirect', corporate: 'Corporate - Non Piloting',
