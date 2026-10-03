@@ -52,5 +52,5 @@ export interface Membership {
     };
 }
 export const emptyFilters: Filters = { search: '', from: '', to: '', period: '', status: '', type: '', region: '', category: '', product: '', person: '', sla: '', flow: '', branch: '' };
-export const datasetTitles: Record<DatasetKind, string> = { ijr: 'IJR - BNIdirect', regional: 'Area - Non BNIdirect', corporate: 'Corporate - Non Piloting' };
+export const datasetTitles: Record<DatasetKind, string> = { ijr: 'IJR - BNIdirect', regional: 'Regional - Non BNIDirect', corporate: 'Corporate - Non Piloting' };
 export const text = (value: Value) => String(value ?? '').trim();
