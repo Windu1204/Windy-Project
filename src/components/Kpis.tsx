@@ -1,15 +1,16 @@
 import { Files, CheckCircle2, Clock3, AlertCircle, ArrowUpRight, BarChart3 } from 'lucide-react';
-import { type DatasetKind, type MonitoringRecord } from '../types';
+import { type DatasetKind, type MonitoringRecord, text } from '../types';
 import { metrics, counts, status } from '../domain/analytics';
 const icons = [Files, CheckCircle2, ArrowUpRight, Clock3, AlertCircle, BarChart3];
-export function Kpis({ rows, kind, sla = false, onSelect }: {
+export function Kpis({ rows, kind, sla = false, view = 'overview', onSelect }: {
     rows: MonitoringRecord[];
     kind: DatasetKind;
     sla?: boolean;
+    view?: string;
     onSelect?: (value: string, isSla: boolean) => void;
 }) {
     const m = metrics(rows, kind);
-    const cards: [
+    let cards: [
         string,
         string | number,
         string,
@@ -27,5 +28,14 @@ export function Kpis({ rows, kind, sla = false, onSelect }: {
                 string,
                 string
             ]] : [])];
-    return <div className={sla ? "kpis sla-kpis" : "kpis"}>{cards.map(([label, n, hint, filter], i) => { const Icon = icons[i % icons.length]; return <button key={label} className={'kpi tone-' + i % 6} disabled={!filter || !onSelect} onClick={() => onSelect?.(filter, sla || (kind === 'corporate' && filter === 'Overdue'))}><Icon size={19}/><small>{label}</small><strong>{typeof n === 'number' ? n.toLocaleString() : n}</strong><span>{hint}</span></button>; })}</div>;
+    const distinct = (field: string) => new Set(rows.map(r => text(r.payload[field])).filter(Boolean)).size;
+    const card = (label: string, n: number, hint: string): [string, number, string, string] => [label, n, hint, ''];
+    if (!sla && kind === 'ijr' && view === 'regional') cards = [card('Wilayah', distinct('Wilayah'), 'Jumlah wilayah pada filter aktif'), card('Cabang', distinct('Cabang'), 'Jumlah cabang pada filter aktif'), card('Unit Pembuka', distinct('Unit Pembuka'), 'Jumlah unit pembuka pada filter aktif'), card('Records', m.total, 'Record sesuai filter aktif'), card('Completed', m.done, 'Status = Proses Selesai')];
+    if (!sla && kind === 'ijr' && view === 'people') cards = [card('CS BNI Direct', distinct('CS BNI Direct'), 'Jumlah PIC CS BNI Direct'), card('Implementor 1', distinct('Implementor 1'), 'Jumlah nama Implementor 1'), card('Implementor 2', distinct('Implementor 2'), 'Jumlah nama Implementor 2'), card('Records', m.total, 'Record sesuai filter aktif'), card('Completed', m.done, 'Status = Proses Selesai')];
+    if (!sla && kind === 'regional' && ['status', 'regional', 'people'].includes(view)) {
+        const done = card('Done', m.done, 'Status = Done'), progress = card('In Progress', rows.filter(r => r.payload.status === 'In progress').length, 'Status = In progress'), pending = card('Pending Doc', rows.filter(r => r.payload.status === 'Pending doc').length, 'Status = Pending doc');
+        cards = view === 'status' ? [done, progress, pending, card('Reject', rows.filter(r => r.payload.status === 'Reject').length, 'Status = Reject'), card('Email Sales Date', rows.filter(r => text(r.payload.salesDate)).length, 'Record dengan milestone Email Sales valid')] : [card(view === 'regional' ? 'Wilayah' : 'Implementor', distinct(view === 'regional' ? 'region' : 'implementor'), 'Jumlah pada filter aktif'), done, progress, pending, card('Records', m.total, 'Record sesuai filter aktif')];
+    }
+    const colors = sla ? ['green', 'red', 'blue', 'purple', 'amber', 'purple'] : kind === 'ijr' ? view === 'overview' ? ['blue', 'green', 'blue', 'amber', 'red'] : ['blue', 'purple', 'green', 'amber', 'blue'] : kind === 'regional' ? view === 'status' ? ['green', 'amber', 'red', 'purple', 'blue'] : view === 'people' ? ['blue', 'green', 'amber', 'red', 'purple'] : ['blue', 'green', 'amber', 'red', view === 'regional' ? 'blue' : 'purple'] : ['blue', 'green', 'teal', 'amber', 'purple', 'red', 'red'];
+    return <div className={sla ? "kpis sla-kpis" : "kpis"}>{cards.map(([label, n, hint, filter], i) => { const Icon = icons[i % icons.length]; return <button key={label} className={'kpi tone-' + i % 6 + ' source-' + colors[i]} disabled={!filter || !onSelect} onClick={() => onSelect?.(filter, sla || (kind === 'corporate' && filter === 'Overdue'))}><Icon size={19}/><small>{label}</small><strong>{typeof n === 'number' ? kind === 'corporate' && sla ? String(n) : n.toLocaleString() : n}</strong><span>{hint}</span></button>; })}</div>;
 }

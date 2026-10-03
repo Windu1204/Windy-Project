@@ -1,0 +1,44 @@
+{
+  "source": "Corporate_Area_IJR_Monitoring_WCI_v78.html",
+  "date": "2026-10-03",
+  "scope": ["IJR: 7 tabs", "Regional: 7 tabs", "Corporate: 5 tabs"],
+  "repaired": [
+    "Tab-specific KPI labels, totals and source card order",
+    "Final v78 blue active tabs, four-column filters and decorated KPI cards",
+    "IJR duration buckets and their detail table",
+    "Original dataset-specific record columns and right-side detail drawer",
+    "Chart drilldown visibility and branch/unit detail behavior",
+    "IJR flow ordering and full date trend",
+    "Implementor search, assigned work summaries and status filters",
+    "Regional Update to Done confirmation using existing workspace permissions",
+    "SLA people role columns and normalized IJR type achievement",
+    "Regional dependent product filters and normalized display names",
+    "Source report format choices, person picker, cover and operational preview",
+    "Upload/drop, active dataset quality indicators and interpretation panels"
+  ],
+  "verification": {
+    "typescript": "passed",
+    "productionBuild": "passed",
+    "calculationAndReportTests": "12 passed against local source data",
+    "browserTests": "12 passed including source panel order and KPI comparison for all 19 tabs",
+    "responsiveWidths": [390, 1280],
+    "sourceRecordCount": 6607,
+    "wordAndPowerPoint": "12 downloads passed across all three datasets, All Name and individual modes; renderer files unchanged by this repair"
+  },
+  "intentionalDifferences": [
+    "Inter UI and Georgia page titles retained from the user's later typography request",
+    "Supabase login, workspace roles and account controls replace prototype identity controls",
+    "Responsive layout, accessible controls, CSV and pagination controls retained"
+  ],
+  "limits": [
+    "Source comparison requires private local HTML fixtures; these are not included in Git or production",
+    "Panel and KPI parity checks do not prove pixel-for-pixel equality of every browser state",
+    "Production authenticated flows require the application user's own login; no password is stored in source"
+  ],
+  "rerun": [
+    "node scripts/extract-source.mjs <source-html-path>",
+    "node scripts/prepare-source-ui.mjs <source-html-path>",
+    "pnpm test",
+    "pnpm exec playwright test"
+  ]
+}

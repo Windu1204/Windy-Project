@@ -1,4 +1,5 @@
 import { type DatasetKind, type Payload, type MonitoringRecord, type Filters, text } from '../types';
+import { productKey } from './display';
 export const fields = {
     ijr: { company: 'Applicant Name', id: 'Application Number', date: 'Request Date', status: 'Status', type: 'Application Type', region: 'Wilayah', product: '', person: 'Implementor 1' },
     regional: { company: 'company', id: 'cid', date: 'salesDate', status: 'status', type: 'type', region: 'region', product: 'product', person: 'implementor' },
@@ -59,7 +60,7 @@ export function people(r: MonitoringRecord, kind: DatasetKind, allRoles = false)
 }
 export function filterRows(rows: MonitoringRecord[], kind: DatasetKind, f: Filters) {
     const k = fields[kind], q = f.search.toLowerCase().trim();
-    return rows.filter(r => { const p = r.payload, d = text(p[k.date]); return (!q || Object.values(p).some(v => text(v).toLowerCase().includes(q))) && (!f.period || d.startsWith(f.period)) && (!f.from || d >= f.from) && (!f.to || d <= f.to) && (!f.status || (f.status === '__waiting__' ? text(p[k.status]).startsWith('Waiting') : status(r, kind) === f.status)) && (!f.type || text(p[k.type]) === f.type) && (!f.region || text(p[k.region]) === f.region) && (!f.category || productCategory(text(p.product), kind) === f.category) && (!f.product || text(p.product) === f.product) && (!f.person || people(r, kind, true).some(n => n.toLowerCase().includes(f.person.toLowerCase()))) && (!f.sla || r.sla.status === f.sla) && (!f.flow || text(p['Flow Process']) === f.flow) && (!f.branch || text(p.Cabang) === f.branch); });
+    return rows.filter(r => { const p = r.payload, d = text(p[k.date]); return (!q || Object.values(p).some(v => text(v).toLowerCase().includes(q))) && (!f.period || d.startsWith(f.period)) && (!f.from || d >= f.from) && (!f.to || d <= f.to) && (!f.status || (f.status === '__waiting__' ? text(p[k.status]).startsWith('Waiting') : status(r, kind) === f.status)) && (!f.type || text(p[k.type]) === f.type) && (!f.region || text(p[k.region]) === f.region) && (!f.category || productCategory(text(p.product), kind) === f.category) && (!f.product || (kind === 'regional' ? productKey(p.product) === productKey(f.product) : text(p.product) === f.product)) && (!f.person || people(r, kind, true).some(n => n.toLowerCase().includes(f.person.toLowerCase()))) && (!f.sla || r.sla.status === f.sla) && (!f.flow || text(p['Flow Process']) === f.flow) && (!f.branch || text(p.Cabang) === f.branch); });
 }
 export function counts<T>(rows: T[], get: (r: T) => string): [
     string,
@@ -88,9 +89,10 @@ export function severity(rows: MonitoringRecord[]): [
         continue;
     out[n <= 2 ? '1-2 days' : n <= 5 ? '3-5 days' : n <= 10 ? '6-10 days' : '>10 days']++;
 } return Object.entries(out); }
-export function quality(rows: MonitoringRecord[], kind: DatasetKind): [
-    string,
-    number
-][] { const k = fields[kind]; return [['Missing company', rows.filter(r => !text(r.payload[k.company])).length], ['Missing product', kind === 'ijr' ? 0 : rows.filter(r => !text(r.payload.product)).length], ['Missing implementor', rows.filter(r => !people(r, kind).length).length], ['Without SLA', rows.filter(r => r.sla.status === 'Without SLA').length], ['SLA Real Unavailable', rows.filter(r => r.sla.status === 'SLA Real Unavailable').length], ['Duplicate ID', rows.length - new Set(rows.map(r => text(r.payload[k.id]))).size]]; }
+export function quality(rows: MonitoringRecord[], kind: DatasetKind): [string, number][] {
+    if (kind === 'ijr') return [['Additional duplicate occurrences', rows.length - new Set(rows.map(r => text(r.payload['Application Number'])).filter(Boolean)).size], ['Missing / null Total Day', rows.filter(r => r.payload._TotalDayNum == null).length], ['Blank Implementor 1', rows.filter(r => !text(r.payload['Implementor 1'])).length], ['Blank Implementor 2', rows.filter(r => !text(r.payload['Implementor 2'])).length]];
+    if (kind === 'regional') return [['Missing Company', rows.filter(r => !text(r.payload.company)).length], ['Missing Region', rows.filter(r => !text(r.payload.region)).length], ['Missing Product', rows.filter(r => !text(r.payload.product)).length], ['Missing Implementor', rows.filter(r => !text(r.payload.implementor)).length]];
+    return [['Without SLA', rows.filter(r => r.sla.status === 'Without SLA').length], ['SLA Real Unavailable', rows.filter(r => r.sla.status === 'SLA Real Unavailable').length], ['Blank product', rows.filter(r => !text(r.payload.product)).length]];
+}
 export function durationBucket(value: Payload[string]) { if (value == null || !Number.isFinite(Number(value)))
     return ''; const n = Number(value); return n === 0 ? 'Same Day (0 Hari)' : n === 1 ? '1 Hari' : n === 2 ? '2 Hari' : n > 2 ? '>2 Hari' : ''; }
