@@ -10,7 +10,7 @@ export default defineConfig({
     // This middleware is never included in a production build.
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        const match = req.url?.match(/^\/__local-data\/(ijr|regional|corporate)$/);
+        const match = req.url?.match(/^\/__local-data\/(ijr|regional|corporate|piloting)$/);
         if (!match) return next();
         try {
           const contents = await readFile(resolve(`private/seed/${match[1]}.json`), 'utf8');
