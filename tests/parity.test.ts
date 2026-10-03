@@ -5,7 +5,8 @@ import ts from 'typescript';
 import { calculateSla, workdaysInclusive } from '../src/domain/sla';
 import { filterRows, metrics, counts, status, fields } from '../src/domain/analytics';
 import { auditRows, validDate } from '../src/domain/imports';
-import { reportStatus, reportTables, sections } from '../src/domain/reports';
+import { reportStatus } from '../src/domain/report-status';
+import { reportModel } from '../src/domain/report-model';
 import { type DatasetKind, type Payload, emptyFilters } from '../src/types';
 function legacy(kind: DatasetKind) {
     const source = readFileSync(`private/reference/${kind}.js`, 'utf8'), ast = ts.createSourceFile('legacy.js', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
@@ -47,5 +48,5 @@ describe('SLA boundaries and import integrity', () => {
     it('keeps unavailable regional milestones outside the SLA denominator', () => { const r = calculateSla({ product: 'BNIdirect', type: 'New', salesDate: '2026-01-01' }, 'regional'); expect(r.target).toBe(3); expect(r.status).toBe('SLA Real Unavailable'); });
     it('matches custom aliases only when memo mapping is unavailable', () => { const rules = [{ product: 'Special Service', name: 'Special', aliases: 'Custom X', newDays: 9, maintDays: 4 }]; expect(calculateSla({ product: 'Special Service', projectType: 'Maintenance', slaReal: 5 }, 'corporate', rules).status).toBe('Overdue'); });
     it('quarantines missing fields and impossible calendar dates while retaining duplicates', () => { const audit = auditRows([{ 'Application Number': 'A', Status: 'Proses Selesai', 'Request Date': '2026-02-30' }, { 'Application Number': 'B', Status: 'Dalam Proses', 'Request Date': '2026-02-02' }, { 'Application Number': 'B', Status: 'Dalam Proses', 'Request Date': '2026-02-02' }, { Status: 'Done' }], 'ijr'); expect(audit.rows.length).toBe(2); expect(audit.revisions.length).toBe(2); expect(audit.duplicates).toBe(1); expect(validDate('2026-02-30')).toBe(false); });
-    it('does not infer Handover from a New Project type', () => { const payload = { projectType: 'New', status: 'In progress' }, r = { id: '1', payload, sla: calculateSla(payload, 'regional') }; expect(reportStatus(r, 'regional')).toBe('On Progress'); expect(reportTables([r], 'regional', [...sections]).find(x => x.title === 'Detail Data')?.rows.length).toBe(1); });
+    it('does not infer Handover from a New Project type', () => { const payload = { projectType: 'New', status: 'In progress' }, r = { id: '1', payload, sla: calculateSla(payload, 'regional') }; expect(reportStatus(r, 'regional')).toBe('On Progress'); expect(reportModel([r], 'regional').handover).toBe(0); expect(reportModel([r], 'regional').inProgress).toBe(1); });
 });
