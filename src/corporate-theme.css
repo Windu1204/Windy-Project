@@ -142,3 +142,15 @@ html,body,.app-shell>.main{background:var(--corporate-bg)!important;color:var(--
 }
 #wciLogin .login-input-wrap>svg{margin:0;padding:0}
 #wciLogin .login-input{padding-left:48px}
+/* Controls added to the existing corporate theme. */
+.account-area{display:flex;flex-direction:column;align-items:stretch;min-width:0}
+.account-area .language-picker{align-self:flex-start;margin:2px 0 0 56px;width:104px;min-height:24px;height:24px;padding:0 18px 0 0;border:0;border-radius:0;background-color:transparent;color:var(--accent,#087f8c);font:inherit;font-size:12px}
+.kpi-name-search{max-width:360px;margin-bottom:16px}
+.kpi-detail-toolbar{margin:16px 0;justify-content:space-between;flex-wrap:wrap}
+.workload-kpi td:not(:first-child){font-variant-numeric:tabular-nums}
+.duration-overview>.duration-card{max-width:none}
+.duration-breakdown{margin-top:16px;border:1px solid #d5dfe8;border-radius:8px;background:#fff;padding:16px 20px}
+.duration-breakdown>summary{cursor:pointer;color:#087f8c;font-weight:600}
+.duration-breakdown .duration-summaries{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px}
+.duration-breakdown .duration-card{min-width:0}
+@media(max-width:760px){.duration-breakdown .duration-summaries{grid-template-columns:minmax(0,1fr)}.account-area .language-picker{margin-left:0}.account-area{align-items:center}.workload-kpi .pagination{flex-wrap:wrap}}
