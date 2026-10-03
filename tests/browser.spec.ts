@@ -20,10 +20,10 @@ test('navigation, filtering, pagination, record details and all three dashboards
     await expect(page.getByRole('heading', { name: 'KPI Per Person', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Kinerja SLA', exact: true }).click();
     await expect(page.locator('.kpis')).toContainText('SLA Achievement');
-    await page.getByRole('button', { name: 'Area - Non BNIdirect', exact: true }).click();
+    await page.getByRole('button', { name: 'Regional - Non BNIDirect', exact: true }).click();
     await expect(page.locator('.kpi').first()).toContainText('1,098');
     await page.getByRole('button', { name: 'Status Implementasi', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Milestone Completion' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Milestone Availability' })).toBeVisible();
     await page.getByRole('button', { name: 'Corporate - Non Piloting', exact: true }).click();
     await expect(page.locator('.kpi').first()).toContainText('4,509');
     await page.getByRole('button', { name: 'Kinerja SLA', exact: true }).click();
@@ -73,4 +73,19 @@ test('mobile dashboard fits the viewport and remains usable', async ({ page }) =
     expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.width + 2);
     await page.getByRole('button', { name: 'Corporate - Non Piloting', exact: true }).click();
     await expect(page.locator('.kpi').first()).toContainText('4,509');
+});
+
+test('request period uses custom calendar range and can return to all periods', async ({ page }) => {
+    await page.getByRole('button', { name: 'All Period', exact: true }).click();
+    const calendar = page.getByRole('dialog', { name: 'Request Period', exact: true });
+    await calendar.getByLabel('Custom Date', { exact: true }).check();
+    await calendar.getByLabel('Start Date', { exact: true }).fill('2025-07-01');
+    await calendar.getByLabel('End Date', { exact: true }).fill('2025-07-31');
+    await calendar.getByRole('button', { name: 'Apply', exact: true }).click();
+    await expect(page.locator('.chips')).toContainText('2025-07-01');
+    await expect(page.locator('.chips')).toContainText('2025-07-31');
+    await page.locator('.period-trigger').click();
+    await calendar.getByLabel('All Period', { exact: true }).check();
+    await calendar.getByRole('button', { name: 'Apply', exact: true }).click();
+    await expect(page.locator('.kpi').first()).toContainText('1,000');
 });
