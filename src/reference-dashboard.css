@@ -163,3 +163,9 @@
 .dashboard-content .kpi:nth-child(1):after{width:62px;height:60px;right:16px;top:26px;opacity:.28;background:linear-gradient(#fff8 0 0) 14px 24px/42px 6px no-repeat,linear-gradient(#fff8 0 0) 14px 37px/49px 6px no-repeat,linear-gradient(#fff8 0 0) 14px 50px/35px 6px no-repeat,linear-gradient(145deg,var(--kpi-accent),var(--kpi-soft));clip-path:polygon(0 0,70% 0,100% 28%,100% 100%,0 100%);border-radius:10px}
 .dashboard-content .kpi:nth-child(4):after{width:72px;height:42px;right:10px;top:auto;bottom:16px;opacity:.42;background:none;border-bottom:4px solid var(--kpi-accent);border-radius:50%;transform:rotate(-5deg)}
 .dashboard-content .kpi:nth-child(5):after{width:58px;height:68px;right:16px;top:26px;opacity:.23;background:linear-gradient(145deg,var(--kpi-accent),var(--kpi-soft));clip-path:polygon(0 0,72% 0,100% 27%,100% 100%,0 100%);border-radius:9px}
+
+/* Keep IJR Application Type labels and totals inside their panel. */
+.ijr-application-type .legend{flex:1 1 210px;min-width:0;max-width:100%}
+.ijr-application-type .legend button{display:grid;grid-template-columns:7px minmax(0,1fr) auto;width:100%;gap:7px}
+.ijr-application-type .legend span{min-width:0;overflow-wrap:anywhere}
+.ijr-application-type .legend b{text-align:right}
