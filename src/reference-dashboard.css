@@ -89,3 +89,15 @@
  .report-shell input:not([type=checkbox]):not([type=radio]),.report-shell select{font-size:16px;min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){.dashboard-content button{transition:none}}
+
+/* Reference-inspired typography: serif page titles, legible sans-serif UI. */
+@font-face{font-family:'WCI Inter';src:url('/fonts/InterVariable.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
+.app-shell{font-family:'WCI Inter','Segoe UI',Arial,sans-serif;font-optical-sizing:auto}
+.app-shell .topbar h2{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:26px;letter-spacing:-.025em;line-height:1.25}
+.sidebar .brand b{font-style:normal;font-weight:600!important;letter-spacing:-.015em}
+.sidebar .nav,.dashboard-content .tabs button{font-weight:600}
+.dashboard-content .panel-head h3,.dashboard-content .table-heading h3,.dashboard-content .report-shell h4{font-weight:600;letter-spacing:-.015em}
+.primary-filters label,.filter-label,.filters label{font-weight:500}
+.dashboard-content .kpi strong,.report-preview-kpis b{font-weight:600;letter-spacing:-.025em}
+.dashboard-content .primary,.dashboard-content .secondary,.dashboard-content th{font-weight:500}
+@media(max-width:760px){.app-shell .topbar h2{font-size:24px}}
