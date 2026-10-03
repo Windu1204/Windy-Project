@@ -205,3 +205,37 @@ test('report person picker switches between management and operational previews'
     await input.fill('All Name');
     await expect(page.getByRole('heading', { name: /KPI Per Person ·/ })).toBeVisible();
 });
+
+test('KPI SLA paginates ten rows and searches names before selecting details', async ({ page }) => {
+    for (const dashboard of ['IJR - BNIdirect', 'Regional - Non BNIDirect']) {
+        await page.getByRole('button', { name: dashboard, exact: true }).click();
+        await page.getByRole('button', { name: 'Kinerja SLA', exact: true }).click();
+        const panel = page.locator('.sla-people');
+        const rows = panel.locator('tbody tr');
+        await expect(rows).toHaveCount(10);
+        await expect(panel.getByRole('button', { name: 'Previous', exact: true })).toBeDisabled();
+        const first = await rows.first().innerText();
+        await panel.getByRole('button', { name: 'Next', exact: true }).click();
+        expect(await rows.count()).toBeGreaterThan(0);
+        expect(await rows.count()).toBeLessThanOrEqual(10);
+        expect(await rows.first().innerText()).not.toEqual(first);
+        const name = (await rows.first().locator('td button').innerText()).trim();
+        const search = panel.getByRole('searchbox');
+        await search.fill(name.toLowerCase());
+        await expect(panel.locator('.pagination')).toContainText('Halaman 1');
+        for (const result of await rows.locator('td button').allTextContents()) expect(result.toLowerCase()).toContain(name.toLowerCase());
+        await panel.getByRole('button', { name, exact: true }).first().click();
+        await expect(panel).toContainText('Selected: ' + name);
+        await expect(page.getByRole('heading', { name: 'SLA Detail', exact: true })).toBeVisible();
+        await search.fill('no-matching-person-xyz');
+        await expect(rows).toHaveCount(0);
+        await expect(panel.getByRole('status')).toContainText('Tidak ada nama');
+        await expect(panel.getByRole('button', { name: 'Next', exact: true })).toBeDisabled();
+        await search.fill('');
+        await expect(rows).toHaveCount(10);
+        await expect(panel.getByRole('button', { name: 'Previous', exact: true })).toBeDisabled();
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    const widths = await page.evaluate(() => ({ page: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
+    expect(widths.scroll).toBeLessThanOrEqual(widths.page + 2);
+});
