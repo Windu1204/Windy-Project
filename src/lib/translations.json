@@ -1154,5 +1154,81 @@
   "Jumlah permohonan berdasarkan lama proses": [
     "Jumlah permohonan berdasarkan lama proses",
     "Number of applications by processing time"
+  ],
+  "Bulanan": [
+    "Bulanan",
+    "Monthly"
+  ],
+  "Bulan": [
+    "Bulan",
+    "Month"
+  ],
+  "Laporan Monitoring": [
+    "Laporan Monitoring",
+    "Monitoring Report"
+  ],
+  "Sesuai Filter Dashboard": [
+    "Sesuai Filter Dashboard",
+    "Use Dashboard Filters"
+  ],
+  "Filter laporan terpisah dari filter dashboard.": [
+    "Filter laporan terpisah dari filter dashboard.",
+    "Report filters are independent of dashboard filters."
+  ],
+  "Mengikuti filter dashboard yang sedang aktif.": [
+    "Mengikuti filter dashboard yang sedang aktif.",
+    "Uses the active dashboard filters."
+  ],
+  "data sesuai filter laporan": [
+    "data sesuai filter laporan",
+    "records matching report filters"
+  ],
+  "Akun pengguna": [
+    "Akun pengguna",
+    "User Account"
+  ],
+  "Subproduk": [
+    "Subproduk",
+    "Subproduct"
+  ],
+  "PIC report": [
+    "PIC report",
+    "Report person"
+  ],
+  "Belum dapat dinilai": [
+    "Belum dapat dinilai",
+    "Not measurable"
+  ],
+  "Pekerjaan selesai": [
+    "Pekerjaan selesai",
+    "Completed work"
+  ],
+  "Measurable": [
+    "Measurable",
+    "Measurable"
+  ],
+  "Umur Pending (hari kerja)": [
+    "Umur Pending (hari kerja)",
+    "Pending Age (business days)"
+  ],
+  "SLA Over By": [
+    "SLA Over By",
+    "Days Over Target"
+  ],
+  "Filter Custom Report": [
+    "Filter Custom Report",
+    "Custom Report Filters"
+  ],
+  "Filter Dashboard": [
+    "Filter Dashboard",
+    "Dashboard Filters"
+  ],
+  "Overview Produk": [
+    "Overview Produk",
+    "Product Overview"
+  ],
+  "SLA pekerjaan selesai: durasi Assign ke AT sampai selesai dari sumber, dibandingkan dengan aturan Corporate. Pending dan reject/retur dipisahkan dari achievement.": [
+    "SLA pekerjaan selesai: durasi Assign ke AT sampai selesai dari sumber, dibandingkan dengan aturan Corporate. Pending dan reject/retur dipisahkan dari achievement.",
+    "Completed-work SLA: source duration from AT assignment to completion, compared with Corporate rules. Pending and returned work are excluded from achievement."
   ]
 }

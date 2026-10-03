@@ -8,3 +8,4 @@ createRoot(document.getElementById('root')!).render(<StrictMode><LanguageProvide
 import './reference-shell.css';
 import './reference-dashboard.css';
 import './corporate-theme.css';
+import './revisions.css';
