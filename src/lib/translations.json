@@ -1142,5 +1142,17 @@
   "Edit": [
     "Edit",
     "Edit"
+  ],
+  "Waktu Proses di Cabang": [
+    "Waktu Proses di Cabang",
+    "Branch Processing Time"
+  ],
+  "Waktu Proses di TBS": [
+    "Waktu Proses di TBS",
+    "TBS Processing Time"
+  ],
+  "Jumlah permohonan berdasarkan lama proses": [
+    "Jumlah permohonan berdasarkan lama proses",
+    "Number of applications by processing time"
   ]
 }
