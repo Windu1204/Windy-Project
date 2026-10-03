@@ -4,19 +4,20 @@ import { calculateSla } from '../src/domain/sla';
 import { metrics, isDone } from '../src/domain/analytics';
 import { text, type DatasetKind, type Payload } from '../src/types';
 test.beforeEach(async ({ page }) => { await page.goto('/'); await page.getByRole('button', { name: 'Buka preview lokal' }).click(); await expect(page.locator('.kpi').first()).toContainText('1,000'); });
-test('shared navigation, expandable durations, merged KPI and exact category drilldowns', async ({ page }) => {
+test('shared navigation, stage durations, merged KPI and exact category drilldowns', async ({ page }) => {
  const errors: string[]=[]; page.on('pageerror',error=>errors.push(error.message));
  for(const kind of ['ijr','regional'] as DatasetKind[]) {
   await page.getByRole('button',{name:kind==='ijr'?'IJR - BNIdirect':'Regional - Non BNIDirect',exact:true}).click();
   await expect(page.locator('.tabs button')).toHaveText(['Ringkasan','Proses Implementasi','Wilayah','Kinerja & Beban Kerja','Report','Data']);
   await page.getByRole('button',{name:'Proses Implementasi',exact:true}).click();
   if(kind==='ijr') {
-   await expect(page.getByRole('heading',{name:'Durasi Penyelesaian',exact:true})).toBeVisible();
-   await expect(page.getByRole('heading',{name:'Durasi di Cabang',exact:true})).not.toBeVisible();
-   await page.locator('.duration-breakdown summary').click();
-   await expect(page.getByRole('heading',{name:'Durasi di Cabang',exact:true})).toBeVisible();
-   await page.locator('.duration-overview > .duration-card button').first().click();
-   await expect(page.locator('.records')).toContainText('304');
+   await expect(page.getByRole('heading',{name:'Durasi Penyelesaian',exact:true})).toHaveCount(0);
+   await expect(page.getByRole('heading',{name:'Waktu Proses di Cabang',exact:true})).toBeVisible();
+   await expect(page.getByRole('heading',{name:'Waktu Proses di TBS',exact:true})).toBeVisible();
+   await expect(page.locator('.duration-card').first().locator('strong')).toHaveText(['777','198','25','0']);
+   await expect(page.locator('.duration-card').nth(1).locator('strong')).toHaveText(['724','248','28','0']);
+   await page.locator('.duration-card button').first().click();
+   await expect(page.locator('.records')).toContainText('777');
   } else await expect(page.getByRole('heading',{name:'Kelengkapan Milestone'})).toBeVisible();
   await page.getByRole('button',{name:'Kinerja & Beban Kerja',exact:true}).click();
   const panel=page.locator('.workload-kpi');
