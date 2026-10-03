@@ -108,3 +108,7 @@ html,body,.app-shell>.main{background:var(--corporate-bg)!important;color:var(--
  .dashboard-content .bar-row{gap:8px}
 }
 @media(max-width:360px){.dashboard-content .kpis,.dashboard-content .kpis:has(>.kpi:nth-child(7)){grid-template-columns:1fr}}
+/* Approved KPI refinement: dark teal titles and a faint corner glow. */
+.dashboard-content .kpi small{color:#08757d}
+.dashboard-content .kpi{background:radial-gradient(ellipse 38% 65% at 100% 100%,color-mix(in srgb,var(--kpi-accent) 12%,white) 0%,#fff 100%)}
+.dashboard-content .kpi:not(:disabled):hover{background:radial-gradient(ellipse 38% 65% at 100% 100%,color-mix(in srgb,var(--kpi-accent) 16%,white) 0%,#fff 100%)}
