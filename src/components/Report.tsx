@@ -1,3 +1,4 @@
+import { useLanguage } from '../lib/language';
 import { useState, useMemo } from 'react';
 import { type MonitoringRecord, type DatasetKind, type Filters, type FilterKey, emptyFilters, text } from '../types';
 import { filterRows, fields, options, productCategory, status } from '../domain/analytics';
@@ -9,6 +10,7 @@ import { productKey, regionalProductLabels } from '../domain/display';
 import { PersonPicker } from './PersonPicker';
 
 export default function Report({ allRows, kind }: { allRows: MonitoringRecord[]; kind: DatasetKind }) {
+  const { t } = useLanguage();
   const source = 'custom' as const;
   const [filters, setFilters] = useState<Filters>({ ...emptyFilters });
   const [person, setPerson] = useState('All Name');
@@ -32,14 +34,14 @@ export default function Report({ allRows, kind }: { allRows: MonitoringRecord[];
     finally { setBusy(false); }
   }
   return <div className="report-shell"><Panel title="Custom Report" hint="Generate report dari data dashboard dalam format PowerPoint atau Word.">
-    <fieldset className="report-filter-fields"><div className="report-fields"><label>Start Date<input type="date" value={filters.from} onChange={e => set('from', e.target.value)}/></label><label>End Date<input type="date" value={filters.to} onChange={e => set('to', e.target.value)}/></label>
-      {definitions.map(([key, label, field]) => { const values = field === 'category' ? [...new Set(allRows.map(row => productCategory(text(row.payload.product), kind)).filter(Boolean))].sort() : field === 'sla' ? [...new Set(allRows.map(row => row.sla.status))] : key === 'status' ? [...new Set(allRows.map(row => status(row, kind)))].sort() : options(key === 'product' ? allRows.filter(row => productCategory(text(row.payload.product), kind) === filters.category) : allRows, field); return <label key={key}>{label}<select disabled={key === 'product' && !filters.category} value={filters[key]} onChange={e => set(key, e.target.value)}><option value="">All {label}</option>{[...new Set(values.map(value => kind === 'regional' && key === 'product' ? productLabels.get(productKey(value)) || value : value))].map(value => <option key={value}>{value}</option>)}</select></label>; })}
+    <fieldset className="report-filter-fields"><div className="report-fields"><label>{t("Start Date")}<input type="date" value={filters.from} onChange={e => set('from', e.target.value)}/></label><label>{t("End Date")}<input type="date" value={filters.to} onChange={e => set('to', e.target.value)}/></label>
+      {definitions.map(([key, label, field]) => { const values = field === 'category' ? [...new Set(allRows.map(row => productCategory(text(row.payload.product), kind)).filter(Boolean))].sort() : field === 'sla' ? [...new Set(allRows.map(row => row.sla.status))] : key === 'status' ? [...new Set(allRows.map(row => status(row, kind)))].sort() : options(key === 'product' ? allRows.filter(row => productCategory(text(row.payload.product), kind) === filters.category) : allRows, field); return <label key={key}>{t(label)}<select disabled={key === 'product' && !filters.category} value={filters[key]} onChange={e => set(key, e.target.value)}><option value="">{t('Semua') + ' ' + t(label)}</option>{[...new Set(values.map(value => kind === 'regional' && key === 'product' ? productLabels.get(productKey(value)) || value : value))].map(value => <option key={value}>{value}</option>)}</select></label>; })}
     </div></fieldset>
     <PersonPicker value={person} onChange={setPerson} names={names}/>
-    <p className="report-sub">Pilih <b>All Name</b> untuk seluruh PIC / Implementor, atau ketik nama untuk mencari.</p>
-    <fieldset className="report-format-label"><legend>Format Report</legend><div className="button-row">{([['pptx', 'PowerPoint (.pptx)'], ['docx', 'Word (.docx)']] as const).map(([id, label]) => <label className="radio" key={id}><input type="radio" name="reportFormat" checked={format === id} onChange={() => setFormat(id)}/>{label}</label>)}</div></fieldset>
-    <h4>Report Content</h4><div className="report-contents">{reportContents[kind].map(section => <label key={section} className="checkbox"><input type="checkbox" checked={selected.includes(section)} onChange={e => setSelected(previous => e.target.checked ? [...previous, section] : previous.filter(value => value !== section))}/>{section}</label>)}</div>
-    <p className="report-principle"><b>Report Principle:</b> KPI, breakdown, dan detail dihitung dari dataset report yang sama. All Name menggunakan Management Summary dan KPI seluruh implementor; satu nama menggunakan report individual dengan Operational Detail.</p>
-    <button className="primary" disabled={busy || !rows.length || !selected.length} onClick={generate}>{busy ? 'Membuat report…' : 'Generate Report'}</button>{message && <p role="status" className="success">{message}</p>}{error && <p role="alert" className="error">{error}</p>}
+    <p className="report-sub">{t("Pilih")}<b>{t("All Name")}</b> {t("untuk seluruh PIC / Implementor, atau ketik nama untuk mencari.")}</p>
+    <fieldset className="report-format-label"><legend>{t("Format Report")}</legend><div className="button-row">{([['pptx', 'PowerPoint (.pptx)'], ['docx', 'Word (.docx)']] as const).map(([id, label]) => <label className="radio" key={id}><input type="radio" name="reportFormat" checked={format === id} onChange={() => setFormat(id)}/>{label}</label>)}</div></fieldset>
+    <h4>{t("Report Content")}</h4><div className="report-contents">{reportContents[kind].map(section => <label key={section} className="checkbox"><input type="checkbox" checked={selected.includes(section)} onChange={e => setSelected(previous => e.target.checked ? [...previous, section] : previous.filter(value => value !== section))}/>{section}</label>)}</div>
+    <p className="report-principle"><b>{t("Report Principle:")}</b> {t("KPI, breakdown, dan detail dihitung dari dataset report yang sama. All Name menggunakan Management Summary dan KPI seluruh implementor; satu nama menggunakan report individual dengan Operational Detail.")}</p>
+    <button className="primary" disabled={busy || !rows.length || !selected.length} onClick={generate}>{busy ? 'Membuat report…' : 'Generate Report'}</button>{message && <p role="status" className="success">{t(message)}</p>}{error && <p role="alert" className="error">{t(error)}</p>}
   </Panel><ReportPreview model={model} kind={kind} filters={filters} person={person}/></div>;
 }
