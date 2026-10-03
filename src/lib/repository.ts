@@ -1,0 +1,41 @@
+import { supabase } from './supabase';
+import { type DatasetKind, type Payload, type Membership, type SlaRule } from '../types';
+export interface StoredRow {
+    id: string;
+    payload: Payload;
+    position: number;
+}
+const client = () => { if (!supabase)
+    throw new Error('Supabase belum dikonfigurasi.'); return supabase; };
+export async function memberships(): Promise<Membership[]> { const { data, error } = await client().from('wci_members').select('workspace_id,role,wci_workspaces(name)'); if (error)
+    throw error; return data as unknown as Membership[]; }
+export async function loadRows(workspace: string, kind: DatasetKind): Promise<StoredRow[]> {
+    const db = client();
+    const { data: dataset, error } = await db.from('wci_datasets').select('active_batch').eq('workspace_id', workspace).eq('kind', kind).maybeSingle();
+    if (error)
+        throw error;
+    if (!dataset?.active_batch)
+        return [];
+    const out: StoredRow[] = [];
+    for (let offset = 0;; offset += 1000) {
+        const { data, error } = await db.from('wci_records').select('id,payload,position').eq('workspace_id', workspace).eq('dataset', kind).eq('batch_id', dataset.active_batch).order('position').range(offset, offset + 999);
+        if (error)
+            throw error;
+        out.push(...data as StoredRow[]);
+        if (data.length < 1000)
+            break;
+    }
+    return out;
+}
+export async function loadRules(workspace: string): Promise<SlaRule[]> { const { data, error } = await client().from('wci_sla_rules').select('product,name,aliases,new_days,maint_days').eq('workspace_id', workspace); if (error)
+    throw error; return data.map(r => ({ product: r.product, name: r.name, aliases: r.aliases, newDays: r.new_days, maintDays: r.maint_days })); }
+export async function replaceRows(workspace: string, kind: DatasetKind, rows: Payload[], name: string) { const { error } = await client().rpc('wci_replace_dataset', { p_workspace: workspace, p_kind: kind, p_rows: rows, p_name: name }); if (error)
+    throw error; }
+export async function restoreRows(workspace: string, kind: DatasetKind) { const { error } = await client().rpc('wci_restore_original', { p_workspace: workspace, p_kind: kind }); if (error)
+    throw error; }
+export async function markDone(workspace: string, id: string, payload: Payload, note: string) { const { error } = await client().from('wci_records').update({ payload: { ...payload, status: 'Done', dashboardUpdatedAt: new Date().toISOString(), dashboardNote: note } }).eq('workspace_id', workspace).eq('id', id); if (error)
+    throw error; }
+export async function saveRule(workspace: string, r: SlaRule) { const { error } = await client().from('wci_sla_rules').upsert({ workspace_id: workspace, product: r.product, name: r.name, aliases: r.aliases, new_days: r.newDays, maint_days: r.maintDays }, { onConflict: 'workspace_id,product' }); if (error)
+    throw error; }
+export async function deleteRule(workspace: string, product: string) { const { error } = await client().from('wci_sla_rules').delete().eq('workspace_id', workspace).eq('product', product); if (error)
+    throw error; }
