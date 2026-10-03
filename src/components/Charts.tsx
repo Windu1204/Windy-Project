@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-const palette = ['#1384ef', '#17a979', '#ec9d35', '#8562cc', '#dc5268', '#168d9b', '#7e94ad'];
+const palette = ['#12a56f', '#1769d2', '#d99013', '#7b4be2', '#dd3b45', '#079b98', '#8090a6'];
 export function Panel({ title, hint, children, className = '' }: {
     title: string;
     hint?: string;
@@ -15,13 +15,15 @@ export function Bars({ items, onSelect, color = '#1685f4', limit = 12 }: {
     color?: string;
     limit?: number;
 }) { const vals = items.slice(0, limit), max = Math.max(1, ...vals.map(x => x[1])); return <div className="bars">{vals.length ? vals.map(([name, value]) => <button key={name} className="bar-row" title={name} disabled={!onSelect} onClick={() => onSelect?.(name)}><span>{name}</span><span className="bar-track"><i style={{ width: `${value / max * 100}%`, background: color }}/></span><b>{value.toLocaleString()}</b></button>) : <p className="empty">Tidak ada data.</p>}</div>; }
-export function Donut({ items, onSelect }: {
+export function Donut({ items, onSelect, colors = palette, colorByName = {} }: {
+    colors?: string[];
+    colorByName?: Record<string, string>;
     items: [
         string,
         number
     ][];
     onSelect?: (s: string) => void;
-}) { const total = items.reduce((n, x) => n + x[1], 0); let cursor = 0; const gradient = items.map(([, v], i) => { const from = cursor; cursor += total ? v / total * 100 : 0; return `${palette[i % palette.length]} ${from}% ${cursor}%`; }).join(','); return <div className="donut-wrap"><div className="donut" role="img" aria-label={items.map(x => x.join(': ')).join(', ')} style={{ background: total ? `conic-gradient(${gradient})` : '#e8eff7' }}><div><strong>{total.toLocaleString()}</strong><small>RECORDS</small></div></div><div className="legend">{items.map(([name, n], i) => <button key={name} disabled={!onSelect} onClick={() => onSelect?.(name)}><i style={{ background: palette[i % palette.length] }}/><span>{name}</span><b>{n.toLocaleString()} <small>({total ? (n / total * 100).toFixed(1) : 0}%)</small></b></button>)}</div></div>; }
+}) { const total = items.reduce((n, x) => n + x[1], 0); let cursor = 0; const gradient = items.map(([name, v], i) => { const from = cursor; cursor += total ? v / total * 100 : 0; return `${(colorByName[name] || colors[i % colors.length])} ${from}% ${cursor}%`; }).join(','); return <div className="donut-wrap"><div className="donut" role="img" aria-label={items.map(x => x.join(': ')).join(', ')} style={{ background: total ? `conic-gradient(${gradient})` : '#e8eff7' }}><div><strong>{total.toLocaleString()}</strong><small>RECORDS</small></div></div><div className="legend">{items.map(([name, n], i) => <button key={name} disabled={!onSelect} onClick={() => onSelect?.(name)}><i style={{ background: (colorByName[name] || colors[i % colors.length]) }}/><span>{name}</span><b>{n.toLocaleString()} <small>({total ? (n / total * 100).toFixed(1) : 0}%)</small></b></button>)}</div></div>; }
 export function Trend({ items }: {
     items: [
         string,

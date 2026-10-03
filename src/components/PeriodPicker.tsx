@@ -1,0 +1,20 @@
+import { useState, useRef, useEffect } from 'react';
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { type Filters } from '../types';
+
+function Calendar({ month, from, to, onPick }: { month: Date; from: string; to: string; onPick: (date: string) => void }) {
+  const year = month.getFullYear(), m = month.getMonth(), days = new Date(year, m + 1, 0).getDate(), offset = new Date(year, m, 1).getDay();
+  return <div className="period-calendar"><b>{month.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</b><div className="calendar-week">{['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => <span key={day}>{day}</span>)}</div><div className="calendar-days">{Array.from({ length: offset }, (_, i) => <span key={'blank-' + i}/>)}{Array.from({ length: days }, (_, i) => {
+    const date = `${year}-${String(m + 1).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`;
+    return <button type="button" key={date} aria-label={date} className={date === from || date === to ? 'selected' : from && to && date > from && date < to ? 'in-range' : ''} onClick={() => onPick(date)}>{i + 1}</button>;
+  })}</div></div>;
+}
+export function PeriodPicker({ value, onChange }: { value: Filters; onChange: (value: Filters) => void }) {
+  const [open, setOpen] = useState(false), [custom, setCustom] = useState(false), [from, setFrom] = useState(''), [to, setTo] = useState('');
+  const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (!open) return; const close = (event: MouseEvent) => { if (event.target instanceof Node && !ref.current?.contains(event.target)) setOpen(false); }; document.addEventListener('mousedown', close); return () => document.removeEventListener('mousedown', close); }, [open]);
+  function show() { setFrom(value.from); setTo(value.to); setCustom(Boolean(value.from || value.to)); if (value.from) setMonth(new Date(value.from + 'T00:00:00')); setOpen(!open); }
+  function pick(date: string) { if (!from || to || date < from) { setFrom(date); setTo(''); } else setTo(date); }
+  return <div ref={ref} className="period-field"><span className="filter-label">Request Period</span><button type="button" className="period-trigger" aria-expanded={open} onClick={show}><CalendarDays size={15}/><span>{value.from || value.to ? `${value.from || '...'} – ${value.to || '...'}` : value.period || 'All Period'}</span><ChevronDown size={14}/></button>{open && <div className="period-popover" role="dialog" aria-label="Request Period"><label className="radio"><input type="radio" name="period-mode" checked={!custom} onChange={() => setCustom(false)}/>All Period</label><label className="radio"><input type="radio" name="period-mode" checked={custom} onChange={() => setCustom(true)}/>Custom Date</label>{custom && <><div className="report-fields"><label>Start Date<input type="date" value={from} onChange={e => setFrom(e.target.value)}/></label><label>End Date<input type="date" value={to} min={from || undefined} onChange={e => setTo(e.target.value)}/></label></div><div className="calendar-navigation"><button type="button" aria-label="Previous month" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}><ChevronLeft size={16}/></button><button type="button" aria-label="Next month" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}><ChevronRight size={16}/></button></div><div className="calendar-pair"><Calendar month={month} from={from} to={to} onPick={pick}/><Calendar month={new Date(month.getFullYear(), month.getMonth() + 1, 1)} from={from} to={to} onPick={pick}/></div></>}<div className="button-row"><button className="secondary" type="button" onClick={() => setOpen(false)}>Cancel</button><button className="primary" type="button" disabled={custom && Boolean(from && to && from > to)} onClick={() => { onChange({ ...value, period: '', from: custom ? from : '', to: custom ? to : '' }); setOpen(false); }}>Apply</button></div></div>}</div>;
+}
