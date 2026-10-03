@@ -112,3 +112,33 @@ html,body,.app-shell>.main{background:var(--corporate-bg)!important;color:var(--
 .dashboard-content .kpi small{color:#08757d}
 .dashboard-content .kpi{background:radial-gradient(ellipse 38% 65% at 100% 100%,color-mix(in srgb,var(--kpi-accent) 12%,white) 0%,#fff 100%)}
 .dashboard-content .kpi:not(:disabled):hover{background:radial-gradient(ellipse 38% 65% at 100% 100%,color-mix(in srgb,var(--kpi-accent) 16%,white) 0%,#fff 100%)}
+
+/* Login-only layout, using the approved concept's left photo pane. */
+#wciLogin{position:relative;inset:auto;min-height:100dvh;grid-template-columns:minmax(0,55fr) minmax(0,45fr);overflow:auto}
+#wciLogin .login-hero{display:block;min-height:100dvh;background-image:url('/brand/login-visual.png');background-position:left center;background-size:181.82% 100%;background-repeat:no-repeat}
+#wciLogin .login-hero::after{display:none}
+#wciLogin .login-form-side{padding:44px 40px;min-width:0}
+#wciLogin .login-box{width:100%;max-width:480px}
+#wciLogin .login-brand{width:140px!important;height:54px!important;margin:0 auto 32px!important}
+#wciLogin .login-title{font-size:28px;font-weight:650;line-height:1.3;letter-spacing:-.025em;text-transform:none;text-align:center}
+#wciLogin .login-subtitle{font-size:14px;line-height:1.6;letter-spacing:0;text-transform:none;text-align:center;color:#6b7a90;margin:12px 0 38px}
+#wciLogin .login-label{font-size:13px;font-weight:600;color:#142c4c;margin-bottom:8px}
+#wciLogin .login-input-wrap{position:relative;margin-bottom:24px}
+#wciLogin .login-input-wrap>svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#65758a;pointer-events:none;width:18px;height:18px}
+#wciLogin .login-input{height:48px;min-height:48px;border:1px solid #d5dfe8;border-radius:7px;padding:0 44px;font-size:14px;background:#fff;color:#142c4c}
+#wciLogin .login-input:focus{border-color:#087f8c;box-shadow:0 0 0 3px #087f8c14;outline:none}
+#wciLogin .pass-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:32px;height:32px;padding:6px;color:#65758a;display:grid;place-items:center}
+#wciLogin .login-btn{height:48px;min-height:48px;font-size:15px;font-weight:600;border-radius:7px;background:#087f8c;box-shadow:none;margin-top:8px}
+#wciLogin .login-divider{margin:34px 0 20px;background:#e1e7ed}
+#wciLogin .login-foot{font-size:12px;color:#7c8ba0}
+#wciLogin button:focus-visible{outline:2px solid #087f8c;outline-offset:3px}
+@media(max-width:760px){
+ #wciLogin{grid-template-columns:minmax(0,1fr)}
+ #wciLogin .login-hero{display:none}
+ #wciLogin .login-form-side{min-height:100dvh;padding:32px 24px}
+ #wciLogin .login-title{font-size:25px}
+ #wciLogin .login-brand{margin-bottom:26px!important}
+ #wciLogin .login-input{font-size:16px}
+}
+#wciLogin .login-input-wrap>svg{margin:0;padding:0}
+#wciLogin .login-input{padding-left:48px}
