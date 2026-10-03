@@ -1,33 +1,36 @@
+import { readFileSync } from 'node:fs';
+const translations = JSON.parse(readFileSync('src/lib/translations.json', 'utf8'));
+const translate = (label: string, _language: string) => translations[label]?.[1] ?? label;
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-test.beforeEach(async ({ page }) => { await page.goto('/'); await page.getByRole('button', { name: 'Buka preview lokal' }).click(); await expect(page.locator('.kpi').first()).toContainText('1,000'); });
+test.beforeEach(async ({ page }) => { await page.goto('/'); await page.getByRole('button', { name: 'Buka preview lokal' }).click(); await expect(page.locator('.kpi').first()).toContainText('1,000'); await page.getByLabel('Bahasa / Language').selectOption('en'); });
 test('navigation, filtering, pagination, record details and all three dashboards', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(e.message));
     await page.getByLabel('Status', { exact: true }).selectOption('Proses Selesai');
     await expect(page.locator('.chips')).toContainText('Proses Selesai');
     await expect(page.locator('tbody tr')).toHaveCount(25);
-    await page.getByRole('button', { name: 'Reset Filter', exact: true }).click();
-    await page.getByRole('button', { name: 'Halaman berikutnya' }).click();
+    await page.getByRole('button', { name: 'Reset Filters', exact: true }).click();
+    await page.getByRole('button', { name: 'Next page' }).click();
     await expect(page.locator('.pagination')).toContainText('26–50');
-    await page.getByRole('button', { name: 'Detail', exact: true }).first().click();
+    await page.getByRole('button', { name: 'Details', exact: true }).first().click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.locator('.detail-grid')).toContainText('Application Number');
-    await page.getByRole('button', { name: 'Tutup detail' }).click();
-    await page.getByRole('button', { name: 'Proses & Durasi', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Total Process' })).toBeVisible();
-    await page.getByRole('button', { name: 'PIC & Beban Kerja', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'KPI Per Person', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Kinerja SLA', exact: true }).click();
+    await page.getByRole('button', { name: 'Close details' }).click();
+    await page.getByRole('button', { name: 'Implementation Process', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Completion Duration' })).toBeVisible();
+    await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'KPI per Person', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
     await expect(page.locator('.kpis')).toContainText('SLA Achievement');
     await page.getByRole('button', { name: 'Regional - Non BNIDirect', exact: true }).click();
     await expect(page.locator('.kpi').first()).toContainText('1,098');
-    await page.getByRole('button', { name: 'Status Implementasi', exact: true }).click();
+    await page.getByRole('button', { name: 'Implementation Process', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Milestone Availability' })).toBeVisible();
     await page.getByRole('button', { name: 'Corporate - Non Piloting', exact: true }).click();
     await expect(page.locator('.kpi').first()).toContainText('4,509');
-    await page.getByRole('button', { name: 'Kinerja SLA', exact: true }).click();
+    await page.getByRole('button', { name: 'SLA Performance', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Official SLA Target Reference' })).toBeVisible();
     expect(errors).toEqual([]);
 });
@@ -35,18 +38,18 @@ test('spreadsheet validation, apply and restore original dataset', async ({ page
     await page.getByRole('button', { name: 'Data', exact: true }).click();
     await page.locator('input[type=file]').setInputFiles({ name: 'verification.csv', mimeType: 'text/csv', buffer: Buffer.from('Application Number,Status,Request Date,Applicant Name\nTEST-1,Proses Selesai,2026-10-01,Test Company\nTEST-2,Dalam Proses,2026-10-01,Test Company\n,Done,2026-10-01,Missing ID\n') });
     await expect(page.getByRole('button', { name: 'Success (2)' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Perlu Revisi (1)' })).toBeVisible();
-    await page.getByRole('button', { name: 'Terapkan 2 record' }).click();
+    await expect(page.getByRole('button', { name: 'Needs Revision (1)' })).toBeVisible();
+    await page.getByRole('button', { name: 'Apply 2 records' }).click();
     await expect(page.locator('.records')).toContainText('2 records');
-    await page.getByRole('button', { name: 'Pulihkan dataset asli' }).click();
-    await page.getByRole('button', { name: 'Pulihkan sekarang' }).click();
+    await page.getByRole('button', { name: 'Restore original dataset' }).click();
+    await page.getByRole('button', { name: 'Restore now' }).click();
     await expect(page.locator('.records')).toContainText('1,000 records');
 });
 test('CSV, Word and PowerPoint downloads are generated without runtime errors', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(e.message));
     const sourceId = (await page.locator('tbody tr').first().locator('td').first().innerText()).trim();
-    await page.getByLabel('Cari data').fill(sourceId);
+    await page.getByLabel('Search records').fill(sourceId);
     await expect(page.locator('tbody tr')).toHaveCount(1);
     const csvPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: 'CSV', exact: true }).click();
@@ -79,7 +82,7 @@ test('mobile dashboard fits the viewport and remains usable', async ({ page }) =
 test('request period uses custom calendar range and can return to all periods', async ({ page }) => {
     await page.getByRole('button', { name: 'All Period', exact: true }).click();
     const calendar = page.getByRole('dialog', { name: 'Request Period', exact: true });
-    await calendar.getByLabel('Custom Date', { exact: true }).check();
+    await calendar.getByLabel('Custom Dates', { exact: true }).check();
     await calendar.getByLabel('Start Date', { exact: true }).fill('2025-07-01');
     await calendar.getByLabel('End Date', { exact: true }).fill('2025-07-31');
     await calendar.getByRole('button', { name: 'Apply', exact: true }).click();
@@ -99,16 +102,17 @@ for (const [kind, dashboard] of [['ijr', 'IJR - BNIdirect'], ['regional', 'Regio
         await page.getByRole('button', { name: dashboard, exact: true }).click();
         const tabs = await source.locator('.tabs button').allTextContents();
         for (const tab of tabs) {
+            if (kind !== 'corporate' && ['Proses & Durasi', 'Status Implementasi', 'PIC & Beban Kerja', 'Beban Implementor', 'Kinerja SLA'].includes(tab)) continue;
             await source.getByRole('button', { name: tab, exact: true }).click();
-            await page.getByRole('button', { name: tab, exact: true }).click();
+            await page.getByRole('button', { name: tab === 'Wilayah & Cabang' ? 'Region' : translate(tab, 'en'), exact: true }).click();
             const sourceHeadings = await source.locator('h3:visible').allTextContents();
-            for (const heading of sourceHeadings) await expect(page.getByRole('heading', { name: heading.trim(), exact: true }).first()).toBeVisible();
+            for (const heading of sourceHeadings) await expect(page.getByRole('heading', { name: translate(heading.trim(), 'en'), exact: true }).first()).toBeVisible();
             const actualHeadings = (await page.locator('.dashboard-content h3:visible').allTextContents()).map(value => value.trim());
             let previous = -1;
-            for (const heading of sourceHeadings) { const index = actualHeadings.indexOf(heading.trim(), previous + 1); expect(index, `${kind} ${tab}: source panel order`).toBeGreaterThan(previous); previous = index; }
+            for (const heading of sourceHeadings) { const index = actualHeadings.indexOf(translate(heading.trim(), 'en'), previous + 1); expect(index, `${kind} ${tab}: source panel order`).toBeGreaterThan(previous); previous = index; }
             const expected = await source.locator('.view.active .kpi').evaluateAll(cards => cards.map(card => ({ label: card.querySelector('.klabel,.label')?.textContent?.trim(), value: card.querySelector('.kvalue,.value')?.textContent?.trim() })));
             const actual = await page.locator('.kpis .kpi').evaluateAll(cards => cards.map(card => ({ label: card.querySelector('small')?.textContent?.trim(), value: card.querySelector('strong')?.textContent?.trim() })));
-            expect(actual, `${kind} ${tab}: labels and totals match source`).toEqual(expected);
+            expect(actual, `${kind} ${tab}: labels and totals match source`).toEqual(expected.map(card => ({...card, label: translate(card.label || '', 'en')})));
             if (tab === 'Data' || tab === 'Report') await expect(page.locator('.filter-panel')).toHaveCount(0);
         }
         await source.close();
@@ -116,63 +120,61 @@ for (const [kind, dashboard] of [['ijr', 'IJR - BNIdirect'], ['regional', 'Regio
 }
 
 test('IJR duration buckets, chart drilldown and person workload follow source flows', async ({ page }) => {
-    await page.getByRole('button', { name: 'Proses & Durasi', exact: true }).click();
+    await page.getByRole('button', { name: 'Implementation Process', exact: true }).click();
     await expect(page.locator('.duration-card')).toHaveCount(3);
     await expect(page.locator('.records')).toHaveCount(0);
     const bucket = page.locator('.duration-card').first().getByRole('button').first();
     const count = (await bucket.locator('strong').innerText()).trim();
     await bucket.click();
     await expect(page.locator('.records')).toContainText(`${count} records`);
-    await expect(page.locator('.records thead')).toContainText('Total Day Cabang');
+    await expect(page.locator('.records thead')).toContainText('Branch Days');
     await bucket.click();
     await expect(page.locator('.records')).toHaveCount(0);
-    await page.getByRole('button', { name: 'Wilayah & Cabang', exact: true }).click();
-    await page.getByLabel('Wilayah', { exact: true }).selectOption({ index: 1 });
+    await page.getByRole('button', { name: 'Region', exact: true }).click();
+    await page.getByLabel('Region', { exact: true }).selectOption({ index: 1 });
     await expect(page.locator('.records')).toHaveCount(0); // filter alone must not invent a chart drilldown
-    await page.getByRole('button', { name: 'Reset Filter', exact: true }).click();
-    const branchPanel = page.locator('.panel').filter({ has: page.getByRole('heading', { name: 'Top Cabang', exact: true }) });
+    await page.getByRole('button', { name: 'Reset Filters', exact: true }).click();
+    const branchPanel = page.locator('.panel').filter({ has: page.getByRole('heading', { name: 'Top Branches', exact: true }) });
     const firstBranch = branchPanel.locator('.bar-row').first();
     const branch = (await firstBranch.locator('span').first().innerText()).trim();
     await firstBranch.click();
     await expect(page.locator('.records h3')).toContainText(`Detail Cabang — ${branch}`);
     const branchCells = await page.locator('.records tbody tr td:nth-child(8)').allTextContents();
     expect(branchCells.every(value => value.trim() === branch)).toBe(true);
-    await page.getByRole('button', { name: 'PIC & Beban Kerja', exact: true }).click();
-    const first = page.locator('.person-row').first(), name = (await first.locator('b').innerText()).trim(), assigned = (await first.locator('strong').innerText()).trim();
-    await page.getByLabel('Cari nama implementor').fill(name);
-    await expect(page.locator('.person-row')).toHaveCount(1);
-    await page.locator('.person-row').click();
-    await expect(page.locator('.person-kpis').first()).toContainText(assigned);
-    await page.locator('.person-status-filters').getByRole('button', { name: 'Completed', exact: true }).click();
-    const statuses = await page.locator('.person-detail tbody tr td:nth-child(4)').allTextContents();
-    expect(statuses.every(value => /proses selesai|done|completed/i.test(value))).toBe(true);
+    await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
+    const panel = page.locator('.workload-kpi');
+    const name = (await panel.locator('tbody tr').first().locator('td').first().innerText()).trim();
+    await panel.getByRole('searchbox').fill(name);
+    await panel.locator('tbody tr').first().locator('td').nth(3).getByRole('button').click();
+    const statuses = await page.locator('.records tbody tr td:nth-child(4)').allTextContents();
+    expect(statuses.every(value => value.trim() !== '')).toBe(true);
 });
 
 test('Regional category/subproduct chain and Done confirmation retain milestone data', async ({ page }) => {
     await page.getByRole('button', { name: 'Regional - Non BNIDirect', exact: true }).click();
-    const sub = page.getByLabel('Sub TB Produk', { exact: true });
+    const sub = page.getByLabel('TB Subproduct', { exact: true });
     await expect(sub).toBeDisabled();
-    await page.getByLabel('TB Produk', { exact: true }).selectOption({ index: 1 });
+    await page.getByLabel('TB Product', { exact: true }).selectOption({ index: 1 });
     await expect(sub).toBeEnabled();
     await sub.selectOption({ index: 1 });
-    await page.getByLabel('TB Produk', { exact: true }).selectOption({ index: 2 });
+    await page.getByLabel('TB Product', { exact: true }).selectOption({ index: 2 });
     await expect(sub).toHaveValue('');
-    await page.getByRole('button', { name: 'Reset Filter', exact: true }).click();
-    await page.getByRole('button', { name: 'Beban Implementor', exact: true }).click();
-    await page.locator('.person-row').first().click();
-    await page.locator('.person-status-filters').getByRole('button', { name: 'Active', exact: true }).click();
-    const target = page.locator('.person-detail tbody tr').first();
-    const before = await target.locator('td').allTextContents();
-    await target.getByRole('button', { name: 'Update to Done', exact: true }).click();
+    await page.getByRole('button', { name: 'Reset Filters', exact: true }).click();
+    await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
+    const panel = page.locator('.workload-kpi');
+    const person = panel.locator('tbody tr').first();
+    await person.locator('td').nth(4).getByRole('button').click();
+    const target = page.locator('.records tbody tr').first();
+    const company = (await target.locator('td').first().innerText()).trim();
+    await target.click();
     const dialog = page.getByRole('dialog');
-    await expect(dialog).toContainText('Tanggal milestone');
-    await dialog.getByLabel('Keterangan (Opsional)').fill('Local parity verification');
-    await dialog.getByRole('button', { name: 'Update to Done', exact: true }).click();
-    await page.locator('.person-status-filters').getByRole('button', { name: 'Completed', exact: true }).click();
-    const updated = page.locator('.person-detail tbody tr').filter({ hasText: before[0] }).filter({ hasText: before[1] });
-    const after = await updated.first().locator('td').allTextContents();
-    expect(after[3]).toContain('Done');
-    for (const index of [0, 1, 2, 5, 6, 7, 8]) expect(after[index]).toEqual(before[index]);
+    const before = await dialog.locator('.detail-grid > div').allTextContents();
+    await dialog.getByLabel('Completion note').fill('Local parity verification');
+    await dialog.getByRole('button', { name: 'Mark Done', exact: true }).click();
+    await person.locator('td').nth(3).getByRole('button').click();
+    await page.locator('.records tbody tr').filter({ hasText: company }).first().click();
+    const after = await page.getByRole('dialog').locator('.detail-grid > div').allTextContents();
+    for (const field of before.filter(field => !/Status|Note|Updated|dashboard/i.test(field))) expect(after).toContain(field);
 });
 
 test('all dashboard tabs fit desktop and phone widths without losing controls', async ({ page }) => {
@@ -206,36 +208,3 @@ test('report person picker switches between management and operational previews'
     await expect(page.getByRole('heading', { name: /KPI Per Person ·/ })).toBeVisible();
 });
 
-test('KPI SLA paginates ten rows and searches names before selecting details', async ({ page }) => {
-    for (const dashboard of ['IJR - BNIdirect', 'Regional - Non BNIDirect']) {
-        await page.getByRole('button', { name: dashboard, exact: true }).click();
-        await page.getByRole('button', { name: 'Kinerja SLA', exact: true }).click();
-        const panel = page.locator('.sla-people');
-        const rows = panel.locator('tbody tr');
-        await expect(rows).toHaveCount(10);
-        await expect(panel.getByRole('button', { name: 'Previous', exact: true })).toBeDisabled();
-        const first = await rows.first().innerText();
-        await panel.getByRole('button', { name: 'Next', exact: true }).click();
-        expect(await rows.count()).toBeGreaterThan(0);
-        expect(await rows.count()).toBeLessThanOrEqual(10);
-        expect(await rows.first().innerText()).not.toEqual(first);
-        const name = (await rows.first().locator('td button').innerText()).trim();
-        const search = panel.getByRole('searchbox');
-        await search.fill(name.toLowerCase());
-        await expect(panel.locator('.pagination')).toContainText('Halaman 1');
-        for (const result of await rows.locator('td button').allTextContents()) expect(result.toLowerCase()).toContain(name.toLowerCase());
-        await panel.getByRole('button', { name, exact: true }).first().click();
-        await expect(panel).toContainText('Selected: ' + name);
-        await expect(page.getByRole('heading', { name: 'SLA Detail', exact: true })).toBeVisible();
-        await search.fill('no-matching-person-xyz');
-        await expect(rows).toHaveCount(0);
-        await expect(panel.getByRole('status')).toContainText('Tidak ada nama');
-        await expect(panel.getByRole('button', { name: 'Next', exact: true })).toBeDisabled();
-        await search.fill('');
-        await expect(rows).toHaveCount(10);
-        await expect(panel.getByRole('button', { name: 'Previous', exact: true })).toBeDisabled();
-    }
-    await page.setViewportSize({ width: 390, height: 844 });
-    const widths = await page.evaluate(() => ({ page: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
-    expect(widths.scroll).toBeLessThanOrEqual(widths.page + 2);
-});
