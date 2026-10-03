@@ -78,9 +78,9 @@ The local development preview is available only in Vite development mode with lo
 
 ## Vercel deployment
 
-The production application is deployed to `windyolivia01-7061s-projects` as `imp-project`, initially using Vercel Drop. The canonical code repository is now `Windu1204/Windy-Project`; connect this repository under the existing Vercel project Git settings to enable deployments from main. Production Vercel environment variables store the public Supabase URL/publishable key. Vercel production configuration overrides the public values included in the initial ignored `.env.production` deployment archive; the live Auth endpoint was checked against this configured project. No company fixtures are uploaded.
+The production application is deployed to `windyolivia01-7061s-projects` as `imp-project`, with `Windu1204/Windy-Project` connected to the existing Vercel project. Commits pushed to the production branch `main` trigger automatic deployments. The original deployment used Vercel Drop; the Git connection now provides subsequent deployments. Production Vercel environment variables store the public Supabase URL/publishable key. Vercel production configuration overrides the public values included in the initial ignored `.env.production` deployment archive; the live Auth endpoint was checked against this configured project. No company fixtures are uploaded.
 
-Import `Windu1204/Windy-Project` into workspace `windyolivia01-7061s-projects`, select Vite, and set the two public Supabase environment variables for production and preview. `vercel.json` defines `pnpm build`, `dist`, SPA routing and security headers. A linked Git repository supports subsequent deployments from main.
+For a fresh deployment, import `Windu1204/Windy-Project` into the intended Vercel workspace, select Vite, and set the two public Supabase environment variables for production and preview. The existing application is already linked; do not create another Vercel project for normal updates. `vercel.json` defines `pnpm build`, `dist`, SPA routing and security headers. A linked Git repository supports subsequent deployments from main.
 
 Production sign-in uses email/password and does not require an Auth redirect. If email confirmation/reset flows are enabled externally, configure Supabase Auth Site URL/allowed redirects to the actual deployment domain.
 
