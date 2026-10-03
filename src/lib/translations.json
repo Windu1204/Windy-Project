@@ -1,0 +1,1146 @@
+{
+  "Ringkasan": [
+    "Ringkasan",
+    "Overview"
+  ],
+  "Proses Implementasi": [
+    "Proses Implementasi",
+    "Implementation Process"
+  ],
+  "Wilayah": [
+    "Wilayah",
+    "Region"
+  ],
+  "Kinerja & Beban Kerja": [
+    "Kinerja & Beban Kerja",
+    "Performance & Workload"
+  ],
+  "Kinerja SLA": [
+    "Kinerja SLA",
+    "SLA Performance"
+  ],
+  "PIC & Implementor": [
+    "PIC & Implementor",
+    "PIC & Implementors"
+  ],
+  "Report": [
+    "Report",
+    "Report"
+  ],
+  "Data": [
+    "Data",
+    "Data"
+  ],
+  "KPI per Orang": [
+    "KPI per Orang",
+    "KPI per Person"
+  ],
+  "Nama": [
+    "Nama",
+    "Name"
+  ],
+  "Peran": [
+    "Peran",
+    "Role"
+  ],
+  "Total Pekerjaan": [
+    "Total Pekerjaan",
+    "Total Work"
+  ],
+  "Selesai": [
+    "Selesai",
+    "Completed"
+  ],
+  "Aktif": [
+    "Aktif",
+    "Active"
+  ],
+  "Terukur SLA": [
+    "Terukur SLA",
+    "SLA Measurable"
+  ],
+  "Within SLA": [
+    "Sesuai SLA",
+    "Within SLA"
+  ],
+  "Overdue": [
+    "Lewat SLA",
+    "Overdue"
+  ],
+  "Pencapaian SLA": [
+    "Pencapaian SLA",
+    "SLA Achievement"
+  ],
+  "SLA Achievement": [
+    "Pencapaian SLA",
+    "SLA Achievement"
+  ],
+  "Avg SLA Real": [
+    "Rata-rata Durasi SLA",
+    "Avg Actual SLA"
+  ],
+  "Cari nama PIC / Implementor": [
+    "Cari nama PIC / Implementor",
+    "Search PIC / Implementor name"
+  ],
+  "Ketik nama…": [
+    "Ketik nama…",
+    "Type a name…"
+  ],
+  "Klik angka untuk melihat pekerjaan sesuai orang, peran, dan kategori.": [
+    "Klik angka untuk melihat pekerjaan sesuai orang, peran, dan kategori.",
+    "Click a number to view work by person, role, and category."
+  ],
+  "Tidak ada nama yang cocok dengan pencarian.": [
+    "Tidak ada nama yang cocok dengan pencarian.",
+    "No names match your search."
+  ],
+  "Halaman KPI": [
+    "Halaman KPI",
+    "KPI pages"
+  ],
+  "Previous": [
+    "Sebelumnya",
+    "Previous"
+  ],
+  "Next": [
+    "Berikutnya",
+    "Next"
+  ],
+  "Halaman": [
+    "Halaman",
+    "Page"
+  ],
+  "dari": [
+    "dari",
+    "of"
+  ],
+  "0 hasil": [
+    "0 hasil",
+    "0 results"
+  ],
+  "hari": [
+    "hari",
+    "days"
+  ],
+  "Tutup detail KPI": [
+    "Tutup detail KPI",
+    "Close KPI details"
+  ],
+  "Durasi Penyelesaian": [
+    "Durasi Penyelesaian",
+    "Completion Duration"
+  ],
+  "Rincian Durasi Cabang & TBS": [
+    "Rincian Durasi Cabang & TBS",
+    "Branch & TBS Duration Breakdown"
+  ],
+  "Durasi di Cabang": [
+    "Durasi di Cabang",
+    "Branch Duration"
+  ],
+  "Durasi di TBS": [
+    "Durasi di TBS",
+    "TBS Duration"
+  ],
+  "Same Day": [
+    "Hari yang Sama",
+    "Same Day"
+  ],
+  "1 Hari": [
+    "1 Hari",
+    "1 Day"
+  ],
+  "2 Hari": [
+    "2 Hari",
+    "2 Days"
+  ],
+  ">2 Hari": [
+    ">2 Hari",
+    ">2 Days"
+  ],
+  "Total Records": [
+    "Total Data",
+    "Total Records"
+  ],
+  "Records": [
+    "Data",
+    "Records"
+  ],
+  "RECORDS": [
+    "DATA",
+    "RECORDS"
+  ],
+  "Record sesuai filter aktif": [
+    "Data sesuai filter aktif",
+    "Records matching active filters"
+  ],
+  "Proses Selesai": [
+    "Proses Selesai",
+    "Completed"
+  ],
+  "Dalam Proses": [
+    "Dalam Proses",
+    "In Progress"
+  ],
+  "Waiting Status": [
+    "Menunggu",
+    "Waiting"
+  ],
+  "Need Amendment": [
+    "Perlu Perbaikan",
+    "Needs Amendment"
+  ],
+  "Done": [
+    "Selesai",
+    "Done"
+  ],
+  "Completed": [
+    "Selesai",
+    "Completed"
+  ],
+  "In Progress": [
+    "Dalam Proses",
+    "In Progress"
+  ],
+  "Pending Doc": [
+    "Menunggu Dokumen",
+    "Pending Documents"
+  ],
+  "Reject": [
+    "Ditolak",
+    "Rejected"
+  ],
+  "On Progress": [
+    "Dalam Proses",
+    "On Progress"
+  ],
+  "Pending Task": [
+    "Pekerjaan Tertunda",
+    "Pending Task"
+  ],
+  "Retur": [
+    "Dikembalikan",
+    "Returned"
+  ],
+  "Without SLA": [
+    "Tanpa SLA",
+    "Without SLA"
+  ],
+  "SLA Real Unavailable": [
+    "Durasi SLA Belum Tersedia",
+    "Actual SLA Unavailable"
+  ],
+  "Within SLA / Measurable": [
+    "Sesuai SLA / Terukur",
+    "Within SLA / Measurable"
+  ],
+  "SLA real > target": [
+    "Durasi SLA > target",
+    "Actual SLA > target"
+  ],
+  "SLA real ≤ target": [
+    "Durasi SLA ≤ target",
+    "Actual SLA ≤ target"
+  ],
+  "Belum memiliki target berlaku": [
+    "Belum memiliki target berlaku",
+    "No applicable target yet"
+  ],
+  "Rata-rata record measurable": [
+    "Rata-rata data terukur",
+    "Average of measurable records"
+  ],
+  "Target ada, real belum tersedia": [
+    "Target ada, durasi belum tersedia",
+    "Target exists; actual duration unavailable"
+  ],
+  "Avg Overdue": [
+    "Rata-rata Keterlambatan",
+    "Avg Overdue"
+  ],
+  "Rata-rata hari di atas target": [
+    "Rata-rata hari di atas target",
+    "Average days beyond target"
+  ],
+  "Search": [
+    "Pencarian",
+    "Search"
+  ],
+  "Cari data": [
+    "Cari data",
+    "Search records"
+  ],
+  "Semua": [
+    "Semua",
+    "All"
+  ],
+  "Application Type": [
+    "Jenis Permohonan",
+    "Application Type"
+  ],
+  "Flow Process": [
+    "Tahapan Proses",
+    "Process Stage"
+  ],
+  "Request Period": [
+    "Periode Permohonan",
+    "Request Period"
+  ],
+  "All Period": [
+    "Semua Periode",
+    "All Period"
+  ],
+  "Custom Date": [
+    "Rentang Tanggal",
+    "Custom Dates"
+  ],
+  "Start Date": [
+    "Tanggal Mulai",
+    "Start Date"
+  ],
+  "End Date": [
+    "Tanggal Akhir",
+    "End Date"
+  ],
+  "Cancel": [
+    "Batal",
+    "Cancel"
+  ],
+  "Apply": [
+    "Terapkan",
+    "Apply"
+  ],
+  "Reset Filter": [
+    "Reset Filter",
+    "Reset Filters"
+  ],
+  "Previous month": [
+    "Bulan sebelumnya",
+    "Previous month"
+  ],
+  "Next month": [
+    "Bulan berikutnya",
+    "Next month"
+  ],
+  "Semua Implementor": [
+    "Semua Implementor",
+    "All Implementors"
+  ],
+  "Company, CID, produk, implementor...": [
+    "Perusahaan, CID, produk, implementor...",
+    "Company, CID, product, implementor..."
+  ],
+  "Application no, applicant, PIC...": [
+    "Nomor permohonan, pemohon, PIC...",
+    "Application no, applicant, PIC..."
+  ],
+  "New / Maintenance": [
+    "Baru / Maintenance",
+    "New / Maintenance"
+  ],
+  "New / Maintenance / Renewal": [
+    "Baru / Maintenance / Renewal",
+    "New / Maintenance / Renewal"
+  ],
+  "Product": [
+    "Produk",
+    "Product"
+  ],
+  "Sub Product": [
+    "Sub Produk",
+    "Sub Product"
+  ],
+  "TB Produk": [
+    "TB Produk",
+    "TB Product"
+  ],
+  "Sub TB Produk": [
+    "Sub TB Produk",
+    "TB Subproduct"
+  ],
+  "Project Type": [
+    "Jenis Proyek",
+    "Project Type"
+  ],
+  "Segment": [
+    "Segmen",
+    "Segment"
+  ],
+  "SLA Status": [
+    "Status SLA",
+    "SLA Status"
+  ],
+  "Status Application": [
+    "Status Permohonan",
+    "Application Status"
+  ],
+  "Status Implementasi": [
+    "Status Implementasi",
+    "Implementation Status"
+  ],
+  "Status Distribution": [
+    "Distribusi Status",
+    "Status Distribution"
+  ],
+  "Milestone Availability": [
+    "Kelengkapan Milestone",
+    "Milestone Availability"
+  ],
+  "Status dalam Process View": [
+    "Status Proses",
+    "Process Status"
+  ],
+  "Top Wilayah": [
+    "Wilayah Terbanyak",
+    "Top Regions"
+  ],
+  "Top Cabang": [
+    "Cabang Terbanyak",
+    "Top Branches"
+  ],
+  "Top Unit Pembuka": [
+    "Unit Pembuka Terbanyak",
+    "Top Opening Units"
+  ],
+  "Records by Wilayah": [
+    "Data per Wilayah",
+    "Records by Region"
+  ],
+  "Volume by Wilayah": [
+    "Volume per Wilayah",
+    "Volume by Region"
+  ],
+  "Done by Wilayah": [
+    "Selesai per Wilayah",
+    "Completed by Region"
+  ],
+  "Implementor Workload": [
+    "Beban Kerja Implementor",
+    "Implementor Workload"
+  ],
+  "Top Implementor 1": [
+    "Beban Kerja Implementor 1",
+    "Implementor 1 Workload"
+  ],
+  "Top Implementor 2": [
+    "Beban Kerja Implementor 2",
+    "Implementor 2 Workload"
+  ],
+  "Done by Implementor": [
+    "Selesai per Implementor",
+    "Completed by Implementor"
+  ],
+  "Request Trend": [
+    "Tren Permohonan",
+    "Request Trend"
+  ],
+  "New Project": [
+    "Proyek Baru",
+    "New Project"
+  ],
+  "Top TB Produk": [
+    "TB Produk Terbanyak",
+    "Top TB Products"
+  ],
+  "Top Products": [
+    "Produk Terbanyak",
+    "Top Products"
+  ],
+  "Volume by Segment": [
+    "Volume per Segmen",
+    "Volume by Segment"
+  ],
+  "SLA Performance": [
+    "Kinerja SLA",
+    "SLA Performance"
+  ],
+  "Kategori Produk": [
+    "Kategori Produk",
+    "Product Categories"
+  ],
+  "Sub Produk": [
+    "Sub Produk",
+    "Subproducts"
+  ],
+  "Overdue by SLA Solution": [
+    "Keterlambatan per Solusi SLA",
+    "Overdue by SLA Solution"
+  ],
+  "Overdue Severity": [
+    "Tingkat Keterlambatan",
+    "Overdue Severity"
+  ],
+  "Overdue by Flow Process": [
+    "Keterlambatan per Tahapan",
+    "Overdue by Process Stage"
+  ],
+  "Overdue by Wilayah": [
+    "Keterlambatan per Wilayah",
+    "Overdue by Region"
+  ],
+  "Overdue by TB Produk": [
+    "Keterlambatan per TB Produk",
+    "Overdue by TB Product"
+  ],
+  "Overdue by Implementor": [
+    "Keterlambatan per Implementor",
+    "Overdue by Implementor"
+  ],
+  "SLA Achievement by Segment": [
+    "Pencapaian SLA per Segmen",
+    "SLA Achievement by Segment"
+  ],
+  "SLA Achievement by Application Type": [
+    "Pencapaian SLA per Jenis Permohonan",
+    "SLA Achievement by Application Type"
+  ],
+  "SLA Achievement by TB Produk (Top 10)": [
+    "Pencapaian SLA per TB Produk (10 Teratas)",
+    "SLA Achievement by TB Product (Top 10)"
+  ],
+  "Wilayah Need Attention (Lowest SLA)": [
+    "Wilayah Perlu Perhatian (SLA Terendah)",
+    "Regions Needing Attention (Lowest SLA)"
+  ],
+  "Top 5 Wilayah Terbaik (Highest SLA)": [
+    "5 Wilayah Terbaik (SLA Tertinggi)",
+    "Top 5 Regions (Highest SLA)"
+  ],
+  "Official SLA Target Reference": [
+    "Referensi Target SLA",
+    "Official SLA Target Reference"
+  ],
+  "Solution": [
+    "Solusi",
+    "Solution"
+  ],
+  "working days": [
+    "hari kerja",
+    "working days"
+  ],
+  "SLA Detail": [
+    "Detail SLA",
+    "SLA Details"
+  ],
+  "Detail": [
+    "Detail",
+    "Details"
+  ],
+  "Application Detail": [
+    "Detail Permohonan",
+    "Application Details"
+  ],
+  "Implementation Detail": [
+    "Detail Implementasi",
+    "Implementation Details"
+  ],
+  "Corporate Application Detail": [
+    "Detail Permohonan Corporate",
+    "Corporate Application Details"
+  ],
+  "Application Number": [
+    "Nomor Permohonan",
+    "Application Number"
+  ],
+  "Applicant Name": [
+    "Nama Pemohon",
+    "Applicant Name"
+  ],
+  "Applicant": [
+    "Pemohon",
+    "Applicant"
+  ],
+  "Type": [
+    "Jenis",
+    "Type"
+  ],
+  "Flow": [
+    "Tahapan",
+    "Stage"
+  ],
+  "Request Date": [
+    "Tanggal Permohonan",
+    "Request Date"
+  ],
+  "Cabang": [
+    "Cabang",
+    "Branch"
+  ],
+  "Company": [
+    "Perusahaan",
+    "Company"
+  ],
+  "New/Maintenance": [
+    "Baru/Maintenance",
+    "New/Maintenance"
+  ],
+  "Total Day": [
+    "Durasi Total",
+    "Total Days"
+  ],
+  "Total Day Cabang": [
+    "Durasi Cabang",
+    "Branch Days"
+  ],
+  "Total Day TBS": [
+    "Durasi TBS",
+    "TBS Days"
+  ],
+  "Dokumen Lengkap": [
+    "Dokumen Lengkap",
+    "Complete Documents"
+  ],
+  "Selesai Setting": [
+    "Selesai Setting",
+    "Setting Completed"
+  ],
+  "Info Nasabah": [
+    "Info Nasabah",
+    "Customer Information"
+  ],
+  "SLA Target": [
+    "Target SLA",
+    "SLA Target"
+  ],
+  "SLA Real": [
+    "Durasi SLA Aktual",
+    "Actual SLA"
+  ],
+  "Over By": [
+    "Hari Keterlambatan",
+    "Days Overdue"
+  ],
+  "Status Onboard": [
+    "Status Onboarding",
+    "Onboarding Status"
+  ],
+  "Create Date": [
+    "Tanggal Dibuat",
+    "Created Date"
+  ],
+  "Tidak ada data.": [
+    "Tidak ada data.",
+    "No data available."
+  ],
+  "Tidak ada tanggal valid.": [
+    "Tidak ada tanggal valid.",
+    "No valid dates."
+  ],
+  "Tidak ada data yang sesuai dengan filter.": [
+    "Tidak ada data yang sesuai dengan filter.",
+    "No records match the filters."
+  ],
+  "Baris": [
+    "Baris",
+    "Rows"
+  ],
+  "Baris per halaman": [
+    "Baris per halaman",
+    "Rows per page"
+  ],
+  "Halaman sebelumnya": [
+    "Halaman sebelumnya",
+    "Previous page"
+  ],
+  "Halaman berikutnya": [
+    "Halaman berikutnya",
+    "Next page"
+  ],
+  "Detail record": [
+    "Detail data",
+    "Record details"
+  ],
+  "DETAIL RECORD": [
+    "DETAIL DATA",
+    "RECORD DETAILS"
+  ],
+  "Tutup detail": [
+    "Tutup detail",
+    "Close details"
+  ],
+  "Keterangan penyelesaian": [
+    "Keterangan penyelesaian",
+    "Completion note"
+  ],
+  "Menyimpan…": [
+    "Menyimpan…",
+    "Saving…"
+  ],
+  "Tandai Done": [
+    "Tandai Selesai",
+    "Mark Done"
+  ],
+  "Memuat workspace…": [
+    "Memuat workspace…",
+    "Loading workspace…"
+  ],
+  "Memuat data…": [
+    "Memuat data…",
+    "Loading data…"
+  ],
+  "Memuat tampilan…": [
+    "Memuat tampilan…",
+    "Loading view…"
+  ],
+  "Corporate, Area, dan IJR Monitoring": [
+    "Corporate, Area, dan IJR Monitoring",
+    "Corporate, Area, and IJR Monitoring"
+  ],
+  "Pilih dashboard": [
+    "Pilih dashboard",
+    "Choose dashboard"
+  ],
+  "Unified corporate monitoring": [
+    "Monitoring corporate terpadu",
+    "Unified corporate monitoring"
+  ],
+  "Pantau request, implementasi, dan pencapaian SLA.": [
+    "Pantau permohonan, implementasi, dan pencapaian SLA.",
+    "Monitor requests, implementation, and SLA achievement."
+  ],
+  "Refresh data": [
+    "Muat ulang data",
+    "Refresh data"
+  ],
+  "Logout": [
+    "Keluar",
+    "Logout"
+  ],
+  "Profile": [
+    "Profil",
+    "Profile"
+  ],
+  "Nama tampilan": [
+    "Nama tampilan",
+    "Display name"
+  ],
+  "Simpan profile": [
+    "Simpan profil",
+    "Save profile"
+  ],
+  "Tutup": [
+    "Tutup",
+    "Close"
+  ],
+  "Coba lagi": [
+    "Coba lagi",
+    "Retry"
+  ],
+  "Preview lokal · perubahan hanya berlaku selama sesi ini. Data bersama menggunakan Supabase setelah sign-in.": [
+    "Preview lokal · perubahan hanya berlaku selama sesi ini. Data bersama menggunakan Supabase setelah sign-in.",
+    "Local preview · changes apply only to this session. Shared data uses Supabase after sign-in."
+  ],
+  "Komposisi status pada filter aktif.": [
+    "Komposisi status pada filter aktif.",
+    "Status distribution for active filters."
+  ],
+  "Distribusi jenis pekerjaan.": [
+    "Distribusi jenis pekerjaan.",
+    "Work type distribution."
+  ],
+  "Jumlah source rows per Request Date.": [
+    "Jumlah data per tanggal permohonan.",
+    "Record count per request date."
+  ],
+  "Klik bar untuk memfilter record": [
+    "Klik bar untuk memfilter data",
+    "Click a bar to filter records"
+  ],
+  "measurable": [
+    "terukur",
+    "measurable"
+  ],
+  "Hanya record effective-period dengan SLA target dan SLA Real numerik.": [
+    "Hanya data periode efektif dengan target dan durasi SLA numerik.",
+    "Only effective-period records with numeric SLA targets and actual durations."
+  ],
+  "Acuan SLA: Memo PEMP/005, efektif 14 Juli 2025. Achievement = Within SLA / (Within SLA + Overdue). Record Without SLA dan SLA Real Unavailable dikecualikan.": [
+    "Acuan SLA: Memo PEMP/005, efektif 14 Juli 2025. Pencapaian = Sesuai SLA / (Sesuai SLA + Lewat SLA). Data tanpa SLA atau durasi SLA tidak tersedia dikecualikan.",
+    "SLA reference: Memo PEMP/005, effective 14 July 2025. Achievement = Within SLA / (Within SLA + Overdue). Records without SLA or unavailable actual SLA are excluded."
+  ],
+  "KPI Per Person": [
+    "KPI per Orang",
+    "KPI per Person"
+  ],
+  "Klik nama untuk melihat KPI dan pekerjaan yang sedang ditangani.": [
+    "Klik nama untuk melihat KPI dan pekerjaan yang sedang ditangani.",
+    "Click a name to view KPI and assigned work."
+  ],
+  "Cari implementor": [
+    "Cari implementor",
+    "Search implementor"
+  ],
+  "Cari nama implementor": [
+    "Cari nama implementor",
+    "Search implementor name"
+  ],
+  "Cari nama implementor...": [
+    "Cari nama implementor...",
+    "Search implementor name..."
+  ],
+  "Nama implementor tidak ditemukan.": [
+    "Nama implementor tidak ditemukan.",
+    "Implementor name not found."
+  ],
+  "Pilih nama implementor untuk melihat KPI dan detail khusus orang tersebut.": [
+    "Pilih nama implementor untuk melihat KPI dan detail khusus orang tersebut.",
+    "Select an implementor to view their KPI and work details."
+  ],
+  "Viewing:": [
+    "Melihat:",
+    "Viewing:"
+  ],
+  "pada filter dashboard aktif": [
+    "pada filter dashboard aktif",
+    "under active dashboard filters"
+  ],
+  "assigned records": [
+    "pekerjaan",
+    "assigned records"
+  ],
+  "Assigned Records": [
+    "Total Pekerjaan",
+    "Assigned Records"
+  ],
+  "Active Work": [
+    "Pekerjaan Aktif",
+    "Active Work"
+  ],
+  "Waiting / Pending": [
+    "Menunggu / Tertunda",
+    "Waiting / Pending"
+  ],
+  "Avg Process Day": [
+    "Rata-rata Durasi Proses",
+    "Avg Process Days"
+  ],
+  "All Assigned Records ·": [
+    "Seluruh Pekerjaan ·",
+    "All Assigned Records ·"
+  ],
+  "All Status": [
+    "Semua Status",
+    "All Statuses"
+  ],
+  "Active": [
+    "Aktif",
+    "Active"
+  ],
+  "Work Category": [
+    "Kategori Pekerjaan",
+    "Work Category"
+  ],
+  "Process Day": [
+    "Durasi Proses",
+    "Process Days"
+  ],
+  "Update to Done": [
+    "Tandai Selesai",
+    "Update to Done"
+  ],
+  "Updated via Dashboard": [
+    "Diperbarui melalui Dashboard",
+    "Updated via Dashboard"
+  ],
+  "Tidak ada record untuk status ini pada filter saat ini.": [
+    "Tidak ada data untuk status ini pada filter saat ini.",
+    "No records for this status under active filters."
+  ],
+  "Upload Data Dashboard": [
+    "Upload Data Dashboard",
+    "Upload Dashboard Data"
+  ],
+  "Pilih sheet, periksa hasil validasi, lalu terapkan dataset secara utuh.": [
+    "Pilih sheet, periksa hasil validasi, lalu terapkan dataset secara utuh.",
+    "Choose a sheet, review validation, then apply the complete dataset."
+  ],
+  "Drop file Excel di sini": [
+    "Letakkan file Excel di sini",
+    "Drop an Excel file here"
+  ],
+  "Pilih file": [
+    "Pilih file",
+    "Choose file"
+  ],
+  "Export CSV": [
+    "Ekspor CSV",
+    "Export CSV"
+  ],
+  "Export Excel": [
+    "Ekspor Excel",
+    "Export Excel"
+  ],
+  "Pulihkan dataset asli": [
+    "Pulihkan dataset asli",
+    "Restore original dataset"
+  ],
+  "Dataset aktif akan diganti dengan dataset asli. Riwayat import tetap tersimpan.": [
+    "Dataset aktif akan diganti dengan dataset asli. Riwayat import tetap tersimpan.",
+    "The active dataset will be replaced with the original. Import history is retained."
+  ],
+  "Pulihkan sekarang": [
+    "Pulihkan sekarang",
+    "Restore now"
+  ],
+  "Batal": [
+    "Batal",
+    "Cancel"
+  ],
+  "Perlu Revisi (": [
+    "Perlu Revisi (",
+    "Needs Revision ("
+  ],
+  "Alasan": [
+    "Alasan",
+    "Reason"
+  ],
+  "Download revisi": [
+    "Unduh revisi",
+    "Download revisions"
+  ],
+  "Data Quality": [
+    "Kualitas Data",
+    "Data Quality"
+  ],
+  "Indikator dataset yang sedang digunakan dashboard; terpisah dari validasi file upload.": [
+    "Indikator dataset yang sedang digunakan dashboard; terpisah dari validasi file upload.",
+    "Indicators for the active dataset, separate from upload validation."
+  ],
+  "Custom SLA Setting": [
+    "Pengaturan SLA Tambahan",
+    "Custom SLA Settings"
+  ],
+  "Target tambahan untuk produk yang belum memiliki mapping pada memo.": [
+    "Target tambahan untuk produk yang belum memiliki mapping pada memo.",
+    "Additional targets for products not mapped in the memo."
+  ],
+  "Product / Pengajuan": [
+    "Produk / Pengajuan",
+    "Product / Request"
+  ],
+  "Nama solusi": [
+    "Nama solusi",
+    "Solution name"
+  ],
+  "Aliases (pisahkan koma)": [
+    "Alias (pisahkan koma)",
+    "Aliases (comma-separated)"
+  ],
+  "New Project (hari)": [
+    "Proyek Baru (hari)",
+    "New Project (days)"
+  ],
+  "Maintenance (hari)": [
+    "Maintenance (hari)",
+    "Maintenance (days)"
+  ],
+  "Simpan Custom SLA": [
+    "Simpan SLA Tambahan",
+    "Save Custom SLA"
+  ],
+  "Produk": [
+    "Produk",
+    "Product"
+  ],
+  "Hapus": [
+    "Hapus",
+    "Delete"
+  ],
+  "Request volume by date": [
+    "Volume permohonan per tanggal",
+    "Request volume by date"
+  ],
+  "% dari total records": [
+    "% dari total data",
+    "% of total records"
+  ],
+  "records · klik detail untuk melihat seluruh informasi": [
+    " data · klik detail untuk melihat seluruh informasi",
+    " records · click details to view all information"
+  ],
+  "Corporate, Area, dan IJR Monitoring ·": [
+    "Corporate, Area, dan IJR Monitoring · ",
+    "Corporate, Area, and IJR Monitoring · "
+  ],
+  "records · Memo SLA efektif 14 Juli 2025": [
+    " data · Memo SLA efektif 14 Juli 2025",
+    " records · SLA Memo effective 14 July 2025"
+  ],
+  "atau klik Pilih file · .xlsx, .xls, .csv · Header dapat berada di 100 baris pertama": [
+    "atau klik Pilih file · .xlsx, .xls, .csv · Header dapat berada di 100 baris pertama",
+    "or click Choose file · .xlsx, .xls, .csv · Headers may be in the first 100 rows"
+  ],
+  "Duplicate ID dipertahankan seperti pada aplikasi asli. Baris dengan field wajib kosong atau tanggal tidak valid tidak diterapkan.": [
+    "Duplicate ID dipertahankan seperti pada aplikasi asli. Baris dengan field wajib kosong atau tanggal tidak valid tidak diterapkan.",
+    "Duplicate IDs are retained as in the original app. Rows with missing required fields or invalid dates are not applied."
+  ],
+  "Target SLA berasal dari Memo SLA. Record tanpa SLA yang berlaku atau sebelum periode efektif ditampilkan sebagai Without SLA dan dikecualikan dari denominator SLA Achievement.": [
+    "Target SLA berasal dari Memo SLA. Data tanpa SLA yang berlaku atau sebelum periode efektif dikecualikan dari dasar pencapaian SLA.",
+    "SLA targets come from the SLA Memo. Records without an applicable SLA or before the effective period are excluded from SLA achievement."
+  ],
+  "Jumlah wilayah pada filter aktif": [
+    "Jumlah wilayah pada filter aktif",
+    "Number of regions under active filters"
+  ],
+  "Jumlah cabang pada filter aktif": [
+    "Jumlah cabang pada filter aktif",
+    "Number of branches under active filters"
+  ],
+  "Jumlah unit pembuka pada filter aktif": [
+    "Jumlah unit pembuka pada filter aktif",
+    "Number of opening units under active filters"
+  ],
+  "Jumlah pada filter aktif": [
+    "Jumlah pada filter aktif",
+    "Count under active filters"
+  ],
+  "Preview 20 record ·": [
+    "Preview 20 data · ",
+    "Preview 20 records · "
+  ],
+  "Unit Pembuka": [
+    "Unit Pembuka",
+    "Opening Unit"
+  ],
+  "Format Report": [
+    "Format Report",
+    "Report Format"
+  ],
+  "Report Content": [
+    "Isi Report",
+    "Report Content"
+  ],
+  "Report Principle:": [
+    "Prinsip Report:",
+    "Report Principle:"
+  ],
+  "Generate Report": [
+    "Buat Report",
+    "Generate Report"
+  ],
+  "Membuat report…": [
+    "Membuat report…",
+    "Generating report…"
+  ],
+  "Custom Report": [
+    "Custom Report",
+    "Custom Report"
+  ],
+  "Generate report dari data dashboard dalam format PowerPoint atau Word.": [
+    "Buat report dari data dashboard dalam format PowerPoint atau Word.",
+    "Generate a report from dashboard data in PowerPoint or Word format."
+  ],
+  "Pilih": [
+    "Pilih ",
+    "Choose "
+  ],
+  "untuk seluruh PIC / Implementor, atau ketik nama untuk mencari.": [
+    " untuk seluruh PIC / Implementor, atau ketik nama untuk mencari.",
+    " for all PIC / Implementors, or type a name to search."
+  ],
+  "KPI, breakdown, dan detail dihitung dari dataset report yang sama. All Name menggunakan Management Summary dan KPI seluruh implementor; satu nama menggunakan report individual dengan Operational Detail.": [
+    " KPI, rincian, dan detail dihitung dari dataset report yang sama. All Name menggunakan ringkasan manajemen dan KPI seluruh implementor; satu nama menggunakan report individual dengan detail operasional.",
+    " KPI, breakdowns, and details use the same report dataset. All Name uses the management summary and all implementors' KPI; a single name uses an individual report with operational details."
+  ],
+  "Report siap diunduh.": [
+    "Report siap diunduh.",
+    "Report ready to download."
+  ],
+  "Report gagal.": [
+    "Report gagal.",
+    "Report generation failed."
+  ],
+  "Interpretation Rules": [
+    "Aturan Interpretasi",
+    "Interpretation Rules"
+  ],
+  "SLA Data Treatment": [
+    "Perlakuan Data SLA",
+    "SLA Data Treatment"
+  ],
+  "Blank/null tidak dihitung sebagai kategori. Nilai 0 Hari diperlakukan sebagai Same Day. Nilai null Hari tidak dihitung sebagai aging.": [
+    "Blank/null tidak dihitung sebagai kategori. Nilai 0 Hari diperlakukan sebagai Same Day. Nilai null Hari tidak dihitung sebagai aging.",
+    "Blank/null values are not counted as categories. Zero days are treated as Same Day. Null days are excluded from aging."
+  ],
+  "Blank/null, Belum Tanggal, placeholder DD/MM/YYYY, dan #VALUE! tidak dimasukkan sebagai kategori atau tanggal valid.": [
+    "Blank/null, Belum Tanggal, placeholder DD/MM/YYYY, dan #VALUE! tidak dimasukkan sebagai kategori atau tanggal valid.",
+    "Blank/null, missing dates, DD/MM/YYYY placeholders, and #VALUE! are excluded from valid categories or dates."
+  ],
+  "Missing Company": [
+    "Perusahaan Kosong",
+    "Missing Company"
+  ],
+  "Missing Region": [
+    "Wilayah Kosong",
+    "Missing Region"
+  ],
+  "Missing Product": [
+    "Produk Kosong",
+    "Missing Product"
+  ],
+  "Missing Implementor": [
+    "Implementor Kosong",
+    "Missing Implementor"
+  ],
+  "Blank product": [
+    "Produk Kosong",
+    "Blank product"
+  ],
+  "Blank Implementor 1": [
+    "Implementor 1 Kosong",
+    "Blank Implementor 1"
+  ],
+  "Blank Implementor 2": [
+    "Implementor 2 Kosong",
+    "Blank Implementor 2"
+  ],
+  "Missing / null Total Day": [
+    "Durasi Total Kosong",
+    "Missing / null Total Day"
+  ],
+  "Additional duplicate occurrences": [
+    "Kemunculan Duplikat Tambahan",
+    "Additional duplicate occurrences"
+  ],
+  "Source": [
+    "Sumber",
+    "Source"
+  ],
+  "Success": [
+    "Berhasil",
+    "Success"
+  ],
+  "Perlu Revisi": [
+    "Perlu Revisi",
+    "Needs Revision"
+  ],
+  "Duplicate ID": [
+    "ID Duplikat",
+    "Duplicate ID"
+  ],
+  "Invalid Date": [
+    "Tanggal Tidak Valid",
+    "Invalid Date"
+  ],
+  "Preview lokal": [
+    "Preview lokal",
+    "Local preview"
+  ],
+  "Menunggu akses": [
+    "Menunggu akses",
+    "Awaiting access"
+  ],
+  "New": [
+    "Baru",
+    "New"
+  ],
+  "Aliases": [
+    "Alias",
+    "Aliases"
+  ],
+  "Edit": [
+    "Edit",
+    "Edit"
+  ]
+}
