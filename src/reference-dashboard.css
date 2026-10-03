@@ -35,3 +35,57 @@
 @media(max-width:1250px){.primary-filters,.filter-regional,.filter-corporate{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:760px){.primary-filters,.filter-regional,.filter-corporate{grid-template-columns:1fr 1fr}.calendar-pair{grid-template-columns:1fr}.calendar-pair>.period-calendar:last-child{display:none}.period-popover{left:auto;right:0;width:85vw}}
 @media(max-width:760px){.app-shell{display:block!important;height:auto!important}.sidebar{height:auto;position:relative}.sidebar nav{flex-direction:row;flex-wrap:wrap}.sidebar .nav{flex:1;min-width:130px;min-height:48px!important;margin:3px!important}.sidebar .side-building,.sidebar .side-wave,.sidebar .foot{display:none!important}.app-shell>.main{height:auto!important;overflow:visible}.dashboard-content{padding:14px 13px 24px}.topbar{position:relative;padding:15px 13px}.topbar h2{font-size:18px}.grid-three,.grid-two{grid-template-columns:1fr}.grid-three>.panel:last-child{grid-column:auto}.filters{grid-template-columns:1fr 1fr}.kpis,.dash-corporate .kpis{grid-template-columns:1fr 1fr}.report-fields,.report-contents{grid-template-columns:1fr}.sidebar .brand{padding-bottom:10px!important}.sidebar .brand b{font-size:16px!important;max-width:none!important}.sidebar .bni-logo{margin-bottom:8px!important}.report-shell .panel{padding:15px}}
+
+/* Readability polish: preserve v78 branding, dashboard order and all functional behavior. */
+.dashboard-content{line-height:1.5}
+.dashboard-content .panel-head h3{font-size:14px;line-height:1.4}
+.dashboard-content .panel-head p{font-size:11px;color:#61748c;line-height:1.55}
+.dashboard-content .kpi small{font-size:12px;color:#526b86;line-height:1.4}
+.dashboard-content .kpi span{font-size:11px;color:#61748c;line-height:1.5}
+.dashboard-content .kpi strong,.dashboard-content .donut strong,.dashboard-content .bar-row b,.dashboard-content td,.report-preview-kpis b{font-variant-numeric:tabular-nums}
+.dashboard-content .kpi strong{font-size:28px;letter-spacing:-.025em}
+.dashboard-content .kpi{padding:16px;gap:7px;min-height:138px}
+.dashboard-content .panel{padding:17px}
+.dashboard-content .tabs button{font-size:12px;min-height:40px}
+.primary-filters label,.filter-label,.filters label{font-size:11px;color:#52657e;line-height:1.4}
+.primary-filters input,.primary-filters select,.period-trigger,.filters input,.filters select{font-size:12px;min-height:40px;height:40px}
+.primary-filters{grid-template-columns:minmax(140px,1.45fr) minmax(140px,1.4fr) repeat(4,minmax(95px,1fr)) auto}
+.filter-regional,.filter-corporate{grid-template-columns:minmax(140px,1.45fr) minmax(140px,1.4fr) repeat(6,minmax(85px,1fr)) auto}
+.advanced-filters{font-size:12px}.advanced-filters summary{padding:5px 0;width:fit-content}
+.dashboard-content .bar-row{font-size:11px;min-height:32px}.dashboard-content .bar-row b{font-size:11px}
+.dashboard-content .bar-row>span:first-child{color:#526b86}
+.dashboard-content .legend button,.dashboard-content .legend b{font-size:11px;min-height:30px}
+.dashboard-content .legend span{color:#526b86}.dashboard-content .legend small{font-size:10px;color:#61748c}
+.dashboard-content .donut small{font-size:9px;color:#61748c}
+.dashboard-content table{font-size:12px}.dashboard-content th,.dashboard-content td b{font-size:11px}
+.dashboard-content th{color:#52657e}.dashboard-content td{padding:12px;vertical-align:top}
+.dashboard-content .table-heading small,.dashboard-content .pagination{font-size:11px;color:#61748c}
+.dashboard-content .badge,.dashboard-content .chips button{font-size:10px}
+.dashboard-content .primary,.dashboard-content .secondary,.dashboard-content .text-button{font-size:12px;min-height:40px}
+.dashboard-content .achievement-list small,.dashboard-content .achievement-list span{font-size:11px}
+.dashboard-content .report-sub,.dashboard-content .report-people,.dashboard-content .report-principle{font-size:12px}
+.dashboard-content button{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
+.dashboard-content button:focus-visible,.sidebar button:focus-visible{outline:3px solid #f26b21;outline-offset:3px}
+.dashboard-content .kpi:hover{border-color:#bfd8fb;box-shadow:0 8px 24px #11274b14}
+.table-scroll{max-width:100%;overscroll-behavior-x:contain}
+.sidebar{height:100dvh}.app-shell>.main{height:100dvh}
+@media(max-width:1450px){.primary-filters,.filter-regional,.filter-corporate{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:760px){
+ .sidebar,.app-shell>.main{height:auto}
+ .topbar{flex-wrap:wrap;gap:12px}.topbar h2{font-size:19px;line-height:1.4}
+ .header-actions{flex-wrap:wrap;gap:8px}.header-actions .icon-button{width:44px;height:44px}
+ .dashboard-content .tabs{gap:6px}.dashboard-content .tabs button{min-height:44px;padding:10px 12px}
+ .primary-filters,.filter-regional,.filter-corporate{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .primary-filters input,.primary-filters select,.period-trigger,.filters input,.filters select{min-height:44px;height:44px;font-size:16px}
+ .dashboard-content .primary,.dashboard-content .secondary,.dashboard-content .text-button{min-height:44px}
+ .dashboard-content .sla-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dashboard-content .kpi{min-height:144px;padding:14px}.dashboard-content .kpi strong{font-size:27px}
+ .dashboard-content .panel{padding:15px}.dashboard-content .legend button{min-height:44px}
+ .dashboard-content .bar-row{min-height:40px;grid-template-columns:minmax(90px,1.4fr) 2fr 40px}
+ .pagination{flex-wrap:wrap;row-gap:10px}.pagination .icon-button{width:44px;height:44px}
+ .period-popover{position:fixed;left:12px;right:12px;top:12vh;width:auto;max-height:76dvh;overflow:auto;padding:16px}
+ .calendar-days button{height:40px;font-size:12px}.calendar-week{font-size:12px}
+ .report-shell .checkbox,.report-shell .radio{min-height:44px;line-height:1.5}
+ .report-shell input:not([type=checkbox]):not([type=radio]),.report-shell select{font-size:16px;min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){.dashboard-content button{transition:none}}
