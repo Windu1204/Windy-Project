@@ -6,7 +6,7 @@ import { reportStatus } from './report-status';
 export const reportContents: Record<DatasetKind, readonly string[]> = {
   ijr: ['Executive Summary', 'Status Breakdown', 'Process & Duration', 'Wilayah & Cabang', 'PIC & Workload', 'Detail Data'],
   regional: ['Executive Summary', 'Status Breakdown', 'Wilayah', 'Product & Sub Product', 'Beban Implementor', 'Detail Data'],
-  corporate: ['Executive Summary', 'Volume & Status', 'SLA Performance', 'Overdue Analysis', 'Product & Sub Product', 'Detail Data'],
+  corporate: ['Executive Summary', 'Volume & Status', 'SLA Performance', 'Overdue Analysis', 'Product & Sub Product', 'Overview per Segmen', 'Key Takeaways', 'Detail Data'],
 };
 export interface ReportPerson {
   name: string; records: Payload[]; assigned: number; done: number; active: number; waiting: number; overdue: number;
