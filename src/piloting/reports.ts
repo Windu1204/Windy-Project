@@ -1,3 +1,4 @@
+import { monthlyOverview } from './report-overview';
 import {reportCharts,chartPng} from './report-charts';
 
 import { type MonitoringRecord } from '../types';
@@ -8,7 +9,7 @@ import { slaMetrics } from './sla';
 
 import { field, value, pilotMetrics, people, breakdown, duration, type PilotFilters } from './model';
 
-export const reportSections: Record<string,string> = {summary:'Executive Summary',people:'Kinerja & Beban Kerja',process:'Proses Implementasi',sla:'Kinerja SLA',products:'Overview Produk',discrepancy:'Rincian Discrepancy',highlights:'Key Takeaways'};
+export const reportSections: Record<string,string> = {summary:'Executive Summary',people:'Kinerja & Beban Kerja',process:'Proses Implementasi',sla:'Kinerja SLA',products:'Overview Produk',segments:'Overview per Segmen',discrepancy:'Rincian Discrepancy',highlights:'Key Takeaways'};
 
 export interface PilotReportPage { title:string; headers:string[]; rows:string[][] }
 
@@ -32,7 +33,7 @@ export function pilotReportModel(source:MonitoringRecord[],person:string,selecte
 
  add('process',['Durasi pekerjaan selesai','Jumlah'],['Same Day','1 Hari','2 Hari','>2 Hari','Unavailable'].map(b=>[b==='Same Day'?'Hari yang sama':b==='Unavailable'?'Durasi belum tersedia':b,String(done.filter(r=>duration(r)===b).length)]));
 
- add('products',['Produk / Solusi','Total','Selesai','Reject/Retur','Pending','Discrepancy'],breakdown(rows,field.product).map(([name])=>{const k=pilotMetrics(rows.filter(r=>value(r,field.product)===name));return [name,String(k.total),String(k.done),String(k.returned),String(k.pending),String(k.discrepancy)];}));
+ for(const [section,key] of [['products',field.product],['segments',field.group]])if(selected.includes(section))for(const part of monthlyOverview(rows,key).pages)pages.push({title:reportSections[section],...part});
 
  if(selected.includes('discrepancy')){
 
@@ -100,11 +101,12 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
    const expanded=p.rows.flatMap(row=>{const max=Math.max(...row.map(x=>Math.ceil(x.length/280)));return Array.from({length:max},(_,i)=>row.map((x,j)=>j===0?x+(i?' (lanjutan)':''):x.slice(i*280,(i+1)*280)));});
 
-   const size=p.title==='Rincian Discrepancy'?4:8,combined=charts.length>0&&expanded.length<=5&&p.title!=='Rincian Discrepancy';
+   const overview=p.title==='Overview Produk'||p.title==='Overview per Segmen';const size=p.title==='Rincian Discrepancy'?6:overview?10:8,combined=charts.length>0&&expanded.length<=5&&p.title!=='Rincian Discrepancy';
 
    for(let start=0;start<expanded.length;start+=size){const part=expanded.slice(start,start+size),s=slide(p.title+(expanded.length>size?` · ${Math.floor(start/size)+1}/${Math.ceil(expanded.length/size)}`:''));const cells=[p.headers.map(text=>({text,options:{bold:true,color:'FFFFFF',fill:{color:'087F8C'}}})),...part.map((r,i)=>r.map((text,j)=>({text,options:{fill:{color:i%2?'F2F5F7':'FFFFFF'},align:(j===0||j===1?'left':'center') as 'left'|'center',color:'08275C'}})))];
 
-    s.addTable(cells.map(row=>row.map(cell=>({...cell,text:cell.text==='Masih Pending'?'Pending':cell.text}))),{x:.38,y:1.6,w:12.55,h:combined?2.35:p.headers.length===7?5.1:4.7,border:{type:'solid',color:'DCE3E7',pt:.5},fontFace:'Arial',fontSize:p.title==='Rincian Discrepancy'?(p.headers.length===7?11:14):13,margin:.1,rowH:.45,colW:p.headers.length===2?[3,9.55]:p.title==='Rincian Discrepancy'?[1.6,2,.75,.9,3.4,1.7,2.2]:undefined,autoPage:false,verbose:false});if(combined)chartSlide(s);
+    if(overview)s.addText('M = Maintenance · N = New · — = Jenis belum tersedia',{x:.38,y:6.87,w:12.55,h:.16,fontSize:8,color:'08275C',margin:0});
+    s.addTable(cells.map(row=>row.map(cell=>({...cell,text:cell.text==='Masih Pending'?'Pending':cell.text}))),{x:.38,y:1.6,w:12.55,h:combined?2.35:p.headers.length===7?5.1:4.7,border:{type:'solid',color:'DCE3E7',pt:.5},fontFace:'Arial',fontSize:overview?9:p.title==='Rincian Discrepancy'?(p.headers.length===7?11:14):13,margin:.1,rowH:.45,colW:overview?[2.35,...Array(p.headers.length-2).fill(9/(p.headers.length-2)),1.2]:p.headers.length===2?[3,9.55]:p.title==='Rincian Discrepancy'?[1.4,1.8,.95,.95,3,1.65,2.8]:undefined,autoPage:false,verbose:false});if(combined)chartSlide(s);
 
    }
 

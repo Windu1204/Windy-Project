@@ -1,3 +1,4 @@
+import { CorporateOverview, CorporateProcess } from '../components/CorporateViews';
 import { SectionNavigation } from '../components/SectionNavigation';
 import { SlaCoverage } from '../components/SlaCoverage';
 import { useMemo, useState, type ReactNode } from 'react';
@@ -18,7 +19,7 @@ export default function PilotingDashboard({individual=false,canReport=false,pers
  const filtered=useMemo(()=>filterPiloting(rows,filters),[rows,filters]),m=pilotMetrics(filtered);
  const update=(key:keyof PilotFilters,v:string)=>{setFilters(f=>({...f,[key]:v}));setDrill(null);};
  const toggle=(key:keyof PilotFilters,v:string)=>update(key,filters[key]===v?'':v);
- const tabs=[['overview','Ringkasan'],['process','Proses Implementasi'],['people','Kinerja & Beban Kerja'],['report','Report'],['data','Data']].filter(([id])=>id!=='report'||canReport);
+ const tabs=(individual ? [['overview','Ringkasan'],['people','Kinerja Saya'],['data','Data']] : [['overview','Ringkasan'],['process','Proses Implementasi'],['people','Kinerja & Beban Kerja'],['report','Report'],['data','Data']]).filter(([id])=>id!=='report'||canReport);
  async function perform(action:()=>Promise<void>){setBusy(true);setError('');try{await action();}catch(e){setError(e instanceof Error?e.message:String(e));}finally{setBusy(false);}}
  const cards:[string,number,keyof PilotFilters|null,string][]=[['Total Permohonan',m.total,null,''],['Selesai',m.done,'status','Done'],['Reject/Retur',m.returned,'status','Reject/Retur'],['Pending',m.pending,'status','Masih Pending'],['Discrepancy',m.discrepancy,'discrepancy','Discrepancy']];
  const chart=(title:string,key:'group'|'product'|'form'|'status'|'discrepancy')=><Panel title={t(title)} hint={t('Klik untuk melihat permohonan')}><Bars displayName={t} items={breakdown(filtered,field[key])} color="#087f8c" onSelect={v=>toggle(key,v)}/></Panel>;
@@ -26,13 +27,13 @@ export default function PilotingDashboard({individual=false,canReport=false,pers
  {view!=='report'&&<PilotFilterBar hidePerson={individual} rows={rows} filters={filters} onChange={f=>{setFilters(f);setDrill(null);}}/>}
  {error&&<p className="error" role="alert">{error}</p>}
  {view==='overview'&&<><div className="kpis pilot-cards">{cards.map(([label,n,key,v],i)=><button key={label} className={'kpi source-'+['blue','green','red','amber','purple'][i]} disabled={!key} onClick={()=>key&&toggle(key,v)}><small>{t(label)}</small><strong>{n.toLocaleString()}</strong><span>{t(key==='discrepancy'?'Bagian dari total permohonan':'Data sesuai filter aktif')}</span></button>)}</div><p className="pilot-note">{t('Status dan discrepancy ditampilkan terpisah.')}</p></>}
- {view==='overview'&&<><div className="grid-three"><Panel title={t('Status Pekerjaan')}><Donut displayName={t} items={breakdown(filtered,field.status)} colorByName={{Done:'#087f8c','Reject/Retur':'#f97316','Masih Pending':'#173a63'}} onSelect={v=>toggle('status',v)}/></Panel>{chart('Produk Terbanyak','product')}{chart('Permohonan per Kelompok','group')}</div><div className="grid-two"><Panel title={t('Tren Assign ke AT')}><PilotTrend items={breakdown(filtered,field.assigned).sort((a,b)=>a[0].localeCompare(b[0]))}/></Panel>{chart('Jenis Pekerjaan','form')}</div></>}
+ {view==='overview'&&<CorporateOverview piloting rows={filtered} onSelect={(key,v)=>toggle(key==='region'?'group':key,v)} onDrill={(title,rows)=>setDrill({title,rows})}/>}
  {view==='people'&&<PilotPersonWork individual={individual} personNames={personNames} rows={filtered} onOpen={setDetail}/>}
  {(view==='overview')&&<SlaCoverage rows={filtered} kind="piloting" onOpen={setDetail}/>}
- {view==='process'&&<PilotSla rows={filtered} rules={rules} canEdit={canEdit} onSave={onSaveRule} onDelete={onDeleteRule} onOpen={setDetail} onDrill={(title,rows)=>setDrill({title,rows})}/>}
- {view==='process'&&<div className="grid-two">{chart('Status Pekerjaan','status')}{chart('Jenis Pekerjaan','form')}<Panel title={t('Tren Assign ke AT')}><PilotTrend items={breakdown(filtered,field.assigned).sort((a,b)=>a[0].localeCompare(b[0]))}/></Panel></div>}
+ {view==='people'&&!individual&&<PilotSla rows={filtered} rules={rules} canEdit={canEdit} onSave={onSaveRule} onDelete={onDeleteRule} onOpen={setDetail} onDrill={(title,rows)=>setDrill({title,rows})}/>}
+ {view==='process'&&<CorporateProcess piloting rows={filtered} onSelect={(key,v)=>toggle(key==='region'?'group':key,v)} onDrill={(title,rows)=>setDrill({title,rows})}/>}
 
  {view==='data'&&<>{dataControls}<section className="panel"><div className="panel-head"><h3>{t('Data Corporate - Piloting')}</h3><p>{t('Upload dan riwayat data tersedia pada menu Admin.')}</p></div><div className="button-row"><button className="secondary" onClick={()=>exportPiloting(filtered.map(r=>r.payload),'xlsx')}>{t('Unduh Excel')}</button><button className="secondary" onClick={()=>exportPiloting(filtered.map(r=>r.payload),'csv')}>{t('Unduh CSV')}</button></div></section><PilotRecords rows={filtered} onOpen={setDetail}/></>}
  {view==='report'&&<PilotReport rows={rows} dashboardFilters={filters}/>}
- {drill&&<><div className="pilot-toolbar"><h3>{t(drill.title)}</h3><button className="secondary" onClick={()=>setDrill(null)}>{t('Tutup rincian')}</button></div><PilotRecords rows={drill.rows} onOpen={setDetail}/></>}{detail&&<PilotDetail row={detail} onClose={()=>setDetail(null)}/>}</div>;
+ {drill&&<><div className="pilot-toolbar"><h3>{t(drill.title)}</h3><button className="secondary" onClick={()=>setDrill(null)}>{t('Tutup rincian')}</button></div><PilotRecords rows={filtered.filter(row=>drill.rows.some(previous=>previous.id===row.id))} onOpen={setDetail}/></>}{detail&&<PilotDetail row={detail} onClose={()=>setDetail(null)}/>}</div>;
 }
