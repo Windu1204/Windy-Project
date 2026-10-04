@@ -8,7 +8,7 @@ export async function generateReport(rows: MonitoringRecord[], kind: DatasetKind
     const context = reportContext(rows, kind, selected, options);
     const renderer = kind === 'ijr' ? await import('./report-renderers/ijr.js') : kind === 'regional' ? await import('./report-renderers/regional.js') : await import('./report-renderers/corporate.js');
     {
-        const [response, logoResponse] = await Promise.all([fetch('/brand/report-cover-corporate.png'), fetch('/brand/source-f56b239053.png')]);
+        const [response, logoResponse] = await Promise.all([fetch('/brand/report-cover-blended.png'), fetch('/brand/source-f56b239053.png')]);
         if (!response.ok) throw new Error('Foto sampul report tidak tersedia.');
         if (!logoResponse.ok) throw new Error('Logo report tidak tersedia.');
         context.brandLogo = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error('Logo tidak dapat dibaca.')); logoResponse.blob().then(blob => reader.readAsDataURL(blob), reject); });
