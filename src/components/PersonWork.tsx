@@ -12,9 +12,9 @@ import { Panel } from './Charts';
 
 
 
-interface Props { personNames?:string[]; productName?: (value: string) => string; rows: MonitoringRecord[]; kind: DatasetKind; canEdit: boolean; onOpen: (row: MonitoringRecord) => void; onDone: (row: MonitoringRecord, note: string) => Promise<void> }
+interface Props { individual?:boolean; personNames?:string[]; productName?: (value: string) => string; rows: MonitoringRecord[]; kind: DatasetKind; canEdit: boolean; onOpen: (row: MonitoringRecord) => void; onDone: (row: MonitoringRecord, note: string) => Promise<void> }
 
-export default function PersonWork({ personNames, rows, kind, canEdit, onOpen, onDone, productName = (value: string) => value }: Props) { const { t } = useLanguage(); 
+export default function PersonWork({ individual=false, personNames, rows, kind, canEdit, onOpen, onDone, productName = (value: string) => value }: Props) { const { t } = useLanguage(); 
 
   const [selected, setSelected] = useState(''), [query, setQuery] = useState(''), [mode, setMode] = useState('all'), [page,setPage]=useState(1);
 
@@ -70,9 +70,9 @@ export default function PersonWork({ personNames, rows, kind, canEdit, onOpen, o
 
   const list = assignments.filter(p => p.name.toLowerCase().includes(query.trim().toLowerCase())), max = Math.max(1, ...assignments.map(p => p.records.length));
 
-  return <Panel title={t("KPI Per Person")} hint={t("Klik nama untuk melihat KPI dan pekerjaan yang sedang ditangani.")} className="person-work">
+  return <Panel title={t("KPI Per Person")} hint={t("Klik nama untuk melihat KPI dan pekerjaan yang sedang ditangani.")} className={"person-work"+(individual?" individual-work":"")}>
 
-    {selected && <button className="secondary person-selected" onClick={() => { setSelected(''); setMode('all'); }}>{t("Viewing:")} {selected} {t("×")}</button>}
+    {!individual&&selected && <button className="secondary person-selected" onClick={() => { setSelected(''); setMode('all'); }}>{t("Viewing:")} {selected} {t("×")}</button>}
 
     <div className="person-layout"><div className="person-list"><p className="muted">{kind === 'ijr' ? 'Implementor 1 & 2' : 'Implementor'} {t("pada filter dashboard aktif")}</p>
 

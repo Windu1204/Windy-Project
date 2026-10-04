@@ -4,7 +4,7 @@ export const sourceFields = ['No', 'No. Register', 'Kelompok', 'Nama Perusahaan'
 export const field = { id: sourceFields[1], group: sourceFields[2], company: sourceFields[3], person: sourceFields[4], product: sourceFields[6], form: sourceFields[7], assigned: sourceFields[8], completed: sourceFields[9], days: sourceFields[10], status: sourceFields[12], discrepancy: sourceFields[15] };
 export type PilotFilters = { category: string; sla: string; period: string; search: string; from: string; to: string; group: string; person: string; product: string; form: string; status: string; discrepancy: string };
 export const initialFilters: PilotFilters = { category: '', sla: '', period: '', search: '', from: '', to: '', group: '', person: '', product: '', form: '', status: '', discrepancy: '' };
-export const value = (r: MonitoringRecord, key: string) => text(r.payload[key]);
+export const value = (r: MonitoringRecord, key: string) => key===field.status&&/^pending$/i.test(text(r.payload[key]))?'Masih Pending':text(r.payload[key]);
 export function days(r: MonitoringRecord): number | null {
   const raw = r.payload[field.days];
   if (raw === null || raw === undefined || text(raw) === '') return null;

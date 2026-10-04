@@ -23,7 +23,7 @@ test('navigation, filtering, pagination, record details and all three dashboards
     await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'KPI per Person', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
-    await expect(page.locator('.kpis')).toContainText('SLA Achievement');
+    await expect(page.getByRole('heading',{name:'Official SLA Target Reference'})).toBeVisible();
     await page.getByRole('button', { name: 'Regional - Non BNIDirect', exact: true }).click();
     await expect(page.locator('.kpi').first()).toContainText('1,098');
     await page.getByRole('button', { name: 'Implementation Process', exact: true }).click();

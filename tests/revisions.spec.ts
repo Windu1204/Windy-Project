@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 test.beforeEach(async({page})=>{await page.goto('/');await page.getByRole('button',{name:'Buka preview lokal'}).click();});
 test('SLA coverage reconciles total jobs and every coverage drilldown',async({page})=>{
  for(const dashboard of ['IJR - BNIdirect','Regional - Non BNIDirect','Corporate - Non Piloting','Corporate - Piloting']){
-  await page.getByRole('button',{name:dashboard,exact:true}).click();await page.getByRole('button',{name:'Kinerja & Beban Kerja',exact:true}).click();
+  await page.getByRole('button',{name:dashboard,exact:true}).click();await page.getByRole('button',{name:'Ringkasan',exact:true}).click();
   if(dashboard==='Corporate - Non Piloting')await page.getByLabel('Segmen',{exact:true}).selectOption('COB3');
   const coverage=page.locator('.sla-coverage'),buttons=coverage.locator('.coverage-counts button');await expect(buttons).toHaveCount(3);
   const values=(await buttons.locator('strong').allTextContents()).map(s=>Number(s.replace(/[^0-9]/g,'')));expect(values[0]).toEqual(values[1]+values[2]);
