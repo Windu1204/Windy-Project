@@ -62,7 +62,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
  if(format==='pptx') {
 
-  const Pptx=(await import('pptxgenjs')).default,pptx=new Pptx();pptx.layout='LAYOUT_WIDE';pptx.theme={headFontFace:'Arial',bodyFontFace:'Arial',lang:'id-ID'};pptx.author='WCI Monitoring';pptx.subject=title;pptx.title=title+' Monitoring Report';
+  const Pptx=(await import('pptxgenjs')).default,pptx=new Pptx();pptx.layout='LAYOUT_WIDE';pptx.theme={headFontFace:'Arial',bodyFontFace:'Arial'};pptx.author='WCI Monitoring';pptx.subject=title;pptx.title=title+' Monitoring Report';
 
   let page=0;
 
