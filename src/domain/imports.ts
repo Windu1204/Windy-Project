@@ -59,6 +59,7 @@ export function sheetRows(sheet: XLSX.WorkSheet, kind: DatasetKind): Payload[] {
     if (header < 0 || score < 4)
         throw new Error('Header utama tidak ditemukan. Gunakan template atau file export dashboard.');
     const headers = grid[header].map(text);
+    const names=headers.filter(Boolean).map(canonical);if(new Set(names).size!==names.length)throw new Error('Ada nama kolom ganda pada file. Periksa header sebelum upload.');
     return grid.slice(header + 1).filter(row => row.some(v => text(v))).map(row => Object.fromEntries(headers.filter(Boolean).map(h => [h, row[headers.indexOf(h)] ?? null])));
 }
 export function auditRows(raw: Payload[], kind: DatasetKind): ImportAudit {
