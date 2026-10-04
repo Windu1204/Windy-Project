@@ -7,7 +7,7 @@ export function corporateWordDocument(docx, context, title, children) {
     new Paragraph({ children: [new TextRun({ text: 'Monitoring Report', size: 36 })], spacing: { after: 480 } }),
     new Paragraph({ text: 'Periode: ' + context.presentationPeriod.replace(/\n/g, ' · ') }),
     new Paragraph({ text: 'Implementor: ' + (context.person === 'All Name' ? 'ALL IMPLEMENTORS' : context.person), spacing: { after: 260 } }),
-    new Paragraph({ children: [new ImageRun({ data: bytes(context.coverPhoto), transformation: { width: 260, height: 390 } })] }),
+    new Paragraph({ children: [new ImageRun({ data: bytes(context.coverPhoto), transformation: { width: 580, height: 326 } })] }),
     new Paragraph({ text: 'Generated ' + new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric' }) })];
   // Original Word content stays intact; only the old cover paragraphs are replaced.
   const body = children.slice(3);

@@ -1862,5 +1862,13 @@
   "Belum ditemukan di data sumber. Pekerjaan akan terhubung setelah nama ini tersedia pada upload.": [
     "Belum ditemukan di data sumber. Pekerjaan akan terhubung setelah nama ini tersedia pada upload.",
     "Not found in source data. Tasks will link once this name is included in an upload."
+  ],
+  "Terakhir Diperbarui": [
+    "Terakhir Diperbarui",
+    "Last Updated"
+  ],
+  "Konfirmasi Done": [
+    "Konfirmasi Done",
+    "Confirm Done"
   ]
 }
