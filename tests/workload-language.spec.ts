@@ -44,24 +44,16 @@ test('shared navigation, stage durations, merged KPI and exact category drilldow
  }
  expect(errors).toEqual([]);
 });
-test('language beneath account name persists and preserves data and navigation state',async({page})=>{
- const picker=page.getByLabel('Bahasa / Language');await expect(picker).toHaveValue('id');
- const nameBox=await page.locator('.profile-button').boundingBox(), languageBox=await picker.boundingBox();expect(languageBox!.y).toBeGreaterThan(nameBox!.y);
- await page.getByRole('button',{name:'Kinerja & Beban Kerja',exact:true}).click();
- const values=await page.locator('.workload-kpi tbody tr').first().locator('td').allTextContents();
- await picker.selectOption('en');await expect(page.locator('.tabs button')).toHaveText(['Overview','Implementation Process','Region','Performance & Workload','Report','Data']);
- await expect(page.locator('.workload-kpi tbody tr').first().locator('td')).toHaveText(values.map(v=>v.replace(' hari',' days')));
- await page.reload();await page.getByRole('button',{name:'Buka preview lokal'}).click();await expect(picker).toHaveValue('en');
- await page.getByRole('button',{name:'Corporate - Non Piloting',exact:true}).click();await expect(page.locator('.kpi').first()).toContainText('4,509');await expect(page.locator('.tabs')).toContainText('SLA Performance');
- await picker.selectOption('id');await expect(page.locator('.tabs')).toContainText('Kinerja SLA');
+test('account popover language persists and preserves dashboard data',async({page})=>{
+ await page.locator('.profile-button').click();const picker=page.getByLabel('Bahasa / Language');await expect(picker).toHaveValue('id');const nameBox=await page.locator('.profile-button').boundingBox(),languageBox=await picker.boundingBox();expect(languageBox!.y).toBeGreaterThan(nameBox!.y);await page.keyboard.press('Escape');await page.getByRole('button',{name:'Kinerja & Beban Kerja',exact:true}).click();const values=await page.locator('.workload-kpi tbody tr').first().locator('td').allTextContents();await page.locator('.profile-button').click();await picker.selectOption('en');await page.keyboard.press('Escape');await expect(page.locator('.tabs button')).toHaveText(['Overview','Implementation Process','Region','Performance & Workload','Report','Data']);await expect(page.locator('.workload-kpi tbody tr').first().locator('td')).toHaveText(values.map(v=>v.replace(' hari',' days')));await page.reload();await page.getByRole('button',{name:'Buka preview lokal'}).click();await page.locator('.profile-button').click();await expect(picker).toHaveValue('en');await page.keyboard.press('Escape');await page.getByRole('button',{name:'Corporate - Non Piloting',exact:true}).click();await expect(page.locator('.kpi').first()).toContainText('4,509');await expect(page.locator('.tabs')).toContainText('Performance & Workload');
 });
 test('all tabs in both languages fit desktop and phone; reports still export',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  for(const width of [1280,390])for(const language of ['id','en'])for(const dashboard of ['IJR - BNIdirect','Regional - Non BNIDirect','Corporate - Non Piloting']) {
-  await page.setViewportSize({width,height:844});await page.getByLabel('Bahasa / Language').selectOption(language);await page.getByRole('button',{name:dashboard,exact:true}).click();
+  await page.setViewportSize({width,height:844});await page.locator('.profile-button').click();await page.getByLabel('Bahasa / Language').selectOption(language);await page.keyboard.press('Escape');await page.getByRole('button',{name:dashboard,exact:true}).click();
   for(const tab of await page.locator('.tabs button').allTextContents()) {await page.locator('.tabs').getByRole('button',{name:tab,exact:true}).click(); const widths=await page.evaluate(()=>({page:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,main:document.querySelector('.main')!.clientWidth,mainScroll:document.querySelector('.main')!.scrollWidth}));expect(widths.scroll).toBeLessThanOrEqual(widths.page+2);expect(widths.mainScroll).toBeLessThanOrEqual(widths.main+2);}
  }
- await page.setViewportSize({width:1440,height:1000});await page.getByLabel('Bahasa / Language').selectOption('en');await page.getByRole('button',{name:'IJR - BNIdirect',exact:true}).click();await page.getByRole('button',{name:'Report',exact:true}).click();
- for(const format of ['Word (.docx)','PowerPoint (.pptx)']){await page.getByLabel(format,{exact:true}).check();const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Generate Report',exact:true}).click();const download=await pending;expect((await readFile((await download.path())!)).subarray(0,2).toString()).toBe('PK');}
+ await page.setViewportSize({width:1440,height:1000});await page.locator('.profile-button').click();await page.getByLabel('Bahasa / Language').selectOption('en');await page.keyboard.press('Escape');await page.getByRole('button',{name:'IJR - BNIdirect',exact:true}).click();await page.getByRole('button',{name:'Report',exact:true}).click();
+ for(const format of ['Word (.docx)','PowerPoint (.pptx)']){await page.getByLabel('Report Format',{exact:true}).selectOption(format.startsWith('Word')?'docx':'pptx');const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Generate Report',exact:true}).click();const download=await pending;expect((await readFile((await download.path())!)).subarray(0,2).toString()).toBe('PK');}
  await page.getByRole('button',{name:'Performance & Workload',exact:true}).click();await page.screenshot({path:'private/merged-kpi-desktop.png',fullPage:true});await page.setViewportSize({width:390,height:844});await page.screenshot({path:'private/merged-kpi-mobile.png',fullPage:true});expect(errors).toEqual([]);
 });

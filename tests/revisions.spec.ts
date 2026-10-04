@@ -10,14 +10,11 @@ test('Piloting dependent filters, month, report isolation and anchored account',
  await page.evaluate(()=>scrollTo(0,0));const before=await page.evaluate(()=>scrollY);await page.getByRole('button',{name:'Akun pengguna',exact:true}).click();const account=await page.locator('.profile-button').boundingBox(),panel=await page.locator('.account-popover').boundingBox();expect(panel!.y).toBeGreaterThan(account!.y);expect(panel!.y-account!.y).toBeLessThan(120);expect(await page.evaluate(()=>scrollY)).toEqual(before);await page.keyboard.press('Escape');await expect(page.locator('.account-popover')).toHaveCount(0);
  await page.getByRole('button',{name:'Reset Filter',exact:true}).click();expect(await page.locator('.pilot-trend svg text').count()).toBeLessThan(12);await page.locator('.pilot-trend svg circle[role=button]').first().hover();await expect(page.locator('.pilot-trend-tooltip')).toBeVisible();await page.screenshot({path:'private/revisions-overview.png',fullPage:true});
 });
-test('generated Office previews work on all dashboards in both formats',async({page})=>{
+test('all dashboards export both report formats and no longer show Report Preview',async({page})=>{
  test.setTimeout(120000);const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  for(const dashboard of ['IJR - BNIdirect','Regional - Non BNIDirect','Corporate - Non Piloting','Corporate - Piloting']){
-  await page.getByRole('button',{name:dashboard,exact:true}).click();await page.getByRole('button',{name:'Report',exact:true}).click();
-  for(const format of ['pptx','docx']){
-   if(dashboard==='Corporate - Piloting')await page.locator('.report-fields select').last().selectOption(format);else await page.getByRole('radio',{name:format==='pptx'?'PowerPoint (.pptx)':'Word (.docx)',exact:true}).check();await page.getByRole('button',{name:'Preview Report',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Preview Report',exact:true});await expect(dialog.locator('.office-page')).toBeVisible({timeout:20000});await expect(dialog.locator('[role=alert]')).toHaveCount(0);await expect(dialog.locator('.office-page')).toContainText('Monitoring Report');await dialog.getByLabel('Zoom',{exact:true}).selectOption('75');await dialog.getByRole('button',{name:'Berikutnya',exact:true}).click();await expect(dialog.locator('.office-page')).toBeVisible();const wait=page.waitForEvent('download');await dialog.getByRole('button',{name:'Unduh Report',exact:true}).click();expect((await wait).suggestedFilename()).toMatch(new RegExp('\\.'+format+'$'));if(dashboard==='Corporate - Piloting')await dialog.screenshot({path:`private/revisions-preview-${format}.png`});await dialog.getByRole('button',{name:'Tutup',exact:true}).click();
-  }
+  await page.getByRole('button',{name:dashboard,exact:true}).click();await page.getByRole('button',{name:'Report',exact:true}).click();await expect(page.getByRole('button',{name:'Preview Report',exact:true})).toHaveCount(0);
+  for(const format of ['pptx','docx']){await page.getByLabel('Format Report',{exact:true}).selectOption(format);const wait=page.waitForEvent('download');await page.getByRole('button',{name:'Buat Report',exact:true}).click();const file=await wait;expect(file.suggestedFilename()).toMatch(new RegExp('\\.'+format+'$'));await file.saveAs('private/access-reports/'+dashboard.split(' - ')[0]+'-'+(dashboard==='Corporate - Piloting'?'pilot':'standard')+'.'+format);}
  }
  expect(errors).toEqual([]);
 });
-
