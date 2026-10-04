@@ -59,3 +59,29 @@
 .person-kpis>button:nth-child(2){border-left-color:#173a63}.person-kpis>button:nth-child(3){border-left-color:#169b70}.person-kpis>button:nth-child(4){border-left-color:#d59132}.person-kpis>button:nth-child(5){border-left-color:#c85f69}
 .person-metrics{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0;color:#61798d;font-size:12px}.person-metrics span{padding:8px 10px;border:1px solid #dce5ea;border-radius:5px}.person-metrics b{color:#173a63}
 @media(max-width:640px){.coverage-counts{grid-template-columns:1fr}.coverage-counts strong{font-size:24px}}
+
+/* Approved role-aware revision: shared typography and spacing. */
+body,button,input,select,textarea{font-family:'WCI Inter','Segoe UI',Arial,sans-serif}
+.dashboard-title,.topbar h2,.admin-page h3,.panel h3{font-family:inherit}
+.individual-navigation{display:flex;flex-direction:column;gap:6px;margin:18px 0;padding-top:14px;border-top:1px solid #dce5ea}
+.individual-navigation button{width:100%;text-align:left;padding:12px 14px;font-size:13px;line-height:1.5;color:#173a63;border-radius:6px}
+.individual-navigation button.active{background:#e2f3f4;color:#087f8c;border-left:3px solid #087f8c;font-weight:600}
+.individual-work .person-list,.individual-work .person-selected{display:none}.individual-work .person-layout{grid-template-columns:minmax(0,1fr)}
+.my-tasks .person-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.task-confirmation{width:min(320px,80vw);padding:16px;margin-top:12px;border:1px solid #dce5ea;border-radius:8px;background:#fff;box-shadow:0 4px 16px #173a6312}
+.task-confirmation label{display:grid;gap:8px;margin:12px 0}.task-confirmation .button-row{gap:10px}.task-confirmation textarea{width:100%}
+.person-kpis{gap:12px}.person-status-filters{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.person-row{gap:12px}
+.admin-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.admin-inline-editor{padding:24px}.admin-grants{gap:16px}
+.admin-stats{gap:16px}.admin-stats>div{min-width:0}.admin-page small{line-height:1.5}.report-shell .report-grid{display:block}.report-shell label{min-width:0}
+.update-status{display:flex;gap:8px;align-items:center;justify-content:flex-end;color:#61798d;font-size:12px;padding:8px 0 16px;flex-wrap:wrap}
+.update-status .connection-dot{width:7px;height:7px;border-radius:50%;background:#169b70}.update-status.offline .connection-dot{background:#d59132}
+@media(max-width:1000px){.admin-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.admin-fields{grid-template-columns:1fr}.my-tasks .person-kpis{grid-template-columns:1fr}.admin-inline-editor{padding:16px}.individual-navigation{display:flex;flex-direction:column}.individual-work .person-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.upload-checks{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}.upload-checks span{border:1px solid #cce5dc;background:#eff8f4;color:#187358;padding:8px 12px;border-radius:6px;font-size:12px}.upload-mapping{margin:16px 0}.upload-mapping summary{cursor:pointer;font-size:13px;color:#087f8c}.upload-mapping table{margin-top:12px}
+
+.app-shell .topbar h2{font-family:inherit;font-weight:650;line-height:1.3}.admin-page .admin-fields label{min-width:0}.admin-page .admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+
+.sidebar .individual-navigation{margin:12px 0;gap:6px}.sidebar .individual-navigation button{min-height:44px!important;padding:10px 12px!important;margin:0!important;font-size:13px!important;border-radius:6px!important;color:#173a63!important;background:transparent!important;border:0!important}.sidebar .individual-navigation button.active{background:#e2f3f4!important;color:#087f8c!important;border-left:3px solid #087f8c!important}
+.access-editor{border-top:1px solid #dce5ea;margin-top:20px;padding-top:4px}.access-row{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:16px;align-items:end;margin-bottom:16px}.access-row label{min-width:0}.access-remove{height:42px}.access-editor>button{margin-top:8px}
+@media(max-width:900px){.access-row{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.access-row{grid-template-columns:1fr}}
