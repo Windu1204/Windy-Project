@@ -17,6 +17,7 @@ export function PilotFilterBar({ rows, filters, onChange, custom = false, hidePe
   };
   const select = (key: keyof PilotFilters, label: string, choices: string[], disabled = false) => <label key={key}>{t(label)}<select aria-label={t(label)} value={filters[key]} disabled={disabled} onChange={e => change(key, e.target.value)}><option value="">{t('Semua')}</option>{choices.map(name => <option key={name}>{name}</option>)}</select></label>;
   return <section className={'filter-panel pilot-filters' + (custom ? ' pilot-custom-filters' : '')} aria-label={t(custom ? 'Filter Custom Report' : 'Filter Dashboard')}>
+    {custom&&<h4 className="report-filter-title">CUSTOM REPORT FILTERS</h4>}
     <label>{t('Pencarian')}<input aria-label={t('Cari data')} placeholder={t('Cari nomor register, perusahaan, PIC…')} value={filters.search} onChange={e => change('search', e.target.value)}/></label>
     <PeriodPicker label={t('Periode Assign ke AT')} value={{ ...emptyFilters, from: filters.from, to: filters.to, period: filters.period }} onChange={f => onChange({ ...filters, from: f.from, to: f.to, period: f.period })}/>
     {select('category', 'Produk', [...new Set(rows.map(r => productCategory(value(r, field.product), 'corporate')))].sort())}
