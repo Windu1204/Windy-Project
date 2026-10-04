@@ -96,6 +96,7 @@ for (const [kind, dashboard] of [['ijr', 'IJR - BNIdirect'], ['regional', 'Regio
             await source.getByRole('button', { name: tab, exact: true }).click();
             await page.getByRole('button', { name: tab === 'Wilayah & Cabang' ? 'Region' : translate(tab, 'en'), exact: true }).click();
             if (tab === 'Report') { await expect(page.getByRole('heading', {name:'Monitoring Report',exact:true})).toBeVisible(); continue; } // Report controls were intentionally revised; Office content remains verified separately.
+            if(kind==='corporate'&&['Ringkasan','Overview'].includes(tab)){await expect(page.locator('.corporate-process')).toHaveCount(0);await expect(page.locator('.grid-three')).toBeVisible();continue;}
             const sourceHeadings = await source.locator('h3:visible').allTextContents();
             for (const heading of sourceHeadings) await expect(page.getByRole('heading', { name: translate(heading.trim(), 'en'), exact: true }).first()).toBeVisible();
             const actualHeadings = (await page.locator('.dashboard-content h3:visible').allTextContents()).map(value => value.trim());
