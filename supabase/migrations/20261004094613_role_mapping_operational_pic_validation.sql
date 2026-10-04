@@ -1,0 +1,43 @@
+create or replace function wci_private.pic_choices(p_workspace uuid,p_dataset text) returns text[] language plpgsql security definer set search_path='' as $$
+declare choices text[];
+begin
+ if auth.uid() is null or not wci_private.admin(p_workspace) then raise exception 'Admin access required';end if;
+ select array_agg(distinct trim(n) order by trim(n)) into choices from public.wci_datasets d join public.wci_records r on r.batch_id=case when d.data_mode='operational' then d.operational_batch else d.active_batch end cross join lateral unnest(case when p_dataset='ijr' then array[r.payload->>'Implementor 1',r.payload->>'Implementor 2',r.payload->>'CS BNI Direct'] when p_dataset='piloting' then array[r.payload->>'PIC AT'] else array[r.payload->>'implementor'] end) n where d.workspace_id=p_workspace and d.kind=p_dataset and coalesce(trim(n),'')<>'';
+ return coalesce(choices,'{}'::text[]);
+end $$;
+create or replace function wci_private.wci_save_user(p_workspace uuid,p_user uuid,p_name text,p_role text,p_active boolean,p_access jsonb) returns void language plpgsql security definer set search_path='' as $$
+declare caller text; email_address text; old_profile jsonb; x jsonb;
+begin
+ caller=wci_private.role_of(p_workspace);
+ if auth.uid() is null or not wci_private.admin(p_workspace) then raise exception 'Admin access required';end if;
+ if p_role not in('super_admin','admin','department_head','team_leader','individual') then raise exception 'Invalid role';end if;
+ if caller<>'super_admin' and (p_role in('super_admin','admin') or exists(select 1 from public.wci_profiles where workspace_id=p_workspace and user_id=p_user and role in('super_admin','admin'))) then raise exception 'Super Admin required to manage administrators';end if;
+ if p_user=auth.uid() and (not p_active or p_role<>caller) then raise exception 'Tidak dapat menonaktifkan / mengubah role akun sendiri';end if;
+ select email into email_address from auth.users where id=p_user;
+ if email_address is null then raise exception 'Auth account unavailable';end if;
+ if jsonb_typeof(p_access)<>'array' then raise exception 'Invalid access';end if;
+ for x in select value from jsonb_array_elements(p_access) loop
+ if x->>'dataset' not in('ijr','regional','corporate','piloting') or coalesce(x->>'source','AT') not in('AT','PM') or (coalesce(x->>'source','AT')='PM' and x->>'dataset'<>'piloting') then raise exception 'Invalid dashboard / source';end if;
+ if nullif(x->>'team_id','') is not null and not exists(select 1 from public.wci_teams where id=(x->>'team_id')::uuid and workspace_id=p_workspace and dataset=x->>'dataset' and source=coalesce(x->>'source','AT')) then raise exception 'Tim harus sesuai dashboard / sumber';end if;
+ end loop;
+ if p_active and p_role in('department_head','team_leader','individual') and jsonb_array_length(p_access)=0 then raise exception 'Pilih dashboard untuk akun aktif';end if;
+ if p_active then for x in select value from jsonb_array_elements(p_access) loop
+ if p_role='individual' and coalesce(trim(x->>'pic'),'')='' then raise exception 'Pilih PIC untuk dashboard pengguna';end if;
+ if p_role='individual' and coalesce(x->>'source','AT')='AT' and not exists(select 1 from unnest(wci_private.pic_choices(p_workspace,x->>'dataset')) n where lower(trim(n))=lower(trim(x->>'pic'))) then raise exception 'PIC tidak ditemukan pada sumber dashboard';end if;
+ if p_role='team_leader' and nullif(x->>'team_id','') is null then raise exception 'Pilih tim untuk Team Leader';end if;
+ if p_role='team_leader' and coalesce(x->>'source','AT')='AT' and not exists(select 1 from public.wci_team_people where team_id=(x->>'team_id')::uuid) then raise exception 'Tim belum memiliki PIC anggota';end if;
+ end loop;end if;
+ if p_role='team_leader' then
+ for x in select value from jsonb_array_elements(p_access) loop
+ if nullif(x->>'team_id','') is not null then
+ if exists(select 1 from public.wci_teams where id=(x->>'team_id')::uuid and leader_id is not null and leader_id<>p_user) then raise exception 'Tim sudah memiliki Team Leader lain';end if;
+ update public.wci_teams set leader_id=p_user where id=(x->>'team_id')::uuid and workspace_id=p_workspace;
+ end if;end loop;end if;
+ select to_jsonb(p) into old_profile from public.wci_profiles p where workspace_id=p_workspace and user_id=p_user;
+ insert into public.wci_profiles(workspace_id,user_id,name,email,role,active) values(p_workspace,p_user,left(p_name,200),email_address,p_role,p_active) on conflict(workspace_id,user_id) do update set name=excluded.name,email=excluded.email,role=excluded.role,active=excluded.active;
+ insert into public.wci_members(workspace_id,user_id,role) values(p_workspace,p_user,case when p_role in('super_admin','admin') then 'admin' else 'viewer' end) on conflict(workspace_id,user_id) do update set role=excluded.role;
+ delete from public.wci_access where workspace_id=p_workspace and user_id=p_user;
+ insert into public.wci_access(workspace_id,user_id,dataset,source,team_id,pic) select p_workspace,p_user,item.value->>'dataset',coalesce(item.value->>'source','AT'),nullif(item.value->>'team_id','')::uuid,coalesce(item.value->>'pic','') from jsonb_array_elements(p_access) as item(value);
+ insert into public.wci_audit(workspace_id,user_id,action,details) values(p_workspace,auth.uid(),'user_access',jsonb_build_object('user',p_user,'before',old_profile,'after',jsonb_build_object('name',p_name,'role',p_role,'active',p_active,'access',p_access)));
+end $$;
+
