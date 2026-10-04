@@ -1,0 +1,21 @@
+alter table public.wci_done_overrides set schema wci_private;
+alter table public.wci_sla_rules add column dataset text not null default 'corporate' check(dataset in('ijr','regional','corporate','piloting'));
+alter table public.wci_sla_rules drop constraint wci_sla_rules_pkey;
+alter table public.wci_sla_rules add primary key(workspace_id,dataset,product);
+update public.wci_batches set week_start=date_trunc('week',created_at at time zone 'Asia/Jakarta')::date;
+do $$ declare x record; body text; begin for x in select p.oid,p.proname,pg_get_functiondef(p.oid) def from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in('wci_replace_dataset','wci_mark_done') loop body=replace(x.def,'public.wci_done_overrides','wci_private.wci_done_overrides');execute body;end loop;end $$;
+alter function public.wci_replace_dataset(uuid,text,jsonb,text) set schema wci_private;
+alter function public.wci_mark_done(uuid,uuid,text) set schema wci_private;
+alter function public.wci_set_data_mode(uuid,text,text) set schema wci_private;
+alter function public.wci_save_user(uuid,uuid,text,text,boolean,jsonb) set schema wci_private;
+alter function public.wci_save_team(uuid,uuid,text,text,text,uuid,text[]) set schema wci_private;
+alter function public.wci_upload_review(uuid,text,jsonb) set schema wci_private;
+create function public.wci_replace_dataset(p_workspace uuid,p_kind text,p_rows jsonb,p_name text) returns uuid language sql security invoker set search_path='' as $$ select wci_private.wci_replace_dataset(p_workspace,p_kind,p_rows,p_name) $$;
+create function public.wci_mark_done(p_workspace uuid,p_id uuid,p_note text) returns void language sql security invoker set search_path='' as $$ select wci_private.wci_mark_done(p_workspace,p_id,p_note) $$;
+create function public.wci_set_data_mode(p_workspace uuid,p_kind text,p_mode text) returns void language sql security invoker set search_path='' as $$ select wci_private.wci_set_data_mode(p_workspace,p_kind,p_mode) $$;
+create function public.wci_save_user(p_workspace uuid,p_user uuid,p_name text,p_role text,p_active boolean,p_access jsonb) returns void language sql security invoker set search_path='' as $$ select wci_private.wci_save_user(p_workspace,p_user,p_name,p_role,p_active,p_access) $$;
+create function public.wci_save_team(p_workspace uuid,p_id uuid,p_dataset text,p_source text,p_name text,p_leader uuid,p_people text[]) returns uuid language sql security invoker set search_path='' as $$ select wci_private.wci_save_team(p_workspace,p_id,p_dataset,p_source,p_name,p_leader,p_people) $$;
+create function public.wci_upload_review(p_workspace uuid,p_kind text,p_rows jsonb) returns jsonb language sql security invoker set search_path='' as $$ select wci_private.wci_upload_review(p_workspace,p_kind,p_rows) $$;
+revoke all on function public.wci_replace_dataset(uuid,text,jsonb,text),public.wci_mark_done(uuid,uuid,text),public.wci_set_data_mode(uuid,text,text),public.wci_save_user(uuid,uuid,text,text,boolean,jsonb),public.wci_save_team(uuid,uuid,text,text,text,uuid,text[]),public.wci_upload_review(uuid,text,jsonb) from public,anon;
+grant execute on function public.wci_replace_dataset(uuid,text,jsonb,text),public.wci_mark_done(uuid,uuid,text),public.wci_set_data_mode(uuid,text,text),public.wci_save_user(uuid,uuid,text,text,boolean,jsonb),public.wci_save_team(uuid,uuid,text,text,text,uuid,text[]),public.wci_upload_review(uuid,text,jsonb) to authenticated;
+
