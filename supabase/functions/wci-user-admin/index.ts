@@ -24,6 +24,16 @@ Deno.serve(async(req:Request)=>{
  if(save){await service.auth.admin.deleteUser(user.user.id);throw save;}
  return respond({user_id:user.user.id});
  }
+ if(action==='email'){
+ const email=String(input.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('Email tidak valid');
+ const {data:target,error:targetError}=await caller.from('wci_profiles').select('role,email').eq('workspace_id',workspace).eq('user_id',input.user_id).single();if(targetError||!target)throw new Error('User unavailable');
+ if(profile.role!=='super_admin'&&['super_admin','admin'].includes(target.role))return respond({error:'Super Admin required'},403);
+ const {error:change}=await service.auth.admin.updateUserById(input.user_id,{email,email_confirm:true});if(change)throw change;
+ const {error:save}=await service.from('wci_profiles').update({email}).eq('user_id',input.user_id);
+ if(save){await service.auth.admin.updateUserById(input.user_id,{email:target.email,email_confirm:true});throw save;}
+ const {error:audit}=await service.from('wci_audit').insert({workspace_id:workspace,user_id:auth.user.id,action:'login_email_updated',details:{user:input.user_id}});if(audit)throw audit;
+ return respond({user_id:input.user_id});
+ }
  if(action==='reset'){
  const {data:target,error:e}=await caller.from('wci_profiles').select('email,role').eq('workspace_id',workspace).eq('user_id',input.user_id).single();if(e||!target)throw new Error('User unavailable');
  if(profile.role!=='super_admin'&&['super_admin','admin'].includes(target.role))return respond({error:'Super Admin required'},403);
