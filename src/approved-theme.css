@@ -37,3 +37,4 @@
 .task-done-dialog label{display:block;font-size:14px;line-height:1.5}.task-done-dialog textarea{width:100%;margin-top:8px;resize:vertical;min-height:96px}
 .task-done-dialog .button-row{display:flex;justify-content:flex-end;gap:12px;margin-top:22px}
 @media(max-width:760px){.app-shell .topbar h2.dashboard-title{font-size:24px}.task-done-dialog{padding:20px}.task-done-dialog .detail-grid{gap:14px}}
+.sidebar nav .nav.admin-navigation>svg{display:block!important;flex-shrink:0}
