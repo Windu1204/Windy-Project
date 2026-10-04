@@ -122,7 +122,7 @@ async function exportPptx(m){
     monthChunks.forEach((ms,mi)=>keyPages.forEach((pageNames,ki)=>{
       const partNo=mi*keyPages.length+ki+1,totalParts=monthChunks.length*keyPages.length;
       const s=pptx.addSlide();addHeader(s,title,sectionBase+(totalParts>1?' '+partNo+'/'+totalParts:''));
-      const header=[keyLabel,...ms.flatMap(mm=>[monthLabel(mm)+' M',monthLabel(mm)+' New']),'Overall Total'];
+      const header=[keyLabel,...ms.flatMap(mm=>[monthLabel(mm)+' M',monthLabel(mm)+' N']),'Overall Total'];
       const body=[];
       pageNames.forEach(name=>{let row=[name];ms.forEach(mm=>{let [a,b]=pairCount(overviewRows,keyFn,name,mm);row.push(a,b)});const gt=overviewRows.filter(r=>String(keyFn(r)||'').trim()===name).length;row.push(gt);body.push(row)});
       if(hasOthers&&ki===0){let row=['Others'];ms.forEach(mm=>{let [a,b]=othersPair(overviewRows,keyFn,displaySet,mm);row.push(a,b)});const gt=overviewRows.filter(r=>{const k=String(keyFn(r)||'').trim();return k&&!displaySet.has(k)}).length;row.push(gt);body.push(row)}
