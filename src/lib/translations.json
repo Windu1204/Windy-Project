@@ -668,7 +668,7 @@
     "Saving…"
   ],
   "Tandai Done": [
-    "Tandai Selesai",
+    "Tandai Done",
     "Mark Done"
   ],
   "Memuat workspace…": [
@@ -1742,5 +1742,125 @@
   "Cari nama PIC AT": [
     "Cari nama PIC AT",
     "Search AT person"
+  ],
+  "My Task": [
+    "My Task",
+    "My Tasks"
+  ],
+  "Kinerja Saya": [
+    "Kinerja Saya",
+    "My Performance"
+  ],
+  "Pekerjaan Saya": [
+    "Pekerjaan Saya",
+    "My Tasks"
+  ],
+  "Pekerjaan yang menjadi tanggung jawab Anda.": [
+    "Pekerjaan yang menjadi tanggung jawab Anda.",
+    "Work assigned to you."
+  ],
+  "Selesaikan pekerjaan ini?": [
+    "Selesaikan pekerjaan ini?",
+    "Complete this task?"
+  ],
+  "Catatan (opsional)": [
+    "Catatan (opsional)",
+    "Note (optional)"
+  ],
+  "Status Done tersimpan.": [
+    "Status Done tersimpan.",
+    "Done status saved."
+  ],
+  "Waktu Pembaruan": [
+    "Waktu Pembaruan",
+    "Updated At"
+  ],
+  "Tidak ada pekerjaan sesuai filter.": [
+    "Tidak ada pekerjaan sesuai filter.",
+    "No tasks match the filters."
+  ],
+  "Terhubung": [
+    "Terhubung",
+    "Connected"
+  ],
+  "Memeriksa pembaruan berkala": [
+    "Memeriksa pembaruan berkala",
+    "Checking updates periodically"
+  ],
+  "Terakhir diperbarui": [
+    "Terakhir diperbarui",
+    "Last refreshed"
+  ],
+  "Pratinjau lokal": [
+    "Pratinjau lokal",
+    "Local preview"
+  ],
+  "Dashboard akses": [
+    "Dashboard akses",
+    "Dashboard access"
+  ],
+  "PIC dari data sumber": [
+    "PIC dari data sumber",
+    "Person from source data"
+  ],
+  "Pilih nama PIC": [
+    "Pilih nama PIC",
+    "Select a person"
+  ],
+  "Tim (opsional)": [
+    "Tim (opsional)",
+    "Team (optional)"
+  ],
+  "Tim akses": [
+    "Tim akses",
+    "Team access"
+  ],
+  "Pilih tim": [
+    "Pilih tim",
+    "Select a team"
+  ],
+  "Hapus akses": [
+    "Hapus akses",
+    "Remove access"
+  ],
+  "Tambah akses dashboard": [
+    "Tambah akses dashboard",
+    "Add dashboard access"
+  ],
+  "Pilih dashboard dan pemetaan untuk mengaktifkan akses pengguna.": [
+    "Pilih dashboard dan pemetaan untuk mengaktifkan akses pengguna.",
+    "Select a dashboard and mapping to activate user access."
+  ],
+  "Akses seluruh dashboard dan pengelolaan aplikasi.": [
+    "Akses seluruh dashboard dan pengelolaan aplikasi.",
+    "Access to all dashboards and application administration."
+  ],
+  "Akses upload data, pengguna, dan pemetaan tim.": [
+    "Akses upload data, pengguna, dan pemetaan tim.",
+    "Access to uploads, users, and team mapping."
+  ],
+  "Field wajib lengkap": [
+    "Field wajib lengkap",
+    "Required fields complete"
+  ],
+  "Tanggal valid": [
+    "Tanggal valid",
+    "Valid dates"
+  ],
+  "Kolom file yang dikenali": [
+    "Kolom file yang dikenali",
+    "Recognized file columns"
+  ],
+  "Kolom sumber": [
+    "Kolom sumber",
+    "Source column"
+  ],
+  "Field dashboard": [
+    "Field dashboard",
+    "Dashboard field"
+  ],
+  "Belum ditemukan di data sumber. Pekerjaan akan terhubung setelah nama ini tersedia pada upload.": [
+    "Belum ditemukan di data sumber. Pekerjaan akan terhubung setelah nama ini tersedia pada upload.",
+    "Not found in source data. Tasks will link once this name is included in an upload."
   ]
 }
