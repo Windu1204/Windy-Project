@@ -1,3 +1,4 @@
+import {requestType} from './report-overview';
 import {type MonitoringRecord} from '../types';
 import {breakdown,field,value,duration,people} from './model';
 import {slaMetrics} from './sla';
@@ -11,7 +12,7 @@ export function reportCharts(title:string,rows:MonitoringRecord[]):ReportChart[]
   return [chart('Permohonan Assign ke AT',[...weekly].sort((a,b)=>a[0].localeCompare(b[0]))),chart('Durasi Pekerjaan Selesai',['Same Day','1 Hari','2 Hari','>2 Hari','Unavailable'].map(b=>[b==='Same Day'?'0 hari':b==='Unavailable'?'Belum tersedia':b,done.filter(r=>duration(r)===b).length]),'F97316')];
  }
  if(title==='Kinerja SLA'){const m=slaMetrics(rows);return [chart('Kinerja SLA',[['Within SLA',m.within],['Overdue',m.overdue]]),chart('Overdue per PIC',people(rows).map((p):[string,number]=>[p.name,slaMetrics(p.rows).overdue]).slice(0,6),'F97316')];}
- if(title==='Overview Produk')return [chart('Produk Terbanyak',breakdown(rows,field.product).slice(0,5)),chart('Komposisi Jenis Formulir',breakdown(rows,field.form))];
+ if(title==='Overview Produk'||title==='Overview per Segmen')return [chart(title==='Overview Produk'?'Produk Terbanyak':'Segmen Terbanyak',breakdown(rows,title==='Overview Produk'?field.product:field.group).slice(0,5)),chart('New / Maintenance',(['M','N','—'] as const).map(type=>[type,rows.filter(r=>requestType(r)===type).length]))];
  if(title==='Rincian Discrepancy'){const cases=rows.filter(r=>value(r,field.discrepancy)==='Discrepancy');return [chart('Discrepancy per PIC',breakdown(cases,field.person).slice(0,6),'F97316'),chart('Status Discrepancy',breakdown(cases,field.status),'F97316')];}
  return [];
 }

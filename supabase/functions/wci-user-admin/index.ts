@@ -18,7 +18,7 @@ Deno.serve(async(req:Request)=>{
  const service=createClient(url,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false}});
  if(action==='create'){
  const email=String(input.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('Email tidak valid');
- const password=String(input.password||'');if(password.length<12)throw new Error('Password sementara minimal 12 karakter');
+ const password=String(input.password||'');if(password.length<8)throw new Error('Password sementara minimal 8 karakter');
  const {data:user,error:e}=await service.auth.admin.createUser({email,email_confirm:true,password,app_metadata:{must_change_password:true,password_setup_nonce:crypto.randomUUID()},user_metadata:{display_name:String(input.name||'')}});if(e||!user.user)throw e||new Error('Create failed');
  const {error:save}=await caller.rpc('wci_save_user',{p_workspace:workspace,p_user:user.user.id,p_name:String(input.name||''),p_role:input.role,p_active:input.active!==false,p_access:input.access||[]});
  if(save){await service.auth.admin.deleteUser(user.user.id);throw save;}
@@ -37,7 +37,7 @@ Deno.serve(async(req:Request)=>{
  if(action==='reset'){
  const {data:target,error:e}=await caller.from('wci_profiles').select('email,role').eq('workspace_id',workspace).eq('user_id',input.user_id).single();if(e||!target)throw new Error('User unavailable');
  if(profile.role!=='super_admin'&&['super_admin','admin'].includes(target.role))return respond({error:'Super Admin required'},403);
- const password=String(input.password||'');if(password.length<12)throw new Error('Password sementara minimal 12 karakter');
+ const password=String(input.password||'');if(password.length<8)throw new Error('Password sementara minimal 8 karakter');
  const {data:current,error:lookup}=await service.auth.admin.getUserById(input.user_id);if(lookup||!current.user)throw new Error('User unavailable');
  const {error:change}=await service.auth.admin.updateUserById(input.user_id,{password,app_metadata:{...current.user.app_metadata,must_change_password:true,password_setup_nonce:crypto.randomUUID()}});if(change)throw change;
  const {error:audit}=await service.from('wci_audit').insert({workspace_id:workspace,user_id:auth.user.id,action:'temporary_password_reset',details:{user:input.user_id}});if(audit)throw audit;

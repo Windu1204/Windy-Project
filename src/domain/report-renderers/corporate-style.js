@@ -52,11 +52,12 @@ export function corporateStyle(pptx, context, title) {
         align: ci === (people ? 1 : 0) ? 'left' : 'center', valign: 'middle'
       } })));
       if (overview) {
+        text('M = Maintenance · N = New', {x:.38,y:6.93,w:5,h:.16,fontSize:8,color:'08275C',margin:0});
         const grouped = [{ text: cellText(rows[0][0]), options: { rowspan: 2 } }];
         for (let ci = 1; ci < rows[0].length - 1; ci += 2) grouped.push({ text: cellText(rows[0][ci]).replace(/ M$/, ''), options: { colspan: 2 } });
         grouped.push({ text: 'Overall Total', options: { rowspan: 2 } });
         const sub = [];
-        for (let ci = 1; ci < rows[0].length - 1; ci += 2) sub.push('M', 'New');
+        for (let ci = 1; ci < rows[0].length - 1; ci += 2) sub.push('M', 'N');
         const headerStyle = cell => ({ text: cellText(cell), options: { ...(cell.options || {}), fill: '008997', color: 'FFFFFF', bold: true, align: 'center', valign: 'middle' } });
         styled.splice(0, 1, grouped.map(headerStyle), sub.map(headerStyle));
       }

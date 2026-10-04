@@ -1,0 +1,17 @@
+/* Approved option A: shared by every dashboard and role. */
+.app-shell .side.sidebar{background:#EFF7F8!important;color:#17365D!important;border-right:1px solid #D5E5E9!important;box-shadow:none!important}
+.app-shell .topbar{background:linear-gradient(100deg,#F1FAFA,#E3F2F3)!important;border-bottom:1px solid #D5E5E9!important;box-shadow:none!important}
+.app-shell .sidebar:before,.app-shell .sidebar:after,.side-left-edge-mask,.side-building,.side-wave{display:none!important}
+.sidebar nav .nav,.sidebar .individual-navigation button{color:#17365D!important;border-radius:6px!important;line-height:1.5!important;box-shadow:none!important}
+.sidebar nav .nav.active,.sidebar .individual-navigation button.active{background:#008596!important;color:white!important;border-color:#008596!important;border-left:0!important}
+.sidebar nav .nav:hover,.sidebar .individual-navigation button:hover{background:#DDEEF0!important;color:#17365D!important;transform:none!important}
+.sidebar nav .nav.active:hover,.sidebar .individual-navigation button.active:hover{background:#007586!important;color:white!important}
+.sidebar nav .nav .side-ico{background:transparent!important;color:inherit!important;box-shadow:none!important}
+.sidebar .admin-navigation{margin-top:22px!important;border-top:1px solid #D5E5E9!important;border-radius:0!important}
+.sidebar .brand b{font-size:13px!important;line-height:1.6!important;color:#526D83!important;font-weight:400!important}
+.sidebar .foot{display:none!important}
+.person-row b{line-height:1.5;overflow-wrap:anywhere}.person-kpis button{border-left:3px solid #008596}.person-kpis button:nth-child(2){border-left-color:#2383C4}.person-kpis button:nth-child(3){border-left-color:#159B70}.person-kpis button:nth-child(4){border-left-color:#E89931}.person-kpis button:nth-child(5){border-left-color:#D55666}
+.corporate-process .duration-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.corporate-process .duration-grid button{padding:18px;border:1px solid #D5E5E9;border-radius:7px;background:#F7FAFB;color:#17365D}.corporate-process .duration-grid strong{display:block;font-size:26px;margin-bottom:8px}.corporate-process .duration-grid span{font-size:13px}
+.admin-page .admin-stats>div{border-left:3px solid #008596}.admin-page .admin-stats>div:nth-child(2){border-left-color:#237CC2}.admin-page .admin-stats>div:nth-child(3){border-left-color:#E89931}
+.report-shell{width:100%;min-width:0}.report-shell>.panel,.report-shell .report-grid{width:100%;display:block}.report-shell .report-fields{gap:18px}.report-shell .report-contents{gap:14px 24px}.report-shell .checkbox input{width:16px;height:16px;flex:0 0 16px;accent-color:#008596}
+@media(max-width:760px){.corporate-process .duration-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.app-shell .topbar{gap:18px}.header-actions{flex-wrap:wrap}}

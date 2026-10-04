@@ -9,3 +9,4 @@ import './reference-shell.css';
 import './reference-dashboard.css';
 import './corporate-theme.css';
 import './revisions.css';
+import './approved-theme.css';
