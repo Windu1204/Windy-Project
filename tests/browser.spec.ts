@@ -133,12 +133,9 @@ test('IJR duration buckets, chart drilldown and person workload follow source fl
     const branchCells = await page.locator('.records tbody tr td:nth-child(8)').allTextContents();
     expect(branchCells.every(value => value.trim() === branch)).toBe(true);
     await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
-    const panel = page.locator('.workload-kpi');
-    const name = (await panel.locator('tbody tr').first().locator('td').first().innerText()).trim();
-    await panel.getByRole('searchbox').fill(name);
-    await panel.locator('tbody tr').first().locator('td').nth(3).getByRole('button').click();
-    const statuses = await page.locator('.records tbody tr td:nth-child(4)').allTextContents();
-    expect(statuses.every(value => value.trim() !== '')).toBe(true);
+    const panel = page.locator('.person-work');
+    const name = (await panel.locator('.person-row b').first().innerText()).trim();await panel.getByRole('searchbox').fill(name);await panel.locator('.person-row').first().click();await panel.locator('.person-kpis button').nth(1).click();
+    const statuses = await panel.locator('tbody tr td:nth-child(4)').allTextContents();expect(statuses.every(value=>value.trim()!=='' )).toBe(true);
 });
 
 test('Regional category/subproduct chain and Done confirmation retain milestone data', async ({ page }) => {
@@ -152,11 +149,7 @@ test('Regional category/subproduct chain and Done confirmation retain milestone 
     await expect(sub).toHaveValue('');
     await page.getByRole('button', { name: 'Reset Filters', exact: true }).click();
     await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
-    const panel = page.locator('.workload-kpi');
-    const person = panel.locator('tbody tr').first();
-    await person.locator('td').nth(4).getByRole('button').click();
-    const target = page.locator('.records tbody tr').first();
-    const company = (await target.locator('td').first().innerText()).trim();
+    const panel=page.locator('.person-work');await panel.locator('.person-row').first().click();await panel.locator('.person-kpis button').nth(1).click();const target=panel.locator('tbody tr').first();
     await target.click();
     const dialog = page.getByRole('dialog');
     const before = await dialog.locator('.detail-grid > div').allTextContents();
