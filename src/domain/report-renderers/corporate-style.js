@@ -39,7 +39,7 @@ export function corporateStyle(pptx, context, title) {
       return shape(kind, options);
     };
     const image = slide.addImage.bind(slide);
-    slide.addImage = options => image(options.data === context.coverPhoto ? { ...options, x: 8.65, y: 0, w: 4.683, h: 7.02 } : options);
+    slide.addImage = options => image(options.data === context.coverPhoto ? { ...options, x: 0, y: 0, w: 13.333, h: 7.02 } : options);
     slide.addTable = (rows, options = {}) => {
       const cellText = c => String(typeof c === 'object' ? c.text : c);
       const people = cellText(rows[0][0]) === 'PIC / Implementor';
