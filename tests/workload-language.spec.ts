@@ -20,27 +20,13 @@ test('shared navigation, stage durations, merged KPI and exact category drilldow
    await expect(page.locator('.records')).toContainText('777');
   } else await expect(page.getByRole('heading',{name:'Kelengkapan Milestone'})).toBeVisible();
   await page.getByRole('button',{name:'Kinerja & Beban Kerja',exact:true}).click();
-  const panel=page.locator('.workload-kpi');
-  await expect(page.locator('.person-work')).toHaveCount(0);
-  await expect(panel.getByRole('searchbox')).toHaveCount(1);
-  await expect(panel.locator('tbody tr')).toHaveCount(10);
-  await panel.getByRole('button',{name:'Berikutnya',exact:true}).click();
-  const name=(await panel.locator('tbody tr').first().locator('td').first().innerText()).trim();
-  await panel.getByRole('searchbox').fill(name.toLowerCase());
-  await expect(panel.locator('.pagination')).toContainText('Halaman 1');
-  const row=panel.locator('tbody tr').first();const role=(await row.locator('td').nth(1).innerText()).trim();
+  const panel=page.locator('.person-work');await expect(panel).toHaveCount(1);await expect(panel.getByRole('searchbox')).toHaveCount(1);
+  const name=(await panel.locator('.person-row b').first().innerText()).trim();await panel.getByRole('searchbox').fill(name.toLowerCase());await panel.locator('.person-row').first().click();
   const payload=await (await page.request.get('/__local-data/'+kind)).json() as Payload[];
-  const records=payload.filter(p=>text(p[kind==='ijr'?role:'implementor'])===name).map((p,i)=>({id:String(i),payload:p,sla:calculateSla(p,kind,[])}));
-  const expected=metrics(records,kind);
-  const categories=[records,records.filter(r=>isDone(r,kind)),records.filter(r=>!isDone(r,kind)),records.filter(r=>['Within SLA','Overdue'].includes(r.sla.status)),records.filter(r=>r.sla.status==='Within SLA'),records.filter(r=>r.sla.status==='Overdue')];
-  const counts=[expected.total,expected.done,expected.total-expected.done,expected.measurable,expected.within,expected.overdue];
-  for(let i=0;i<6;i++){
-   await expect(row.locator('td').nth(i+2)).toHaveText(counts[i].toLocaleString());
-   await row.locator('td').nth(i+2).getByRole('button').click();
-   await expect(page.locator('.records .table-heading small')).toContainText(categories[i].length.toLocaleString());
-   if(categories[i].length) {await page.locator('.records tbody tr').first().click();await expect(page.getByRole('dialog')).toBeVisible();await page.getByRole('button',{name:'Tutup detail',exact:true}).click();}
-  }
-  await panel.getByRole('searchbox').fill('no-match-xyz');await expect(panel.locator('tbody tr')).toHaveCount(0);
+  const records=payload.filter(p=>(kind==='ijr'?['Implementor 1','Implementor 2']:['implementor']).some(key=>text(p[key])===name)).map((p,i)=>({id:String(i),payload:p,sla:calculateSla(p,kind,[])}));
+  const categories=[records,records.filter(r=>!isDone(r,kind)),records.filter(r=>isDone(r,kind))];
+  for(let i=0;i<3;i++){await expect(panel.locator('.person-kpis button').nth(i).locator('b')).toHaveText(categories[i].length.toLocaleString());await panel.locator('.person-kpis button').nth(i).click();await expect(panel.locator('tbody tr')).toHaveCount(Math.min(10,categories[i].length));if(categories[i].length){await panel.locator('tbody tr').first().click();await expect(page.getByRole('dialog')).toBeVisible();await page.getByRole('button',{name:'Tutup detail',exact:true}).click();}}
+  await panel.getByRole('searchbox').fill('no-match-xyz');await expect(panel.locator('.person-row')).toHaveCount(0);
  }
  expect(errors).toEqual([]);
 });

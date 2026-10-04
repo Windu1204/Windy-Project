@@ -1613,7 +1613,7 @@
   ],
   "Password baru": [
     "Password baru",
-    "New Password"
+    "New password"
   ],
   "Gunakan minimal 12 karakter.": [
     "Gunakan minimal 12 karakter.",
@@ -1650,5 +1650,97 @@
   "Buat Report": [
     "Buat Report",
     "Generate Report"
+  ],
+  "Segmen": [
+    "Segmen",
+    "Segment"
+  ],
+  "Cakupan Perhitungan SLA": [
+    "Cakupan Perhitungan SLA",
+    "SLA Calculation Coverage"
+  ],
+  "Total Data": [
+    "Total Data",
+    "Total Records"
+  ],
+  "Dapat Dihitung SLA": [
+    "Dapat Dihitung SLA",
+    "Measurable for SLA"
+  ],
+  "Belum Dapat Dihitung SLA": [
+    "Belum Dapat Dihitung SLA",
+    "Not Yet Measurable for SLA"
+  ],
+  "Password sementara": [
+    "Password sementara",
+    "Temporary password"
+  ],
+  "Reset Password Sementara": [
+    "Reset Password Sementara",
+    "Reset Temporary Password"
+  ],
+  "Ganti password saat login pertama.": [
+    "Ganti password saat login pertama.",
+    "Change your password at first sign-in."
+  ],
+  "Ganti Password Pertama": [
+    "Ganti Password Pertama",
+    "Set Your Personal Password"
+  ],
+  "Ganti Password": [
+    "Ganti Password",
+    "Change Password"
+  ],
+  "Konfirmasi password": [
+    "Konfirmasi password",
+    "Confirm password"
+  ],
+  "Buat password pribadi untuk membuka dashboard.": [
+    "Buat password pribadi untuk membuka dashboard.",
+    "Set your personal password to open the dashboard."
+  ],
+  "Persiapan Data Operasional": [
+    "Persiapan Data Operasional",
+    "Operational Data Setup"
+  ],
+  "Pisahkan data contoh dari data kerja. Riwayat data sebelumnya tetap tersimpan.": [
+    "Pisahkan data contoh dari data kerja. Riwayat data sebelumnya tetap tersimpan.",
+    "Separate sample data from operational data. Previous upload history is retained."
+  ],
+  "Gunakan data contoh": [
+    "Gunakan data contoh",
+    "Use sample data"
+  ],
+  "Data contoh": [
+    "Data contoh",
+    "Sample data"
+  ],
+  "Periksa Tampilan Pengguna": [
+    "Periksa Tampilan Pengguna",
+    "Check User View"
+  ],
+  "Periksa menu dan data yang dapat dilihat akun ini. Hanya baca.": [
+    "Periksa menu dan data yang dapat dilihat akun ini. Hanya baca.",
+    "Check the menus and data this account can view. Read only."
+  ],
+  "Pilih anggota dari data": [
+    "Pilih anggota dari data",
+    "Select members from source data"
+  ],
+  "Tim Terdaftar": [
+    "Tim Terdaftar",
+    "Registered Teams"
+  ],
+  "Sebelumnya": [
+    "Sebelumnya",
+    "Previous"
+  ],
+  "Berikutnya": [
+    "Berikutnya",
+    "Next"
+  ],
+  "Cari nama PIC AT": [
+    "Cari nama PIC AT",
+    "Search AT person"
   ]
 }
