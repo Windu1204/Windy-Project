@@ -44,7 +44,7 @@ export function corporateStyle(pptx, context, title) {
       const cellText = c => String(typeof c === 'object' ? c.text : c);
       const people = cellText(rows[0][0]) === 'PIC / Implementor';
       if (people) rows = rows.map((row, i) => [i === 0 ? 'No.' : String((numbering += 1)), ...row]);
-      const overview = cellText(rows[0].at(-1)) === 'Overall Total';
+      const overview = ['Overall Total','Total Periode'].includes(cellText(rows[0].at(-1)));
       const styled = rows.map((row, ri) => row.map((cell, ci) => ({ text: cellText(cell), options: {
         ...(typeof cell === 'object' ? cell.options : {}),
         fill: ri === 0 ? '008997' : cellText(row[0]) === 'Grand Total' || overview && ci === row.length - 1 ? 'DDF0F1' : ri % 2 ? 'FFFFFF' : 'F0F3F5',
@@ -55,7 +55,7 @@ export function corporateStyle(pptx, context, title) {
         text('M = Maintenance · N = New', {x:.38,y:6.93,w:5,h:.16,fontSize:8,color:'08275C',margin:0});
         const grouped = [{ text: cellText(rows[0][0]), options: { rowspan: 2 } }];
         for (let ci = 1; ci < rows[0].length - 1; ci += 2) grouped.push({ text: cellText(rows[0][ci]).replace(/ M$/, ''), options: { colspan: 2 } });
-        grouped.push({ text: 'Overall Total', options: { rowspan: 2 } });
+        grouped.push({ text: cellText(rows[0].at(-1)), options: { rowspan: 2 } });
         const sub = [];
         for (let ci = 1; ci < rows[0].length - 1; ci += 2) sub.push('M', 'N');
         const headerStyle = cell => ({ text: cellText(cell), options: { ...(cell.options || {}), fill: '008997', color: 'FFFFFF', bold: true, align: 'center', valign: 'middle' } });
@@ -73,5 +73,5 @@ export function summaryCard(slide, pptx, x, y, w, label, value, accent) {
   slide.addShape(pptx.ShapeType.rect, { x, y, w, h: .86, line: { color: 'DCE3E7', width: .6 }, fill: { color: 'FFFFFF' } });
   slide.addShape(pptx.ShapeType.rect, { x, y, w: .055, h: .86, line: { transparency: 100 }, fill: { color: accent } });
   slide.addText(label, { x: x + .14, y: y + .12, w: w - .28, h: .26, fontFace: 'Arial', fontSize: 10, color: '08275C', align: 'center', margin: 0 });
-  slide.addText(Number(value).toLocaleString('en-US'), { x: x + .14, y: y + .42, w: w - .28, h: .32, fontFace: 'Arial', fontSize: 24, bold: true, color: '08275C', align: 'center', margin: 0 });
+  slide.addText(typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString('en-US') : String(value), { x: x + .14, y: y + .42, w: w - .28, h: .32, fontFace: 'Arial', fontSize: 24, bold: true, color: '08275C', align: 'center', margin: 0 });
 }
