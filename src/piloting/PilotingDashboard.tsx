@@ -13,8 +13,8 @@ import { PilotPersonWork } from './PilotPersonWork';
 import { PilotSla } from './PilotSla';
 import { PilotReport } from './PilotReport';
 import './piloting.css';
-interface Props { individual?:boolean;canReport?:boolean; dataControls?:ReactNode;personNames?:string[]; rows:MonitoringRecord[];canEdit:boolean;onApply:(rows:Payload[],name:string)=>Promise<void>;onRestore:()=>Promise<void>;rules:SlaRule[];onSaveRule:(r:SlaRule)=>Promise<void>;onDeleteRule:(s:string)=>Promise<void> }
-export default function PilotingDashboard({individual=false,canReport=false,personNames,dataControls,rows,canEdit,onApply,onRestore,rules,onSaveRule,onDeleteRule}:Props) {
+interface Props { individual?:boolean;sidebarNavigation?:boolean;canReport?:boolean; dataControls?:ReactNode;personNames?:string[]; rows:MonitoringRecord[];canEdit:boolean;onApply:(rows:Payload[],name:string)=>Promise<void>;onRestore:()=>Promise<void>;rules:SlaRule[];onSaveRule:(r:SlaRule)=>Promise<void>;onDeleteRule:(s:string)=>Promise<void> }
+export default function PilotingDashboard({individual=false,sidebarNavigation=false,canReport=false,personNames,dataControls,rows,canEdit,onApply,onRestore,rules,onSaveRule,onDeleteRule}:Props) {
  const t=usePilotText(),[view,setView]=useState('overview'),[filters,setFilters]=useState<PilotFilters>({...initialFilters}),[detail,setDetail]=useState<MonitoringRecord|null>(null),[drill,setDrill]=useState<{title:string;rows:MonitoringRecord[]}|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[imported,setImported]=useState<Awaited<ReturnType<typeof readPiloting>>|null>(null),[fileName,setFileName]=useState('');
  const filtered=useMemo(()=>filterPiloting(rows,filters),[rows,filters]),m=pilotMetrics(filtered);
  const update=(key:keyof PilotFilters,v:string)=>{setFilters(f=>({...f,[key]:v}));setDrill(null);};
@@ -23,7 +23,7 @@ export default function PilotingDashboard({individual=false,canReport=false,pers
  async function perform(action:()=>Promise<void>){setBusy(true);setError('');try{await action();}catch(e){setError(e instanceof Error?e.message:String(e));}finally{setBusy(false);}}
  const cards:[string,number,keyof PilotFilters|null,string][]=[['Total Permohonan',m.total,null,''],['Selesai',m.done,'status','Done'],['Reject/Retur',m.returned,'status','Reject/Retur'],['Pending',m.pending,'status','Masih Pending'],['Discrepancy',m.discrepancy,'discrepancy','Discrepancy']];
  const chart=(title:string,key:'group'|'product'|'form'|'status'|'discrepancy')=><Panel title={t(title)} hint={t('Klik untuk melihat permohonan')}><Bars displayName={t} items={breakdown(filtered,field[key])} color="#087f8c" onSelect={v=>toggle(key,v)}/></Panel>;
- return <div className="dashboard-content dash-piloting"><SectionNavigation individual={individual} items={tabs} value={view} onChange={id=>{setView(id);setDrill(null);setError('');}}/>
+ return <div className="dashboard-content dash-piloting"><SectionNavigation individual={individual} sidebarNavigation={sidebarNavigation} items={tabs} value={view} onChange={id=>{setView(id);setDrill(null);setError('');}}/>
  {view!=='report'&&<PilotFilterBar hidePerson={individual} rows={rows} filters={filters} onChange={f=>{setFilters(f);setDrill(null);}}/>}
  {error&&<p className="error" role="alert">{error}</p>}
  {view==='overview'&&<><div className="kpis pilot-cards">{cards.map(([label,n,key,v],i)=><button key={label} className={'kpi source-'+['blue','green','red','amber','purple'][i]} disabled={!key} onClick={()=>key&&toggle(key,v)}><small>{t(label)}</small><strong>{n.toLocaleString()}</strong><span>{t(key==='discrepancy'?'Bagian dari total permohonan':'Data sesuai filter aktif')}</span></button>)}</div><p className="pilot-note">{t('Status dan discrepancy ditampilkan terpisah.')}</p></>}
