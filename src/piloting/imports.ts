@@ -3,19 +3,19 @@ import { type Payload, text } from '../types';
 import { dateVal, validDate } from '../domain/imports';
 import { sourceFields, field } from './model';
 export function auditPiloting(raw: Payload[]) {
-  const seen = new Set<string>(), errors: string[] = [];
+  const seen = new Map<string,string>(), errors: string[] = [];let duplicates=0;
   const rows = raw.map((r, i) => {
     const row = {...r};
     for (const key of [field.assigned, field.completed]) row[key] = dateVal(row[key]);
     for (const key of [field.id, field.company, field.person, field.status, field.product, field.assigned]) if (!text(row[key])) errors.push(`Row ${i+1}: ${key}`);
     for (const key of [field.assigned, field.completed]) if (!validDate(row[key])) errors.push(`Row ${i+1}: invalid ${key}`);
-    const id = text(row[field.id]); if (seen.has(id)) errors.push(`Row ${i+1}: duplicate ${id}`); seen.add(id);
+    const id = text(row[field.id]),canonical=JSON.stringify(Object.fromEntries(Object.entries(row).sort(([a],[b])=>a.localeCompare(b)))); if (seen.has(id)){duplicates++;if(seen.get(id)!==canonical)errors.push(`Row ${i+1}: conflicting duplicate ${id}`);}seen.set(id,canonical);
     if (!['Done','Reject/Retur','Masih Pending'].includes(text(row[field.status]))) errors.push(`Row ${i+1}: invalid ${field.status}`);
     if (!['Discrepancy','Tidak Discrepancy'].includes(text(row[field.discrepancy]))) errors.push(`Row ${i+1}: invalid ${field.discrepancy}`);
     const n = row[field.days]; if (text(n) && (!Number.isFinite(Number(n)) || Number(n)<0)) errors.push(`Row ${i+1}: invalid ${field.days}`);
     return row;
   });
-  return { rows, errors };
+  return { rows, errors, duplicates };
 }
 export async function readPiloting(file: File) {
   const wb = XLSX.read(await file.arrayBuffer(),{type:'array'});

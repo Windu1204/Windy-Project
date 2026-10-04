@@ -1230,5 +1230,425 @@
   "SLA pekerjaan selesai: durasi Assign ke AT sampai selesai dari sumber, dibandingkan dengan aturan Corporate. Pending dan reject/retur dipisahkan dari achievement.": [
     "SLA pekerjaan selesai: durasi Assign ke AT sampai selesai dari sumber, dibandingkan dengan aturan Corporate. Pending dan reject/retur dipisahkan dari achievement.",
     "Completed-work SLA: source duration from AT assignment to completion, compared with Corporate rules. Pending and returned work are excluded from achievement."
+  ],
+  "Pengaturan Laporan": [
+    "Pengaturan Laporan",
+    "Report Settings"
+  ],
+  "Pilih Bagian Laporan": [
+    "Pilih Bagian Laporan",
+    "Select Report Sections"
+  ],
+  "Pencarian": [
+    "Pencarian",
+    "Search"
+  ],
+  "Format": [
+    "Format",
+    "Format"
+  ],
+  "Bahasa": [
+    "Bahasa",
+    "Language"
+  ],
+  "Simpan": [
+    "Simpan",
+    "Save"
+  ],
+  "Cari nomor register, perusahaan…": [
+    "Cari nomor register, perusahaan…",
+    "Search register number, company…"
+  ],
+  "Bisa memilih satu PIC untuk laporan individual.": [
+    "Bisa memilih satu PIC untuk laporan individual.",
+    "Select one PIC for an individual report."
+  ],
+  "Admin": [
+    "Admin",
+    "Admin"
+  ],
+  "Ringkasan Admin": [
+    "Ringkasan Admin",
+    "Admin Overview"
+  ],
+  "Upload & Riwayat Data": [
+    "Upload & Riwayat Data",
+    "Upload & Data History"
+  ],
+  "Pengguna & Akses": [
+    "Pengguna & Akses",
+    "Users & Access"
+  ],
+  "Tim & Pemetaan PIC": [
+    "Tim & Pemetaan PIC",
+    "Teams & PIC Mapping"
+  ],
+  "Riwayat Aktivitas": [
+    "Riwayat Aktivitas",
+    "Activity History"
+  ],
+  "Menu Admin": [
+    "Menu Admin",
+    "Admin Menu"
+  ],
+  "Buat Pengguna": [
+    "Buat Pengguna",
+    "Create User"
+  ],
+  "Edit Pengguna": [
+    "Edit Pengguna",
+    "Edit User"
+  ],
+  "Nama lengkap": [
+    "Nama lengkap",
+    "Full Name"
+  ],
+  "Status": [
+    "Status",
+    "Status"
+  ],
+  "Tidak aktif": [
+    "Tidak aktif",
+    "Inactive"
+  ],
+  "Dashboard & Pemetaan": [
+    "Dashboard & Pemetaan",
+    "Dashboard & Mapping"
+  ],
+  "Nama PIC sesuai sumber data": [
+    "Nama PIC sesuai sumber data",
+    "PIC name as recorded in source data"
+  ],
+  "Tim": [
+    "Tim",
+    "Team"
+  ],
+  "Belum dipetakan": [
+    "Belum dipetakan",
+    "Not mapped"
+  ],
+  "Tanpa pemetaan, pengguna dan Team Leader tidak dapat melihat data pekerjaan. Data PM belum tersedia.": [
+    "Tanpa pemetaan, pengguna dan Team Leader tidak dapat melihat data pekerjaan. Data PM belum tersedia.",
+    "Unmapped users and Team Leaders cannot view work records. PM data is not available yet."
+  ],
+  "Buat link aktivasi / reset password": [
+    "Buat link aktivasi / reset password",
+    "Create activation / password reset link"
+  ],
+  "Link sekali pakai untuk pengguna mengatur password. Admin tidak mengetahui password pengguna.": [
+    "Link sekali pakai untuk pengguna mengatur password. Admin tidak mengetahui password pengguna.",
+    "One-time link for the user to set a password. The admin cannot see the password."
+  ],
+  "Link aktivasi": [
+    "Link aktivasi",
+    "Activation Link"
+  ],
+  "Salin link": [
+    "Salin link",
+    "Copy Link"
+  ],
+  "Pengguna aktif": [
+    "Pengguna aktif",
+    "Active Users"
+  ],
+  "Perlu pemetaan": [
+    "Perlu pemetaan",
+    "Mapping Needed"
+  ],
+  "Versi upload tersimpan": [
+    "Versi upload tersimpan",
+    "Saved Upload Versions"
+  ],
+  "Upload terakhir per dashboard": [
+    "Upload terakhir per dashboard",
+    "Latest Upload by Dashboard"
+  ],
+  "Belum ada upload": [
+    "Belum ada upload",
+    "No Upload Yet"
+  ],
+  "Lihat sebagai pengguna": [
+    "Lihat sebagai pengguna",
+    "View as User"
+  ],
+  "Hanya baca. Hak upload, pengelolaan akun dan update Done dinonaktifkan selama melihat sebagai pengguna.": [
+    "Hanya baca. Hak upload, pengelolaan akun dan update Done dinonaktifkan selama melihat sebagai pengguna.",
+    "Read only. Uploads, user management and Done updates are disabled while viewing as another user."
+  ],
+  "Pilih pengguna untuk dilihat": [
+    "Pilih pengguna untuk dilihat",
+    "Select User to View"
+  ],
+  "Pilih pengguna": [
+    "Pilih pengguna",
+    "Select User"
+  ],
+  "Cari nama, email, role…": [
+    "Cari nama, email, role…",
+    "Search name, email, role…"
+  ],
+  "Tampilkan tidak aktif": [
+    "Tampilkan tidak aktif",
+    "Show Inactive"
+  ],
+  "Nama & Email": [
+    "Nama & Email",
+    "Name & Email"
+  ],
+  "Dashboard / Tim": [
+    "Dashboard / Tim",
+    "Dashboard / Team"
+  ],
+  "Pemetaan": [
+    "Pemetaan",
+    "Mapping"
+  ],
+  "Aksi": [
+    "Aksi",
+    "Actions"
+  ],
+  "Lengkap": [
+    "Lengkap",
+    "Complete"
+  ],
+  "Nama anggota diisi sesuai nama PIC pada sumber data. Tidak ada anggota yang dibuat otomatis.": [
+    "Nama anggota diisi sesuai nama PIC pada sumber data. Tidak ada anggota yang dibuat otomatis.",
+    "Enter member names exactly as PIC names in the source data. Members are not created automatically."
+  ],
+  "Sumber": [
+    "Sumber",
+    "Source"
+  ],
+  "Nama tim": [
+    "Nama tim",
+    "Team Name"
+  ],
+  "Belum ditentukan": [
+    "Belum ditentukan",
+    "Not Assigned"
+  ],
+  "Nama PIC anggota, satu nama per baris": [
+    "Nama PIC anggota, satu nama per baris",
+    "Member PIC names, one name per line"
+  ],
+  "Simpan tim": [
+    "Simpan tim",
+    "Save Team"
+  ],
+  "Daftar tim": [
+    "Daftar tim",
+    "Team Directory"
+  ],
+  "Daftar anggota dan Team Leader belum tersedia.": [
+    "Daftar anggota dan Team Leader belum tersedia.",
+    "Members and Team Leaders have not been provided yet."
+  ],
+  "Upload Data": [
+    "Upload Data",
+    "Upload Data"
+  ],
+  "Dashboard tujuan": [
+    "Dashboard tujuan",
+    "Target Dashboard"
+  ],
+  "Sumber data": [
+    "Sumber data",
+    "Data Source"
+  ],
+  "Mode evaluasi: data saat ini tetap tersedia.": [
+    "Mode evaluasi: data saat ini tetap tersedia.",
+    "Evaluation mode: the current data remains available."
+  ],
+  "Mode operasional: data contoh tidak ikut dalam perhitungan.": [
+    "Mode operasional: data contoh tidak ikut dalam perhitungan.",
+    "Operational mode: example data is excluded from calculations."
+  ],
+  "Pilih Excel / CSV": [
+    "Pilih Excel / CSV",
+    "Select Excel / CSV"
+  ],
+  "Sumber data PM belum tersedia. Upload PM akan diaktifkan setelah field dan rumusnya ditentukan.": [
+    "Sumber data PM belum tersedia. Upload PM akan diaktifkan setelah field dan rumusnya ditentukan.",
+    "PM source data is not available. PM uploads will be enabled once its fields and calculations are defined."
+  ],
+  "Baru": [
+    "Baru",
+    "New"
+  ],
+  "Diperbarui": [
+    "Diperbarui",
+    "Updated"
+  ],
+  "Tidak berubah": [
+    "Tidak berubah",
+    "Unchanged"
+  ],
+  "Duplikat identik": [
+    "Duplikat identik",
+    "Identical Duplicates"
+  ],
+  "Konflik identitas": [
+    "Konflik identitas",
+    "Identity Conflicts"
+  ],
+  "Ada identitas pekerjaan dengan isi berbeda. Upload tidak diterapkan. Periksa kunci / isi sumber agar tidak menggabungkan pekerjaan yang berbeda.": [
+    "Ada identitas pekerjaan dengan isi berbeda. Upload tidak diterapkan. Periksa kunci / isi sumber agar tidak menggabungkan pekerjaan yang berbeda.",
+    "A work identity has conflicting contents. The upload has not been applied. Review the source key and contents to avoid merging different jobs."
+  ],
+  "Terapkan Upload": [
+    "Terapkan Upload",
+    "Apply Upload"
+  ],
+  "Pengaturan mode data": [
+    "Pengaturan mode data",
+    "Data Mode Settings"
+  ],
+  "Mode operasional memakai penyimpanan terpisah dan tidak mengambil data contoh. Data evaluasi tetap tersimpan.": [
+    "Mode operasional memakai penyimpanan terpisah dan tidak mengambil data contoh. Data evaluasi tetap tersimpan.",
+    "Operational mode uses separate storage and excludes example data. Evaluation data is retained."
+  ],
+  "Aktifkan mode operasional": [
+    "Aktifkan mode operasional",
+    "Activate Operational Mode"
+  ],
+  "Kembali ke mode evaluasi": [
+    "Kembali ke mode evaluasi",
+    "Return to Evaluation Mode"
+  ],
+  "Riwayat Upload": [
+    "Riwayat Upload",
+    "Upload History"
+  ],
+  "Minggu mulai": [
+    "Minggu mulai",
+    "Week Starting"
+  ],
+  "Waktu upload": [
+    "Waktu upload",
+    "Upload Time"
+  ],
+  "File": [
+    "File",
+    "File"
+  ],
+  "Mode": [
+    "Mode",
+    "Mode"
+  ],
+  "Jumlah data": [
+    "Jumlah data",
+    "Record Count"
+  ],
+  "Evaluasi": [
+    "Evaluasi",
+    "Evaluation"
+  ],
+  "Operasional": [
+    "Operasional",
+    "Operational"
+  ],
+  "Waktu": [
+    "Waktu",
+    "Time"
+  ],
+  "Pengguna": [
+    "Pengguna",
+    "User"
+  ],
+  "Aktivitas": [
+    "Aktivitas",
+    "Activity"
+  ],
+  "Rincian": [
+    "Rincian",
+    "Details"
+  ],
+  "Lihat rincian": [
+    "Lihat rincian",
+    "View Details"
+  ],
+  "Versi Data / Minggu Upload": [
+    "Versi Data / Minggu Upload",
+    "Data Version / Upload Week"
+  ],
+  "Terbaru": [
+    "Terbaru",
+    "Latest"
+  ],
+  "Data evaluasi": [
+    "Data evaluasi",
+    "Evaluation Data"
+  ],
+  "Data operasional": [
+    "Data operasional",
+    "Operational Data"
+  ],
+  "Data Tim Project Manager belum tersedia.": [
+    "Data Tim Project Manager belum tersedia.",
+    "Project Manager team data is not available yet."
+  ],
+  "Akun belum memiliki pemetaan dashboard. Hubungi administrator.": [
+    "Akun belum memiliki pemetaan dashboard. Hubungi administrator.",
+    "This account has no dashboard mapping. Contact an administrator."
+  ],
+  "Akun tidak aktif. Hubungi administrator.": [
+    "Akun tidak aktif. Hubungi administrator.",
+    "This account is inactive. Contact an administrator."
+  ],
+  "Memuat hak akses…": [
+    "Memuat hak akses…",
+    "Loading access permissions…"
+  ],
+  "Lihat sebagai pengguna · Hanya baca": [
+    "Lihat sebagai pengguna · Hanya baca",
+    "View as User · Read Only"
+  ],
+  "Kembali ke Admin": [
+    "Kembali ke Admin",
+    "Return to Admin"
+  ],
+  "Atur Password": [
+    "Atur Password",
+    "Set Password"
+  ],
+  "Password baru": [
+    "Password baru",
+    "New Password"
+  ],
+  "Gunakan minimal 12 karakter.": [
+    "Gunakan minimal 12 karakter.",
+    "Use at least 12 characters."
+  ],
+  "Simpan Password": [
+    "Simpan Password",
+    "Save Password"
+  ],
+  "Data Corporate - Piloting": [
+    "Data Corporate - Piloting",
+    "Corporate Piloting Data"
+  ],
+  "Upload dan riwayat data tersedia pada menu Admin.": [
+    "Upload dan riwayat data tersedia pada menu Admin.",
+    "Uploads and data history are available in the Admin menu."
+  ],
+  "Data Dashboard": [
+    "Data Dashboard",
+    "Dashboard Data"
+  ],
+  "Pengguna dan akses berhasil disimpan.": [
+    "Pengguna dan akses berhasil disimpan.",
+    "User and access saved successfully."
+  ],
+  "Tim berhasil disimpan.": [
+    "Tim berhasil disimpan.",
+    "Team saved successfully."
+  ],
+  "Upload tersimpan. Pengguna terhubung menerima pembaruan otomatis.": [
+    "Upload tersimpan. Pengguna terhubung menerima pembaruan otomatis.",
+    "Upload saved. Connected users receive updates automatically."
+  ],
+  "Buat Report": [
+    "Buat Report",
+    "Generate Report"
   ]
 }

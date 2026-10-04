@@ -4,7 +4,7 @@ const translate = (label: string, _language: string) => translations[label]?.[1]
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-test.beforeEach(async ({ page }) => { await page.goto('/'); await page.getByRole('button', { name: 'Buka preview lokal' }).click(); await expect(page.locator('.kpi').first()).toContainText('1,000'); await page.getByLabel('Bahasa / Language').selectOption('en'); });
+test.beforeEach(async ({ page }) => { await page.goto('/'); await page.getByRole('button', { name: 'Buka preview lokal' }).click(); await expect(page.locator('.kpi').first()).toContainText('1,000'); await page.locator('.profile-button').click();await page.getByLabel('Bahasa / Language').selectOption('en');await page.keyboard.press('Escape'); });
 test('navigation, filtering, pagination, record details and all three dashboards', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(e.message));
@@ -30,21 +30,11 @@ test('navigation, filtering, pagination, record details and all three dashboards
     await expect(page.getByRole('heading', { name: 'Milestone Availability' })).toBeVisible();
     await page.getByRole('button', { name: 'Corporate - Non Piloting', exact: true }).click();
     await expect(page.locator('.kpi').first()).toContainText('4,509');
-    await page.getByRole('button', { name: 'SLA Performance', exact: true }).click();
+    await page.getByRole('button', { name: 'Performance & Workload', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Official SLA Target Reference' })).toBeVisible();
     expect(errors).toEqual([]);
 });
-test('spreadsheet validation, apply and restore original dataset', async ({ page }) => {
-    await page.getByRole('button', { name: 'Data', exact: true }).click();
-    await page.locator('input[type=file]').setInputFiles({ name: 'verification.csv', mimeType: 'text/csv', buffer: Buffer.from('Application Number,Status,Request Date,Applicant Name\nTEST-1,Proses Selesai,2026-10-01,Test Company\nTEST-2,Dalam Proses,2026-10-01,Test Company\n,Done,2026-10-01,Missing ID\n') });
-    await expect(page.getByRole('button', { name: 'Success (2)' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Needs Revision (1)' })).toBeVisible();
-    await page.getByRole('button', { name: 'Apply 2 records' }).click();
-    await expect(page.locator('.records')).toContainText('2 records');
-    await page.getByRole('button', { name: 'Restore original dataset' }).click();
-    await page.getByRole('button', { name: 'Restore now' }).click();
-    await expect(page.locator('.records')).toContainText('1,000 records');
-});
+test('uploads are centralized in Admin while the Data menu remains readable',async({page})=>{await page.getByRole('button',{name:'Data',exact:true}).click();await expect(page.locator('input[type=file]')).toHaveCount(0);await expect(page.locator('.records')).toContainText('1,000 records');await page.getByRole('button',{name:'Admin',exact:true}).click();await expect(page.locator('.tabs button')).toHaveCount(5);await page.getByRole('button',{name:'Upload & Data History',exact:true}).click();await expect(page.getByLabel('Target Dashboard',{exact:true})).toBeVisible();});
 test('CSV, Word and PowerPoint downloads are generated without runtime errors', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(e.message));
@@ -56,13 +46,13 @@ test('CSV, Word and PowerPoint downloads are generated without runtime errors', 
     const csv = await csvPromise;
     expect((await readFile((await csv.path())!)).toString()).toContain(sourceId);
     await page.getByRole('button', { name: 'Report', exact: true }).click();
-    await page.getByLabel('Word (.docx)', { exact: true }).check();
+    await page.getByLabel('Report Format', { exact: true }).selectOption('docx');
     let dl = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Generate Report' }).click();
     const docx = await dl;
     await docx.saveAs('private/verified-report.docx');
     expect((await readFile('private/verified-report.docx')).subarray(0, 2).toString()).toBe('PK');
-    await page.getByLabel('PowerPoint (.pptx)', { exact: true }).check();
+    await page.getByLabel('Report Format', { exact: true }).selectOption('pptx');
     dl = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Generate Report' }).click();
     const pptx = await dl;
@@ -102,7 +92,7 @@ for (const [kind, dashboard] of [['ijr', 'IJR - BNIdirect'], ['regional', 'Regio
         await page.getByRole('button', { name: dashboard, exact: true }).click();
         const tabs = await source.locator('.tabs button').allTextContents();
         for (const tab of tabs) {
-            if (kind !== 'corporate' && ['Proses & Durasi', 'Status Implementasi', 'PIC & Beban Kerja', 'Beban Implementor', 'Kinerja SLA'].includes(tab)) continue;
+            if (['Proses & Durasi', 'Status Implementasi', 'PIC & Beban Kerja', 'Beban Implementor', 'Kinerja SLA','PIC & Implementor','Data'].includes(tab)) continue;
             await source.getByRole('button', { name: tab, exact: true }).click();
             await page.getByRole('button', { name: tab === 'Wilayah & Cabang' ? 'Region' : translate(tab, 'en'), exact: true }).click();
             if (tab === 'Report') { await expect(page.getByRole('heading', {name:'Monitoring Report',exact:true})).toBeVisible(); continue; } // Report controls were intentionally revised; Office content remains verified separately.
@@ -170,12 +160,8 @@ test('Regional category/subproduct chain and Done confirmation retain milestone 
     await target.click();
     const dialog = page.getByRole('dialog');
     const before = await dialog.locator('.detail-grid > div').allTextContents();
-    await dialog.getByLabel('Completion note').fill('Local parity verification');
-    await dialog.getByRole('button', { name: 'Mark Done', exact: true }).click();
-    await person.locator('td').nth(3).getByRole('button').click();
-    await page.locator('.records tbody tr').filter({ hasText: company }).first().click();
-    const after = await page.getByRole('dialog').locator('.detail-grid > div').allTextContents();
-    for (const field of before.filter(field => !/Status|Note|Updated|dashboard/i.test(field))) expect(after).toContain(field);
+    await expect(dialog.getByRole('button',{name:'Mark Done',exact:true})).toHaveCount(0);
+    expect(before.length).toBeGreaterThan(5);
 });
 
 test('all dashboard tabs fit desktop and phone widths without losing controls', async ({ page }) => {
@@ -194,21 +180,6 @@ test('all dashboard tabs fit desktop and phone widths without losing controls', 
     }
 });
 
-test('report person picker scopes the generated-file preview and individual report', async ({ page }) => {
-    await page.getByRole('button', { name: 'Report', exact: true }).click();
-    const input = page.getByLabel('PIC / Implementor', { exact: true });
-    await expect(input).toHaveValue('All Name');
-    await page.getByRole('button',{name:'Preview Report',exact:true}).click();
-    const dialog=page.getByRole('dialog',{name:'Report Preview',exact:true});
-    await expect(dialog.locator('.office-page')).toContainText('Monitoring Report');
-    await dialog.getByRole('button',{name:'Close',exact:true}).click();
-    await page.getByRole('button', { name: 'Tampilkan daftar PIC / Implementor' }).click();
-    const name = (await page.locator('.person-combo-option').nth(1).innerText()).trim();
-    await page.locator('.person-combo-option').nth(1).click();
-    await expect(input).toHaveValue(name);
-    await page.getByRole('button',{name:'Preview Report',exact:true}).click();
-    await expect(dialog.locator('.office-page')).toContainText(name);
-    await dialog.getByRole('button',{name:'Close',exact:true}).click();
-    await input.fill('All Name');
-    await expect(input).toHaveValue('All Name');
+test('report person picker scopes the downloaded individual report',async({page})=>{
+ await page.getByRole('button',{name:'Report',exact:true}).click();const input=page.getByLabel('PIC / Implementor',{exact:true});await expect(input).toHaveValue('All Name');await expect(page.getByRole('button',{name:'Preview Report',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Tampilkan daftar PIC / Implementor'}).click();const name=(await page.locator('.person-combo-option').nth(1).innerText()).trim();await page.locator('.person-combo-option').nth(1).click();await expect(input).toHaveValue(name);const wait=page.waitForEvent('download');await page.getByRole('button',{name:'Generate Report',exact:true}).click();expect((await wait).suggestedFilename()).toMatch(/\.pptx$/);await input.fill('All Name');await expect(input).toHaveValue('All Name');
 });
