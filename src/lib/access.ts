@@ -1,0 +1,24 @@
+import { supabase } from './supabase';
+import { type ApplicationKind, type Payload, text } from '../types';
+export type AccessRole='super_admin'|'admin'|'department_head'|'team_leader'|'individual';
+export interface Profile{workspace_id:string;user_id:string;name:string;email:string;role:AccessRole;active:boolean}
+export interface Grant{workspace_id?:string;user_id?:string;dataset:ApplicationKind;source:'AT'|'PM';team_id:string|null;pic:string}
+export interface Team{id:string;workspace_id:string;dataset:ApplicationKind;source:'AT'|'PM';name:string;leader_id:string|null}
+export interface Batch{id:string;dataset:ApplicationKind;name:string;created_at:string;data_mode:'reference'|'operational';source:'AT'|'PM';week_start:string;row_count:number}
+export const roleNames:Record<AccessRole,string>={super_admin:'Super Admin',admin:'Admin',department_head:'Department Head',team_leader:'Team Leader',individual:'Pengguna'};
+const db=()=>{if(!supabase)throw new Error('Supabase belum tersedia');return supabase;};
+export async function myAccess(workspace:string,user:string){const [p,g]=await Promise.all([db().from('wci_profiles').select('*').eq('workspace_id',workspace).eq('user_id',user).maybeSingle(),db().from('wci_access').select('*').eq('workspace_id',workspace).eq('user_id',user)]);if(p.error)throw p.error;if(g.error)throw g.error;return {profile:p.data as Profile|null,grants:g.data as Grant[]};}
+export async function adminDirectory(workspace:string){const results=await Promise.all([db().from('wci_profiles').select('*').eq('workspace_id',workspace).order('name'),db().from('wci_access').select('*').eq('workspace_id',workspace),db().from('wci_teams').select('*').eq('workspace_id',workspace),db().from('wci_team_people').select('*'),db().from('wci_batches').select('*').eq('workspace_id',workspace).order('created_at',{ascending:false}),db().from('wci_audit').select('*').eq('workspace_id',workspace).order('created_at',{ascending:false}).limit(100)]);for(const r of results)if(r.error)throw r.error;return {profiles:results[0].data as Profile[],grants:results[1].data as Grant[],teams:results[2].data as Team[],people:results[3].data as {team_id:string;pic:string}[],batches:results[4].data as Batch[],audit:results[5].data as {id:number;user_id:string;action:string;dataset:string|null;details:Record<string,unknown>;created_at:string}[]};}
+export async function saveUser(workspace:string,profile:Profile,grants:Grant[]){const {error}=await db().rpc('wci_save_user',{p_workspace:workspace,p_user:profile.user_id,p_name:profile.name,p_role:profile.role,p_active:profile.active,p_access:grants.map(({dataset,source,team_id,pic})=>({dataset,source,team_id,pic}))});if(error)throw error;}
+export async function saveTeam(workspace:string,team:Partial<Team>,people:string[]){const {error}=await db().rpc('wci_save_team',{p_workspace:workspace,p_id:team.id||null,p_dataset:team.dataset,p_source:team.source,p_name:team.name,p_leader:team.leader_id||null,p_people:people});if(error)throw error;}
+export async function reviewUpload(workspace:string,kind:ApplicationKind,rows:Payload[]){const {data,error}=await db().rpc('wci_upload_review',{p_workspace:workspace,p_kind:kind,p_rows:rows});if(error)throw error;return data as Record<'new'|'updated'|'unchanged'|'duplicates'|'conflicts',number>;}
+export async function setDataMode(workspace:string,kind:ApplicationKind,mode:string){const {error}=await db().rpc('wci_set_data_mode',{p_workspace:workspace,p_kind:kind,p_mode:mode});if(error)throw error;}
+export async function accountAction(workspace:string,action:string,input:Record<string,unknown>){const {data,error}=await db().functions.invoke('wci-user-admin',{body:{workspace,action,...input}});if(error){const response=(error as unknown as {context?:Response}).context;if(response){const detail=await response.json().catch(()=>null);if(detail?.error)throw new Error(detail.error);}throw error;}if(data?.error)throw new Error(data.error);return data as {user_id?:string;link?:string};}
+export function scopedRows<T extends {payload:Payload}>(rows:T[],kind:ApplicationKind,profile:Profile,grants:Grant[],teams:Team[],people:{team_id:string;pic:string}[]){
+ if(!profile.active||profile.role==='admin')return [];
+ if(profile.role==='super_admin')return rows;
+ const access=grants.filter(g=>g.dataset===kind&&g.source==='AT');if(!access.length)return [];
+ if(profile.role==='department_head')return rows;
+ const names=access.flatMap(g=>profile.role==='individual'?[g.pic]:teams.some(t=>t.id===g.team_id&&t.leader_id===profile.user_id)?people.filter(p=>p.team_id===g.team_id).map(p=>p.pic):[]).map(n=>n.trim().toLocaleLowerCase()).filter(Boolean);
+ return rows.filter(r=>(kind==='ijr'?['Implementor 1','Implementor 2','CS BNI Direct']:kind==='piloting'?['PIC AT']:['implementor']).some(k=>names.includes(text(r.payload[k]).toLocaleLowerCase())));
+}
