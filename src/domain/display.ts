@@ -20,5 +20,5 @@ export function detailFields(row: MonitoringRecord, kind: DatasetKind): [string,
   const values: [string, string][] = definitions.map(([label, key]) => [label, key === 'dashboardUpdatedAt' ? (Number.isFinite(new Date(text(row.payload[key])).getTime()) ? new Date(text(row.payload[key])).toLocaleString('id-ID') : '') : text(row.payload[key])]);
   if (kind === 'corporate') values.splice(17, 0, ['SLA Solution Mapping', row.sla.solution || ''], ['SLA Target', row.sla.target == null ? '' : row.sla.target + ' working days'], ['SLA Real', row.sla.real == null ? '' : row.sla.real + ' days'], ['SLA Status', row.sla.status], ['Over By', row.sla.over && row.sla.over > 0 ? row.sla.over + ' days' : ''], ['Mapping Method', row.sla.map || '']);
   if (kind === 'regional' && row.payload.dashboardUpdatedAt) values.splice(9, 0, ['Updated via', 'Dashboard']);
-  return values.filter(([, value]) => value && value !== 'null Hari');
+  return values.filter(([label, value]) => value && value !== 'null Hari' || kind === 'regional' && /Tanggal |Informasi Handover/.test(label)).map(([label,value])=>[label,value||'—']);
 }

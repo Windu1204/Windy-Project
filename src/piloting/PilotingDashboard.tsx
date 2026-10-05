@@ -1,3 +1,4 @@
+import { ProcessPeople } from '../components/ProcessPeople';
 import { CorporateOverview, CorporateProcess } from '../components/CorporateViews';
 import { SectionNavigation } from '../components/SectionNavigation';
 import { SlaCoverage } from '../components/SlaCoverage';
@@ -35,5 +36,5 @@ export default function PilotingDashboard({individual=false,sidebarNavigation=fa
 
  {view==='data'&&<>{dataControls}<section className="panel"><div className="panel-head"><h3>{t('Data Corporate - Piloting')}</h3><p>{t('Upload dan riwayat data tersedia pada menu Admin.')}</p></div><div className="button-row"><button className="secondary" onClick={()=>exportPiloting(filtered.map(r=>r.payload),'xlsx')}>{t('Unduh Excel')}</button><button className="secondary" onClick={()=>exportPiloting(filtered.map(r=>r.payload),'csv')}>{t('Unduh CSV')}</button></div></section><PilotRecords rows={filtered} onOpen={setDetail}/></>}
  {view==='report'&&<PilotReport rows={rows} dashboardFilters={filters}/>}
- {drill&&<><div className="pilot-toolbar"><h3>{t(drill.title)}</h3><button className="secondary" onClick={()=>setDrill(null)}>{t('Tutup rincian')}</button></div><PilotRecords rows={filtered.filter(row=>drill.rows.some(previous=>previous.id===row.id))} onOpen={setDetail}/></>}{detail&&<PilotDetail row={detail} onClose={()=>setDetail(null)}/>}</div>;
+ {drill&&<><div className="pilot-toolbar"><h3>{t(drill.title)}</h3><button className="secondary" onClick={()=>setDrill(null)}>{t('Tutup rincian')}</button></div>{view==='process'?<ProcessPeople piloting rows={filtered.filter(row=>drill.rows.some(previous=>previous.id===row.id))} onOpen={setDetail} title={drill.title}/>:<PilotRecords rows={filtered.filter(row=>drill.rows.some(previous=>previous.id===row.id))} onOpen={setDetail}/>}</>}{detail&&<PilotDetail row={detail} onClose={()=>setDetail(null)}/>}</div>;
 }

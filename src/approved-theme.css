@@ -38,3 +38,6 @@
 .task-done-dialog .button-row{display:flex;justify-content:flex-end;gap:12px;margin-top:22px}
 @media(max-width:760px){.app-shell .topbar h2.dashboard-title{font-size:24px}.task-done-dialog{padding:20px}.task-done-dialog .detail-grid{gap:14px}}
 .sidebar nav .nav.admin-navigation>svg{display:block!important;flex-shrink:0}
+.process-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:18px}.process-people .person-detail>.records{margin:0;padding:16px}.process-people .person-list label{display:grid;gap:8px}.sla-reasons{padding:18px;background:#F5FAFB;border:1px solid #D5E5E9;border-radius:8px;margin:18px 0}.sla-reasons h4{margin:0 0 14px}.sla-reasons>.secondary{margin-top:14px}.task-done-dialog .detail-grid{gap:12px}.task-done-dialog .detail-grid>div{padding:10px}.task-done-dialog .detail-grid small{line-height:1.4}.my-tasks table th{white-space:normal;min-width:110px}.my-tasks table th:first-child{min-width:180px}
+
+.sla-diagnostic-cell{min-width:300px;max-width:360px;white-space:normal;overflow-wrap:break-word;line-height:1.6}

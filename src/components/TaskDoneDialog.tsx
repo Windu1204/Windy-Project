@@ -13,6 +13,10 @@ export function TaskDoneDialog({ row, onClose, onSave }: { row: MonitoringRecord
     ['Perusahaan', text(row.payload.company)], ['CID', text(row.payload.cid)],
     ['Produk', text(row.payload.product)], ['Implementor', text(row.payload.implementor)],
     ['Status', text(row.payload.status)],
+    ['Email Sales', text(row.payload.salesDate)], ['Dokumen Lengkap', text(row.payload.docComplete)],
+    ['Selesai Setting', text(row.payload.settingDone)], ['Approval', text(row.payload.approvalDate)],
+    ['Info Nasabah', text(row.payload.customerInfo)], ['Training', text(row.payload.training)],
+    ['Handover', text(row.payload.handover)],
     ['Terakhir Diperbarui', Number.isFinite(updated.getTime()) ? updated.toLocaleString(language === 'en' ? 'en-GB' : 'id-ID') : '—'],
   ];
   async function save() {
