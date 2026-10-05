@@ -1,3 +1,4 @@
+import {DrillSlot} from './InlineDrill';
 import { useLanguage } from '../lib/language';
 import { type ReactNode } from 'react';
 const palette = ['#12a56f', '#1769d2', '#d99013', '#7b4be2', '#dd3b45', '#079b98', '#8090a6'];
@@ -6,8 +7,8 @@ export function Panel({ title, hint, children, className = '' }: {
     hint?: string;
     children: ReactNode;
     className?: string;
-}) { const { t } = useLanguage();  return <section className={'panel ' + className}><div className="panel-head"><h3>{t(title)}</h3>{hint && <p>{t(hint)}</p>}</div>{children}</section>; }
-export function Bars({ items, onSelect, color = '#1685f4', limit = 12, displayName = (name:string)=>name }: {
+}) { const { t } = useLanguage();  return <><section data-drill-anchor={title} className={'panel ' + className}><div className="panel-head"><h3>{t(title)}</h3>{hint && <p>{t(hint)}</p>}</div>{children}</section><DrillSlot anchor={title}/></>; }
+export function Bars({ items, onSelect, color = 'var(--chart-accent, #1685f4)', limit = 12, displayName = (name:string)=>name }: {
     displayName?: (name:string)=>string;
     items: [
         string,
