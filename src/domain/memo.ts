@@ -92,7 +92,10 @@ export function memoSemanticMatch(r: Payload, rules: SlaRule[]): Match | null {
         return { target: 3, solution: 'Virtual Account (upload iCons/RPA)', map: 'Semantic Memo mapping' };
     if (/bni ?direct/.test(product))
         return { target: isNew ? 3 : 2, solution: 'BNIdirect', map: 'Semantic Memo mapping' };
-    return customSlaMatch(r, rules);
+    const custom = customSlaMatch(r, rules);
+    if (custom) return custom;
+    const canonical = product.replace(/\becollection\b|\becolletion\b/g, 'e collection');
+    return canonical !== product ? memoSemanticMatch({ ...r, product: canonical }, rules) : null;
 }
 export const REG_SLA_RULES: [
     string,
@@ -157,5 +160,9 @@ export function regSlaTarget(r: Payload) {
         if (/icons|rpa|upload/.test(p))
             return regSlaResult('Virtual Account (upload iCons/RPA)', isNew);
     }
-    return null;
+    // Only unmapped rows reach this fallback. Exact aliases do not alter source labels.
+    const compact=p.replace(/[^a-z0-9]/g,'');
+    const alias:Record<string,string>={vaecoll:'VA eCollection (Portal)',vaecollection:'VA eCollection (Portal)',vaecolletion:'VA eCollection (Portal)',apinotif:'API Notification Account Statement'};
+    const canonical=alias[compact]||REG_SLA_RULES.find(([name])=>slaNorm(name).replace(/[^a-z0-9]/g,'')===compact)?.[0];
+    return canonical?regSlaResult(canonical,isNew):null;
 }
