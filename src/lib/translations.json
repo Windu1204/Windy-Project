@@ -1870,5 +1870,27 @@
   "Konfirmasi Done": [
     "Konfirmasi Done",
     "Confirm Done"
-  ]
+  ],
+  "Klik nama untuk melihat pekerjaan, lalu klik pekerjaan untuk membuka detail.": ["Klik nama untuk melihat pekerjaan, lalu klik pekerjaan untuk membuka detail.", "Select a PIC to view jobs, then select a job to open its details."],
+  "Klik bar untuk melihat nama PIC dan pekerjaan.": ["Klik bar untuk melihat nama PIC dan pekerjaan.", "Select a bar to view PIC names and jobs."],
+  "Cari nama PIC": ["Cari nama PIC", "Search PIC names"],
+  "PIC belum tercantum": ["PIC belum tercantum", "PIC not specified"],
+  "Pilih nama PIC untuk melihat pekerjaan.": ["Pilih nama PIC untuk melihat pekerjaan.", "Select a PIC to view jobs."],
+  "Tidak ada pekerjaan sesuai pilihan.": ["Tidak ada pekerjaan sesuai pilihan.", "No jobs match this selection."],
+  "Durasi Implementasi": ["Durasi Implementasi", "Implementation Duration"],
+  "Durasi belum tersedia": ["Durasi belum tersedia", "Duration unavailable"],
+  "Pekerjaan selesai berdasarkan hari penyelesaian AT.": ["Pekerjaan selesai berdasarkan hari penyelesaian AT.", "Completed jobs grouped by AT completion days."],
+  "Durasi berdasarkan SLA Real pada sumber.": ["Durasi berdasarkan SLA Real pada sumber.", "Duration based on actual SLA in the source."],
+  "Jenis Pekerjaan": ["Jenis Pekerjaan", "Work Type"],
+  "Penyebab SLA": ["Penyebab SLA", "SLA Calculation Reason"],
+  "Semua penyebab": ["Semua penyebab", "All reasons"],
+  "Pekerjaan belum Done": ["Pekerjaan belum Done", "Job not completed"],
+  "Sebelum periode kebijakan SLA": ["Sebelum periode kebijakan SLA", "Before SLA policy effective date"],
+  "Produk belum memiliki pemetaan SLA": ["Produk belum memiliki pemetaan SLA", "Product has no SLA mapping"],
+  "Produk belum tercantum": ["Produk belum tercantum", "Product not specified"],
+  "Tanggal Dokumen Lengkap belum tersedia": ["Tanggal Dokumen Lengkap belum tersedia", "Complete Documents date unavailable"],
+  "Tanggal Dokumen Lengkap belum valid": ["Tanggal Dokumen Lengkap belum valid", "Complete Documents date invalid"],
+  "Tanggal penyelesaian belum tersedia": ["Tanggal penyelesaian belum tersedia", "Completion date unavailable"],
+  "Urutan tanggal perlu diperiksa": ["Urutan tanggal perlu diperiksa", "Date sequence needs review"],
+  "Durasi SLA belum tersedia": ["Durasi SLA belum tersedia", "Actual SLA duration unavailable"]
 }
