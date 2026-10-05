@@ -28,7 +28,17 @@ describe('calculation parity against the v78 application', () => {
         const available = existsSync(`private/seed/${kind}.json`) && existsSync(`private/reference/${kind}.js`);
         it.skipIf(!available)(`${kind}: every original record has the same SLA result`, () => {
             const data = JSON.parse(readFileSync(`private/seed/${kind}.json`, 'utf8')) as Payload[], original = legacy(kind);
-            data.forEach((payload, index) => { const { target, real, status, over, solution } = calculateSla(payload, kind); expect({ target, real, status, over, solution }, `${kind} source row ${index + 1}`).toEqual(original(payload)); });
+            data.forEach((payload, index) => {
+                const { target, real, status, over, solution } = calculateSla(payload, kind), before = original(payload);
+                // Approved exact spelling aliases only extend previously unmapped products.
+                const alias = String(payload.product || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                const resolved = kind === 'regional' && before.target === null && before.solution === null && ['vaecoll','vaecolletion','apinotif'].includes(alias);
+                if (resolved) {
+                    expect(solution).toBe(alias === 'apinotif' ? 'API Notification Account Statement' : 'VA eCollection (Portal)');
+                    expect(target).toBe(/new|baru/i.test(String(payload.type)) ? 7 : 5);
+                    expect(real).toBeNull(); expect(status).toBe('SLA Real Unavailable'); expect(over).toBeNull();
+                } else expect({ target, real, status, over, solution }, `${kind} source row ${index + 1}`).toEqual(before);
+            });
             const rows = data.map((payload, i) => ({ id: String(i), payload, sla: calculateSla(payload, kind) }));
             expect(metrics(rows, kind).total).toBe({ ijr: 1000, regional: 1098, corporate: 4509 }[kind]);
             expect(counts(rows, r => status(r, kind)).reduce((n, x) => n + x[1], 0)).toBe(rows.filter(r => status(r, kind)).length);
