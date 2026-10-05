@@ -6,7 +6,18 @@ test('Corporate process charts drill through actual PIC names to full job detail
  for(const dashboard of ['Corporate - Non Piloting','Corporate - Piloting']){
   await page.getByRole('button',{name:dashboard,exact:true}).click();
   await page.getByRole('button',{name:'Proses Implementasi',exact:true}).click();
-  for(const title of ['Status Implementasi','Volume by Segment','Jenis Pekerjaan','Top Products','Pekerjaan Pending']){
+  await expect(page.locator('.corporate-process').getByRole('heading',{name:'Status Implementasi',exact:true})).toHaveCount(0);
+  const groups=page.locator('.process-summary button');
+  const groupCount=await groups.count();
+  for(let i=0;i<groupCount;i++){
+   const expected=Number((await groups.nth(i).locator('b').innerText()).replace(/\D/g,''));
+   await groups.nth(i).click();const drill=page.locator('.process-people');await expect(drill).toBeVisible();
+   const counts=await drill.locator('.person-row strong').allTextContents();expect(counts.reduce((sum,n)=>sum+Number(n.replace(/\D/g,'')),0)).toEqual(expected);
+   await drill.locator('.person-row').first().click();await expect(drill.locator('tbody tr').first()).toBeVisible();
+   await drill.locator('tbody .text-button').first().click();await expect(page.locator('dialog[open]')).toBeVisible();
+   await page.keyboard.press('Escape');
+  }
+  for(const title of ['Volume by Segment','Jenis Pekerjaan','Top Products','Pekerjaan Pending']){
    const panel=page.locator('.corporate-process .panel').filter({has:page.getByRole('heading',{name:title,exact:true})});
    const bars=panel.locator('.bar-row');if(!await bars.count())continue;
    const expected=Number((await bars.first().locator('b').innerText()).replace(/\D/g,''));
