@@ -1974,5 +1974,89 @@
   "Tidak ada pengguna untuk role ini.": [
     "Tidak ada pengguna untuk role ini.",
     "No users for this role."
+  ],
+  "Volume dan Selesai per Wilayah": [
+    "Volume dan Selesai per Wilayah",
+    "Volume and Completed by Region"
+  ],
+  "Klik bar untuk melihat pekerjaan sesuai wilayah dan kategori.": [
+    "Klik bar untuk melihat pekerjaan sesuai wilayah dan kategori.",
+    "Select a bar to view jobs for the region and category."
+  ],
+  "Volume": [
+    "Volume",
+    "Volume"
+  ],
+  "Project Close": [
+    "Project Close",
+    "Project Close"
+  ],
+  "Belum Close": [
+    "Belum Close",
+    "Not Closed"
+  ],
+  "Persentase proyek ditutup": [
+    "Persentase proyek ditutup",
+    "Project Closure Rate"
+  ],
+  "Bukan persentase pencapaian SLA": [
+    "Bukan persentase pencapaian SLA",
+    "This is not SLA achievement"
+  ],
+  "Rata-rata Hari Kerja": [
+    "Rata-rata Hari Kerja",
+    "Average Business Days"
+  ],
+  "Pekerjaan Done dengan durasi valid": [
+    "Pekerjaan Done dengan durasi valid",
+    "Done jobs with valid duration"
+  ],
+  "Pekerjaan Done dengan SLA terukur": [
+    "Pekerjaan Done dengan SLA terukur",
+    "Done jobs with measurable SLA"
+  ],
+  "Durasi sesuai target SLA": [
+    "Durasi sesuai target SLA",
+    "Duration meets the SLA target"
+  ],
+  "Durasi melewati target SLA": [
+    "Durasi melewati target SLA",
+    "Duration exceeds the SLA target"
+  ],
+  "Pekerjaan Done dengan data SLA belum lengkap": [
+    "Pekerjaan Done dengan data SLA belum lengkap",
+    "Done jobs with incomplete SLA data"
+  ],
+  "Reject/Retur — tidak termasuk penilaian SLA": [
+    "Reject/Retur — tidak termasuk penilaian SLA",
+    "Rejected / Returned — excluded from SLA assessment"
+  ],
+  "Pekerjaan sudah ditutup dan termasuk Project Close, tetapi dikecualikan dari pencapaian SLA.": [
+    "Pekerjaan sudah ditutup dan termasuk Project Close, tetapi dikecualikan dari pencapaian SLA.",
+    "The job is closed and included in Project Close, but excluded from SLA achievement."
+  ],
+  "Pencapaian SLA Piloting dihitung dari pekerjaan Done. Reject/Retur dicatat terpisah.": [
+    "Pencapaian SLA Piloting dihitung dari pekerjaan Done. Reject/Retur dicatat terpisah.",
+    "Piloting SLA achievement is calculated from Done jobs. Rejected / Returned jobs are recorded separately."
+  ],
+  "Need Amandment": [
+    "Need Amandment",
+    "Needs Amendment"
+  ],
+  "Dibatalkan": [
+    "Dibatalkan",
+    "Cancelled"
+  ],
+  "Registered, Delivered": [
+    "Registered, Delivered",
+    "Registered, Delivered"
+  ],
+  "Waiting for Approval": [
+    "Waiting for Approval",
+    "Waiting for Approval"
+  ],
+  "Waiting for Onboarding": [
+    "Waiting for Onboarding",
+    "Waiting for Onboarding"
   ]
 }
