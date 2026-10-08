@@ -2,7 +2,7 @@ import { discrepancyPages } from './report-pagination';
 
 import { requestType } from './report-overview';
 
-import {reportCharts,chartPng} from './report-charts';
+import {reportCharts,chartPng,productChartPanels} from './report-charts';
 
 
 
@@ -198,7 +198,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-   const chartSlide=(existing?:ReturnType<typeof slide>)=>{const g=existing||slide(p.title+' · Grafik'),compact=!!existing;charts.forEach((chart,i)=>{const wide=charts.length===1,x=.55+i*6.18,w=wide?12.1:5.7;g.addText(chart.title,{x,y:compact?4.28:1.65,w,h:.3,fontSize:compact?13:16,bold:true,color:'08275C',margin:0});if(chart.items.length)g.addChart(pptx.ChartType.bar,(chart.series||[{name:'Permohonan',color:chart.color,values:chart.items.map(x=>x[1])}]).map(series=>({name:series.name,labels:chart.items.map(x=>x[0]==='Masih Pending'?'Pending':x[0]),values:series.values})),{x,y:compact?4.7:2.25,w,h:compact?2.15:4.2,barDir:p.title==='Proses Implementasi'?'col':'bar',showLegend:!!chart.series,legendPos:'b',showValue:true,showTitle:false,chartColors:chart.series?.map(s=>s.color)||[chart.color],catAxisLabelFontSize:compact?9:chart.items.length>15?8:11,valAxisLabelFontSize:9,dataLabelFormatCode:'0',dataLabelPosition:'outEnd'});else g.addText('Tidak ada data',{x,y:compact?5:3,w:5.7,h:.5,fontSize:14,color:'61798D'});});};
+   const chartSlide=(existing?:ReturnType<typeof slide>)=>{const g=existing||slide(p.title+' · Grafik'),compact=!!existing;const panels=p.title==='Overview Produk'?charts.flatMap(productChartPanels):charts;if(p.title==='Overview Produk'&&panels.length>1)g.addText('N = New · M = Maintenance · Skala tiap panel berbeda; bandingkan angka pada bar.',{x:.55,y:6.88,w:12.1,h:.18,fontSize:10,color:'61798D',margin:0});panels.forEach((chart,i)=>{const wide=panels.length===1,x=.55+i*6.18,w=wide?12.1:5.7;g.addText(chart.title,{x,y:compact?4.28:1.65,w,h:.3,fontSize:compact?13:16,bold:true,color:'08275C',margin:0});if(chart.items.length)g.addChart(pptx.ChartType.bar,(chart.series||[{name:'Permohonan',color:chart.color,values:chart.items.map(x=>x[1])}]).map(series=>({name:series.name,labels:chart.items.map(x=>x[0]==='Masih Pending'?'Pending':x[0]),values:series.values})),{x,y:compact?4.7:2.25,w,h:compact?2.15:4.2,barDir:p.title==='Proses Implementasi'?'col':'bar',showLegend:!!chart.series,legendPos:'b',legendFontSize:11,valAxisMinVal:0,barGrouping:'clustered',showValue:true,showTitle:false,chartColors:chart.series?.map(s=>s.color)||[chart.color],catAxisLabelFontSize:compact?9:chart.items.length>15?8:11,valAxisLabelFontSize:9,dataLabelFormatCode:'0',dataLabelPosition:'outEnd'});else g.addText('Tidak ada data',{x,y:compact?5:3,w:5.7,h:.5,fontSize:14,color:'61798D'});});};
 
 
 
@@ -224,13 +224,13 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-   for(let start=0;start<expanded.length;start+=size){const part=expanded.slice(start,start+size),s=slide(p.title+(expanded.length>size?` · ${Math.floor(start/size)+1}/${Math.ceil(expanded.length/size)}`:''));const cells=[p.headers.map(text=>({text,options:{bold:true,color:'FFFFFF',fill:{color:'087F8C'}}})),...part.map((r,i)=>r.map((text,j)=>({text,options:{fill:{color:i%2?'F2F5F7':'FFFFFF'},align:(j===0||j===1?'left':'center') as 'left'|'center',color:'08275C'}})))];
+   for(let start=0;start<expanded.length;start+=size){const part=expanded.slice(start,start+size),s=slide(p.title+(expanded.length>size?` · ${Math.floor(start/size)+1}/${Math.ceil(expanded.length/size)}`:''));const cells=[p.headers.map(text=>({text,options:{bold:true,color:'FFFFFF',fill:{color:'087F8C'},align:(overview?'center':'left') as 'left'|'center'}})),...part.map((r,i)=>r.map((text,j)=>({text,options:{fill:{color:i%2?'F2F5F7':'FFFFFF'},align:(overview?j===0?'left':'center':j===0||j===1?'left':'center') as 'left'|'center',color:'08275C'}})))];
 
 
 
     if(overview)s.addText('N = New · M = Maintenance',{x:.38,y:6.87,w:12.55,h:.16,fontSize:8,color:'08275C',margin:0});
 
-    s.addTable(cells.map(row=>row.map(cell=>({...cell,text:cell.text==='Masih Pending'?'Pending':cell.text}))),{x:.38,y:1.6,w:12.55,h:combined?2.35:p.headers.length===7?5.1:4.7,border:{type:'solid',color:'DCE3E7',pt:.5},fontFace:'Arial',fontSize:overview?9:p.title==='Rincian Discrepancy'?(p.headers.length===7?11:14):13,margin:.1,rowH:.45,colW:overview?[2.35,...Array(p.headers.length-2).fill(9/(p.headers.length-2)),1.2]:p.headers.length===2?[3,9.55]:p.title==='Rincian Discrepancy'?[1.4,1.8,.95,.95,3,1.65,2.8]:undefined,autoPage:false,verbose:false});if(combined)chartSlide(s);
+    s.addTable(cells.map(row=>row.map(cell=>({...cell,text:cell.text==='Masih Pending'?'Pending':cell.text}))),{x:.38,y:1.6,w:12.55,h:combined?2.35:p.headers.length===7?5.1:4.7,border:{type:'solid',color:'DCE3E7',pt:.5},fontFace:'Arial',fontSize:overview?12:p.title==='Rincian Discrepancy'?(p.headers.length===7?11:14):13,margin:.1,rowH:.45,colW:overview?[4.55,...Array(p.headers.length-1).fill(8/(p.headers.length-1))]:p.headers.length===2?[3,9.55]:p.title==='Rincian Discrepancy'?[1.4,1.8,.95,.95,3,1.65,2.8]:undefined,autoPage:false,verbose:false});if(combined)chartSlide(s);
 
 
 
@@ -282,11 +282,11 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-   const images=await Promise.all(reportCharts(p.title,model.rows).map(async chart=>new Paragraph({children:[new ImageRun({data:await chartPng(chart),transformation:{width:580,height:250}})],spacing:{before:160,after:160}})));
+   const images=await Promise.all(reportCharts(p.title,model.rows).map(async chart=>new Paragraph({pageBreakBefore:p.title==='Overview Produk'||p.title==='Overview per Segmen',children:[new ImageRun({data:await chartPng(chart),transformation:{width:580,height:chart.title==='Overview Produk'&&productChartPanels(chart).length>1?367:208}})],spacing:{before:160,after:160}})));
 
 
 
-   return [heading,new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({tableHeader:true,children:p.headers.map(text=>new TableCell({shading:{fill:'087F8C'},children:[new Paragraph({children:[new TextRun({text,bold:true,color:'FFFFFF',size:20})]})]}))}),...p.rows.map((r,i)=>new TableRow({cantSplit:false,children:r.map((text,j)=>new TableCell({shading:{fill:i%2?'F2F5F7':'FFFFFF'},children:[new Paragraph({alignment:j>1&&p.title!=='Rincian Discrepancy'?AlignmentType.CENTER:AlignmentType.LEFT,children:[new TextRun({text:text==='Masih Pending'?'Pending':text,color:'08275C',size:20})]})]}))}))]}),...images];
+   return [heading,new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({tableHeader:true,children:p.headers.map(text=>new TableCell({shading:{fill:'087F8C'},children:[new Paragraph({children:[new TextRun({text,bold:true,color:'FFFFFF',size:22})]})]}))}),...p.rows.map((r,i)=>new TableRow({cantSplit:false,children:r.map((text,j)=>new TableCell({shading:{fill:i%2?'F2F5F7':'FFFFFF'},children:[new Paragraph({alignment:j>0&&(p.title==='Overview Produk'||p.title==='Overview per Segmen')?AlignmentType.CENTER:j>1&&p.title!=='Rincian Discrepancy'?AlignmentType.CENTER:AlignmentType.LEFT,children:[new TextRun({text:text==='Masih Pending'?'Pending':text,color:'08275C',size:22})]})]}))}))]}),...images];
 
 
 

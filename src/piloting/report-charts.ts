@@ -17,14 +17,30 @@ export function reportCharts(title:string,rows:MonitoringRecord[]):ReportChart[]
   const series=(['N','M','—'] as const).map((type,i)=>({name:type,color:['F97316','087F8C','8996A4'][i],values:items.map(([label])=>rows.filter(r=>(value(r,key)||'—')===label&&requestType(r)===type).length)})).filter(s=>s.name!=='—'||s.values.some(Boolean));
   return [{title,items,color:'087F8C',series}];
  }
- if(title==='Rincian Discrepancy'){const cases=rows.filter(r=>value(r,field.discrepancy)==='Discrepancy');return [chart('Discrepancy per Sales',breakdown(cases,'PIC Sales'),'F97316'),chart('Discrepancy per Segmen',breakdown(cases,field.group),'F97316')];}
+ // Discrepancy details remain in the table; no discrepancy chart page.
+ if(title==='Rincian Discrepancy')return [];
  return [];
 }
+export function productChartPanels(chart:ReportChart):ReportChart[]{
+ if(chart.items.length<=6)return [chart];
+ const middle=Math.ceil(chart.items.length/2);
+ return [[0,middle],[middle,chart.items.length]].map(([start,end],i)=>({...chart,title:i===0?'Produk · Volume Lebih Besar':'Produk · Volume Lebih Kecil',items:chart.items.slice(start,end),series:chart.series?.map(s=>({...s,values:s.values.slice(start,end)}))}));
+}
 export async function chartPng(chart:ReportChart):Promise<Uint8Array>{
- const canvas=document.createElement('canvas');canvas.width=1000;canvas.height=430;const c=canvas.getContext('2d');if(!c)throw new Error('Grafik report tidak dapat dibuat.');c.fillStyle='#fff';c.fillRect(0,0,1000,430);c.fillStyle='#08275c';c.font='bold 28px Arial';c.fillText(chart.title,24,38);const max=Math.max(1,...chart.items.map(x=>x[1])),size=Math.min(42,315/Math.max(1,chart.items.length));
- const series=chart.series||[{name:'Permohonan',color:chart.color,values:chart.items.map(x=>x[1])}],peak=Math.max(1,...series.flatMap(s=>s.values));
- if(chart.series){c.font='18px Arial';series.forEach((s,i)=>{c.fillStyle='#'+s.color;c.fillRect(370+i*150,48,16,12);c.fillStyle='#173a63';c.fillText(s.name,393+i*150,60);});}
- chart.items.forEach(([label],i)=>{const y=78+i*size;c.fillStyle='#173a63';c.font=`${Math.min(20,Math.max(10,size*.55))}px Arial`;c.fillText(label.length>28?label.slice(0,27)+'…':label,24,y+size*.55);const height=Math.max(2,(size-8)/series.length);series.forEach((s,j)=>{const n=s.values[i],top=y+j*height;c.fillStyle='#'+s.color;c.fillRect(370,top,520*n/peak,Math.max(1,height-2));c.fillStyle='#08275c';c.font=`${Math.min(16,Math.max(9,height))}px Arial`;c.fillText(String(n),Math.min(910,378+520*n/peak),top+height-1);});});
+ const panels=chart.title==='Overview Produk'?productChartPanels(chart):[chart];
+ const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=panels.length>1?760:430;const c=canvas.getContext('2d');if(!c)throw new Error('Grafik report tidak dapat dibuat.');c.fillStyle='#fff';c.fillRect(0,0,canvas.width,canvas.height);
+ panels.forEach((panel,index)=>{
+  const offset=index*360,series=panel.series||[{name:'Permohonan',color:panel.color,values:panel.items.map(x=>x[1])}],peak=Math.max(1,...series.flatMap(s=>s.values)),size=Math.min(44,265/Math.max(1,panel.items.length));
+  c.fillStyle='#08275c';c.font='bold 25px Arial';c.fillText(panel.title,24,offset+32);
+  if(panel.series){c.font='18px Arial';series.forEach((s,i)=>{c.fillStyle='#'+s.color;c.fillRect(520+i*150,offset+42,16,12);c.fillStyle='#173a63';c.fillText(s.name,543+i*150,offset+55);});}
+  panel.items.forEach(([label],i)=>{
+   const y=offset+72+i*size;c.fillStyle='#173a63';c.font=`${Math.min(21,Math.max(14,size*.55))}px Arial`;
+   const words=label.split(' '),lines=[''];for(const word of words){const last=lines.length-1,trial=(lines[last]+' '+word).trim();if(c.measureText(trial).width>440&&lines[last])lines.push(word);else lines[last]=trial;}
+   lines.slice(0,2).forEach((line,j)=>c.fillText(line,24,y+16+j*17));
+   const height=Math.max(3,(size-6)/series.length);series.forEach((s,j)=>{const n=s.values[i],top=y+j*height;c.fillStyle='#'+s.color;c.fillRect(520,top,580*n/peak,Math.max(2,height-2));c.fillStyle='#08275c';c.font='16px Arial';if(n)c.fillText(String(n),Math.min(1140,528+580*n/peak),top+height-1);});
+  });
+ });
+ if(panels.length>1){c.fillStyle='#61798d';c.font='18px Arial';c.fillText('Skala tiap panel berbeda; bandingkan angka pada bar. N = New · M = Maintenance',24,744);}
  const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Grafik tidak tersedia.')),'image/png'));return new Uint8Array(await blob.arrayBuffer());
 }
 

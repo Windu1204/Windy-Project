@@ -49,6 +49,10 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
   // Match the v78 workload summary, including its Number(null) treatment in Avg Process Day.
 
   const days = assigned.map(r => Number(r.payload._TotalDayNum)).filter(Number.isFinite);
+  const measured = assigned.filter(r => ['Within SLA', 'Overdue'].includes(r.sla.status));
+  const within = measured.filter(r => r.sla.status === 'Within SLA').length;
+  const validDurations = assigned.filter(done).map(r => r.sla.real).filter((n): n is number => n !== null && Number.isFinite(n) && n >= 0);
+  const average = validDurations.length ? validDurations.reduce((sum,n) => sum+n,0)/validDurations.length : null;
 
   const kpis: [string, number | string][] = [['Assigned Records', assigned.length], ['Active Work', assigned.filter(r => !done(r)).length], ['Completed', assigned.filter(done).length], ['Waiting / Pending', assigned.filter(waiting).length], ['Overdue', assigned.filter(overdue).length]];
 
@@ -84,7 +88,7 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
 
       <h3>{selected}</h3><div className="person-kpis">{kpis.map(([label, n],i) => <button key={label} disabled={label==='Avg Process Day'} onClick={()=>setMode(['all','active','done','waiting','overdue'][i])}><small>{t(label)}</small><b>{typeof n === 'number' ? n.toLocaleString() : n}</b></button>)}</div>
 
-      <div className="person-metrics"><button className="secondary" onClick={()=>setMode("measured")}>{t("Measurable")}: {assigned.filter(r=>["Within SLA","Overdue"].includes(r.sla.status)).length.toLocaleString()}</button><button className="secondary" onClick={()=>setMode("within")}>Within SLA: {assigned.filter(r=>r.sla.status==="Within SLA").length.toLocaleString()}</button>{kind==='ijr'&&<span>{t("Avg Process Day")}: <b>{days.length?(days.reduce((a,b)=>a+b,0)/days.length).toFixed(1):"—"}</b></span>}</div>
+      <div className="person-metrics"><button className="secondary" onClick={()=>setMode("measured")}>{t("Measurable")}: {measured.length.toLocaleString()}</button><button className="secondary" onClick={()=>setMode("within")}>Within SLA: {within.toLocaleString()}</button>{kind==='ijr'&&<span>{t("Avg Process Day")}: <b>{days.length?(days.reduce((a,b)=>a+b,0)/days.length).toFixed(1):"—"}</b></span>}{kind==='corporate'&&<><span>{t('Rata-rata Hari Kerja')}: <b>{average===null?'—':average.toFixed(1)}</b><small>{t('Pekerjaan Done dengan durasi valid')}: {validDurations.length.toLocaleString()}</small></span><span>{t('Pencapaian SLA')}: <b>{measured.length?(within/measured.length*100).toFixed(1)+'%':'—'}</b><small>Within SLA / {t('Measurable')}</small></span></>}</div>
 
       <div className="person-detail-toolbar"><b>{t("All Assigned Records ·")}{shown.length.toLocaleString()} {t("records")}</b><div className="person-status-filters">{[['all', 'All Status'], ['active', 'Active'], ['done', 'Completed'], ['waiting', 'Waiting / Pending'], ['overdue', 'Overdue']].map(([id, label]) => <button key={id} className={mode === id ? 'active' : ''} onClick={() => setMode(id)}>{t(label)}</button>)}</div></div>
 

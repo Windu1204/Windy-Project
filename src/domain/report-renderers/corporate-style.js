@@ -51,6 +51,11 @@ export function corporateStyle(pptx, context, title) {
         color: ri === 0 ? 'FFFFFF' : '08275C', bold: ri === 0 || cellText(row[0]) === 'Grand Total' || overview && ci === row.length - 1,
         align: ci === (people ? 1 : 0) ? 'left' : 'center', valign: 'middle'
       } })));
+      // Region matrices have an explicit height budget; retain their sizing.
+      if (options.regionOverviewLayout) {
+        const {regionOverviewLayout, ...layout} = options;
+        return table(styled, layout);
+      }
       if (overview) {
         text('M = Maintenance · N = New', {x:.38,y:6.93,w:5,h:.16,fontSize:8,color:'08275C',margin:0});
         const grouped = [{ text: cellText(rows[0][0]), options: { rowspan: 2 } }];
