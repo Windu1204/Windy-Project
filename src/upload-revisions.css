@@ -1,0 +1,6 @@
+.project-close-bar{display:block;width:100%;padding:12px 0;border:0;background:transparent;text-align:left;color:inherit;cursor:pointer}
+.project-close-bar>span:first-child{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.project-close-track{display:block;background:#e9eff3;border-radius:8px;height:18px;overflow:hidden;margin-bottom:10px}
+.project-close-track i{display:block;background:var(--accent,#087f8c);height:100%;border-radius:8px}
+.upload-issues .table-scroll{max-height:440px;overflow:auto}.upload-issues td{overflow-wrap:anywhere;white-space:normal;max-width:460px}
+.upload-issues summary{cursor:pointer}.upload-issues .issue-stats{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0}

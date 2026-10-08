@@ -21,10 +21,10 @@ describe('SLA aliases and explicit reasons',()=>{
  });
  it('distinguishes missing Regional start, end, inverted dates and policy exclusion',()=>{
   const row=(p:Payload):MonitoringRecord=>({id:'test',payload:p,sla:calculateSla(p,'regional')});
-  const base={product:'BNIDirect',type:'Maintenance'};
+  const base={product:'BNIDirect',type:'Maintenance',status:'Done'};
   expect(slaIssue(row(base),'regional')?.reason).toContain('Dokumen Lengkap');
-  expect(slaIssue(row({...base,docComplete:'2026-10-01'}),'regional')?.reason).toContain('penyelesaian');
-  expect(slaIssue(row({...base,docComplete:'2026-10-02',settingDone:'2026-10-01'}),'regional')?.reason).toContain('Urutan');
-  expect(slaIssue(row({...base,docComplete:'2025-07-01',settingDone:'2025-07-02'}),'regional')?.reason).toContain('kebijakan');
+  expect(slaIssue(row({...base,docComplete:'2026-10-01'}),'regional')?.reason).toContain('Tanggal Done');
+  expect(slaIssue(row({...base,docComplete:'2026-10-02',doneDate:'2026-10-01'}),'regional')?.reason).toContain('Urutan');
+  expect(slaIssue(row({...base,docComplete:'2025-07-01',doneDate:'2025-07-02'}),'regional')?.reason).toContain('kebijakan');
  });
 });

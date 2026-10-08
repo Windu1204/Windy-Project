@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { type MonitoringRecord, text } from '../types';
 import { useLanguage } from '../lib/language';
+import { jakartaToday, workingDays } from '../domain/work-calendar';
 
 export function TaskDoneDialog({ row, onClose, onSave }: { row: MonitoringRecord; onClose: () => void; onSave: (note: string) => Promise<void> }) {
   const { t, language } = useLanguage();
@@ -15,6 +16,7 @@ export function TaskDoneDialog({ row, onClose, onSave }: { row: MonitoringRecord
     ['Status', text(row.payload.status)],
     ['Email Sales', text(row.payload.salesDate)], ['Dokumen Lengkap', text(row.payload.docComplete)],
     ['Selesai Setting', text(row.payload.settingDone)], ['Approval', text(row.payload.approvalDate)],
+    ['Tanggal Done', jakartaToday()], ['SLA hari kerja', String(workingDays(row.payload.docComplete,jakartaToday()) ?? '—')],
     ['Info Nasabah', text(row.payload.customerInfo)], ['Training', text(row.payload.training)],
     ['Handover', text(row.payload.handover)],
     ['Terakhir Diperbarui', Number.isFinite(updated.getTime()) ? updated.toLocaleString(language === 'en' ? 'en-GB' : 'id-ID') : '—'],

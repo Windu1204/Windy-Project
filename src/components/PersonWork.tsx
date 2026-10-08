@@ -52,7 +52,7 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
 
   const kpis: [string, number | string][] = [['Assigned Records', assigned.length], ['Active Work', assigned.filter(r => !done(r)).length], ['Completed', assigned.filter(done).length], ['Waiting / Pending', assigned.filter(waiting).length], ['Overdue', assigned.filter(overdue).length]];
 
-  const headers = kind === 'ijr' ? ['Application', 'Applicant', 'Role', 'Status', 'Work Category', 'Flow', 'Wilayah', 'Process Day'] : kind === 'regional' ? ['Company', 'CID', 'Product', 'Status', 'Work Category', 'Wilayah', 'Email Sales', 'Dokumen Lengkap', 'Selesai Setting', 'SLA Status', 'SLA Real'] : ['No. Reg', 'Company', 'Product', 'Status', 'Work Category', 'SLA Status', 'SLA Real'];
+  const headers = kind === 'ijr' ? ['Application', 'Applicant', 'Role', 'Status', 'Work Category', 'Flow', 'Wilayah', 'Process Day'] : kind === 'regional' ? ['Company', 'CID', 'Product', 'Status', 'Work Category', 'Wilayah', 'Email Sales', 'Dokumen Lengkap', 'Selesai Setting', 'Tanggal Done', 'SLA Status', 'SLA Real'] : ['No. Reg', 'Company', 'Product', 'Status', 'Work Category', 'SLA Status', 'SLA Real'];
 
   const cells = (r: MonitoringRecord) => {
 
@@ -60,7 +60,7 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
 
     if (kind === 'ijr') return [p['Application Number'], p['Applicant Name'], ['Implementor 1', 'Implementor 2'].filter(key => text(p[key]) === selected).join(' + '), p.Status, category(r), p['Flow Process'], p.Wilayah, p['Total Day']];
 
-    if (kind === 'regional') return [p.company, p.cid, productName(text(p.product)), p.status, category(r), p.region, p.salesDate, p.docComplete, p.settingDone, r.sla.status, r.sla.real == null ? '-' : r.sla.real + ' d'];
+    if (kind === 'regional') return [p.company, p.cid, productName(text(p.product)), p.status, category(r), p.region, p.salesDate, p.docComplete, p.settingDone, p.doneDate, r.sla.status, r.sla.real == null ? '-' : r.sla.real + ' d'];
 
     return [p.noreg, p.company, p.product, p.status, category(r), r.sla.status, r.sla.real == null ? '' : r.sla.real + ' d'];
 

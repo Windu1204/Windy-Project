@@ -1,3 +1,4 @@
+import {regionOverview} from './region-overview';
 import { corporateWordDocument } from './word-style.js';
 import { corporateStyle, summaryCard } from './corporate-style.js';
 // Report layout and aggregation preserved from Corporate_Area_IJR_Monitoring_WCI_v78.html.
@@ -43,7 +44,7 @@ function reportStatusGroup(x){
   }
   if(RC.title.startsWith('IJR')){
     if(/retur|return|reject/.test(v))return 'Retur';
-    if(/proses selesai|done|complete|selesai|closed/.test(v))return 'Done';
+    if(/proses selesai|done|complete|selesai|closed|delivered/.test(v))return 'Done';
     if(/pending|waiting|approval|submitted|submited|amandment|amendment/.test(v))return 'Pending';
     return 'On Progress';
   }
@@ -86,34 +87,7 @@ async function exportPptx(m){
   const dateKey=RC.dateKey;
   const monthKey=r=>{let d=String(r[dateKey]||'').slice(0,10),dt=new Date(d);if(Number.isNaN(dt.getTime()))return '';return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')};
   const monthly=()=>{let mp=new Map();m.rows.forEach(r=>{let k=monthKey(r);if(!k)return;if(!mp.has(k))mp.set(k,{total:0,status:{}});let z=mp.get(k),g=reportStatusGroup(r);z.total++;z.status[g]=(z.status[g]||0)+1});return [...mp.entries()].sort((a,b)=>a[0].localeCompare(b[0])).slice(-9)};
-  const addIjrWilayahOverviewSlides=()=>{
-    const typeOf=r=>/maint/i.test(String(r['Application Type']||''))?'Maintenance':'New';
-    const mKey=r=>{const d=normDateR(r['Request Date']);if(!d)return'';return d.slice(0,7)};
-    const mLabel=k=>{const [y,mo]=k.split('-').map(Number);return new Date(Date.UTC(y,mo-1,1)).toLocaleDateString('id-ID',{month:'short',year:'2-digit',timeZone:'UTC'}).replace('.','')};
-    const base=m.rows.filter(r=>{const w=String(r.Wilayah||'').trim();return mKey(r)&&w&&!/^w?0+$/i.test(w)});if(!base.length)return;
-    const regionSort=(a,b)=>{const na=parseInt((String(a).match(/\d+/)||['9999'])[0],10),nb=parseInt((String(b).match(/\d+/)||['9999'])[0],10);return na-nb||String(a).localeCompare(String(b))};
-    const regions=[...new Set(base.map(r=>String(r.Wilayah||'').trim()).filter(Boolean))].sort(regionSort);
-    const months=[...new Set(base.map(mKey).filter(Boolean))].sort();
-    const rPages=[];for(let i=0;i<regions.length;i+=9)rPages.push(regions.slice(i,i+9));
-    const mPages=[];for(let i=0;i<months.length;i+=4)mPages.push(months.slice(i,i+4));
-    const overall=[...new Map(regions.map(reg=>[reg,base.filter(r=>String(r.Wilayah||'').trim()===reg).length])).entries()].sort((a,b)=>b[1]-a[1]||regionSort(a[0],b[0]));
-    mPages.forEach((ms,mi)=>rPages.forEach((regs,ri)=>{
-      const part=mi*rPages.length+ri+1,total=mPages.length*rPages.length;const sl=pptx.addSlide();addHeader(sl,'Overview Implementasi per Wilayah','Overview Wilayah'+(total>1?' '+part+'/'+total:''));
-      const head=['Wilayah',...ms.flatMap(mm=>[mLabel(mm)+' M',mLabel(mm)+' New']),'Overall Total'];const rows=[];
-      regs.forEach(reg=>{let row=[reg];ms.forEach(mm=>{let ma=0,ne=0;base.forEach(r=>{if(mKey(r)!==mm||String(r.Wilayah||'').trim()!==reg)return;if(typeOf(r)==='Maintenance')ma++;else ne++});row.push(ma,ne)});row.push(base.filter(r=>String(r.Wilayah||'').trim()===reg).length);rows.push(row)});
-      let grand=['Grand Total'],grandN=0;ms.forEach(mm=>{let ma=0,ne=0;base.forEach(r=>{if(mKey(r)!==mm)return;if(typeOf(r)==='Maintenance')ma++;else ne++});grand.push(ma,ne);grandN+=ma+ne});grand.push(base.length);rows.push(grand);
-      const th=head.map((v,i)=>({text:String(v),options:{fill:'087486',color:'FFFFFF',bold:true,align:i===0?'left':'center',valign:'mid'}}));
-      const tr=[th,...rows.map(row=>row.map((v,ci)=>({text:String(v),options:{fill:row[0]==='Grand Total'?'E5F4F6':ci===0?'F1F7FD':'FFFFFF',color:'173B68',bold:row[0]==='Grand Total'||ci===0,align:ci===0?'left':'center',valign:'mid'}})))];
-      sl.addTable(tr,{x:.30,y:1.08,w:12.73,h:3.65,border:{type:'solid',pt:.55,color:'C9DAEB'},fontFace:'Arial',fontSize:6.5,margin:.035,rowH:.31,autoFit:false,bold:false,fillHeader:'087486',colorHeader:'FFFFFF'});
-      addPanel(sl,.30,4.88,4.15,2.20,'Total Implementasi per Bulan');let maint=[],neu=[],labels=[];ms.forEach(mm=>{let a=0,b=0;base.forEach(r=>{if(mKey(r)!==mm)return;if(typeOf(r)==='Maintenance')a++;else b++});maint.push(a);neu.push(b);labels.push(mLabel(mm))});
-      sl.addText('Maintenance',{x:.54,y:5.17,w:.72,h:.14,fontFace:'Arial',fontSize:5.8,bold:true,color:C.teal,margin:0});sl.addText('New Project',{x:1.32,y:5.17,w:.72,h:.14,fontFace:'Arial',fontSize:5.8,bold:true,color:C.orange,margin:0});const lw=3.62/Math.max(1,labels.length);labels.forEach((lab,i)=>{const xx=.55+i*lw;sl.addText(`M ${maint[i]}  |  N ${neu[i]}\nTotal ${maint[i]+neu[i]}`,{x:xx,y:5.31,w:lw-.02,h:.30,fontFace:'Arial',fontSize:5.6,bold:true,color:C.navy,align:'center',margin:0,fit:'shrink'})});
-      try{sl.addChart(pptx.ChartType.bar,[{name:'Maintenance',labels,values:maint},{name:'New Project',labels,values:neu}],{x:.53,y:5.64,w:3.70,h:1.08,catAxisLabelFontSize:7,valAxisLabelFontSize:6.5,showLegend:false,showTitle:false,showValue:false,chartColors:[C.teal,C.orange],grouping:'stacked',showGridLines:true,gridLine:{color:'E6EEF7',pt:.5},catAxisLineColor:'CBD8E8',valAxisLineColor:'CBD8E8'})}catch(e){}
-      addPanel(sl,4.62,4.88,3.18,2.20,'Komposisi Implementasi - Overall');const slideRows=base.filter(r=>ms.includes(mKey(r)));const ma=base.filter(r=>typeOf(r)==='Maintenance').length,ne=base.length-ma;try{sl.addChart(pptx.ChartType.doughnut,[{name:'Type',labels:['Maintenance','New Project'],values:[ma,ne]}],{x:5.32,y:5.30,w:1.75,h:1.55,holeSize:62,showLegend:false,showTitle:false,showValue:false,chartColors:[C.teal,C.orange],border:{color:C.white,pt:0}})}catch(e){}sl.addText(`${ma.toLocaleString()}\nMaintenance`,{x:4.80,y:5.48,w:.80,h:.65,fontFace:'Arial',fontSize:7,bold:true,color:C.teal,align:'center',margin:0});sl.addText(`${ne.toLocaleString()}\nNew Project`,{x:6.86,y:5.48,w:.80,h:.65,fontFace:'Arial',fontSize:7,bold:true,color:C.orange,align:'center',margin:0});
-      addPanel(sl,7.98,4.88,5.05,2.20,'Top 5 Wilayah - Overall');const slideOverall=overall;const top=slideOverall.slice(0,5),mx=Math.max(1,...top.map(x=>x[1]));top.forEach((it,i)=>{const yy=5.34+i*(1.38/Math.max(1,top.length));sl.addText(it[0],{x:8.18,y:yy,w:1.72,h:.18,fontFace:'Arial',fontSize:7.2,color:C.ink,margin:0});sl.addShape(pptx.ShapeType.rect,{x:10.02,y:yy+.01,w:2.05,h:.16,line:{color:'E9F0F8',transparency:100},fill:{color:'E9F0F8'}});sl.addShape(pptx.ShapeType.rect,{x:10.02,y:yy+.01,w:2.05*(it[1]/mx),h:.16,line:{color:C.blue2,transparency:100},fill:{color:C.blue2,transparency:10}});sl.addText(String(it[1]),{x:12.14,y:yy,w:.55,h:.18,fontFace:'Arial',fontSize:7.3,bold:true,color:C.navy,align:'right',margin:0})});
-      sl.addText(`Basis overview: ${base.length.toLocaleString()} record IJR dengan Request Date valid. Blank/null dan Wilayah 0 tidak dihitung. Overall Total, Top 5, dan komposisi menggunakan seluruh periode valid; kolom bulan dibagi per slide hanya untuk keterbacaan.`,{x:.36,y:7.18,w:12.55,h:.14,fontFace:'Arial',fontSize:5.9,color:C.muted,margin:0});
-    }));
-  };
-
+  const addIjrWilayahOverviewSlides=()=>{const base=m.rows.filter(r=>normDateR(r['Request Date'])&&String(r.Wilayah||'').trim()&&!/^w?0+$/i.test(String(r.Wilayah).trim()));regionOverview(pptx,base,{region:r=>String(r.Wilayah).trim(),type:r=>/maint/i.test(String(r['Application Type']||''))?'M':'N',month:r=>normDateR(r['Request Date']).slice(0,7),addHeader,colors:C});};
   if(!m.allPeople){
     // 1. Cover — all text and decorative elements remain editable PowerPoint objects.
     let s=pptx.addSlide();s.background={color:'F8FBFF'};s.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:7.5,line:{color:'F8FBFF',transparency:100},fill:{color:'F8FBFF'}});s.addImage({data:coverPhoto,x:7.72,y:.18,w:5.38,h:7.14,transparency:0});s.addShape(pptx.ShapeType.chevron,{x:6.55,y:-.20,w:2.15,h:7.95,line:{color:'DCEEFF',transparency:100},fill:{color:'DCEEFF',transparency:4}});s.addShape(pptx.ShapeType.chevron,{x:7.02,y:-.20,w:1.48,h:7.95,line:{color:C.white,transparency:100},fill:{color:C.white,transparency:5}});s.addShape(pptx.ShapeType.chevron,{x:10.72,y:4.85,w:2.72,h:3.05,line:{color:C.orange,transparency:100},fill:{color:C.orange,transparency:3}});s.addShape(pptx.ShapeType.rect,{x:.74,y:.72,w:.17,h:.18,line:{color:C.orange,transparency:100},fill:{color:C.orange}});s.addText('BNI',{x:.98,y:.64,w:1.22,h:.34,fontFace:'Arial',fontSize:21,bold:true,color:C.teal,margin:0});s.addText(RC.title,{x:.74,y:2.22,w:5.6,h:.42,fontFace:'Arial',fontSize:24,bold:true,color:C.navy,margin:0});s.addText('Monitoring Report',{x:.74,y:2.69,w:5.8,h:.43,fontFace:'Arial',fontSize:24,bold:true,color:C.blue,margin:0});s.addText('Periode: '+pptPeriodLabel(),{x:.74,y:3.22,w:5.6,h:.43,fontFace:'Arial',fontSize:11,color:C.navy,margin:0});s.addShape(pptx.ShapeType.line,{x:.74,y:3.72,w:.68,h:0,line:{color:C.orange,width:2.3}});s.addShape(pptx.ShapeType.ellipse,{x:.74,y:4.15,w:.50,h:.50,line:{color:C.blue,transparency:100},fill:{color:C.blue,transparency:8}});s.addShape(pptx.ShapeType.ellipse,{x:.90,y:4.27,w:.18,h:.18,line:{color:C.white,transparency:100},fill:{color:C.white}});s.addText('Implementor',{x:1.43,y:4.15,w:1.55,h:.17,fontFace:'Arial',fontSize:8.2,color:C.ink,margin:0});s.addText(person||'-',{x:1.43,y:4.39,w:4.75,h:.26,fontFace:'Arial',fontSize:13.5,bold:true,color:C.navy,margin:0});s.addText('Generated '+new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}),{x:.74,y:6.95,w:3.2,h:.16,fontFace:'Arial',fontSize:6.5,color:C.muted,margin:0});s.addText('1',{x:12.75,y:7.05,w:.20,h:.12,fontFace:'Arial',fontSize:6,color:C.white,align:'center',margin:0});

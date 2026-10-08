@@ -1,4 +1,5 @@
 import {InlineDrill,DrillSlot} from '../components/InlineDrill';
+import {ProjectClose} from '../components/ProjectClose';
 import { ProcessPeople } from '../components/ProcessPeople';
 import { CorporateOverview, CorporateProcess } from '../components/CorporateViews';
 import { SectionNavigation } from '../components/SectionNavigation';
@@ -30,7 +31,7 @@ export default function PilotingDashboard({individual=false,sidebarNavigation=fa
  {error&&<p className="error" role="alert">{error}</p>}
  {view==='overview'&&<><div data-drill-anchor="summary" className="kpis pilot-cards">{cards.map(([label,n,key,v],i)=><button key={label} className={'kpi source-'+['blue','green','red','amber','purple'][i]} disabled={!key} onClick={()=>{if(key){toggle(key,v);setDrill({title:t(label),rows:filtered.filter(row=>value(row,field[key as 'status'|'discrepancy'])===v)});}}}><small>{t(label)}</small><strong>{n.toLocaleString()}</strong><span>{t(key==='discrepancy'?'Bagian dari total permohonan':'Data sesuai filter aktif')}</span></button>)}</div><p className="pilot-note">{t('Status dan discrepancy ditampilkan terpisah.')}</p></>}
  <DrillSlot anchor="summary"/>
- {view==='overview'&&<CorporateOverview piloting rows={filtered} onSelect={(key,v)=>toggle(key==='region'?'group':key,v)} onDrill={(title,rows)=>setDrill({title,rows})}/>}
+ {view==='overview'&&<><ProjectClose rows={filtered} onOpen={rows=>setDrill({title:'Project Close vs Project Assign',rows})}/><CorporateOverview piloting rows={filtered} onSelect={(key,v)=>toggle(key==='region'?'group':key,v)} onDrill={(title,rows)=>setDrill({title,rows})}/></>}
  {view==='people'&&<PilotPersonWork individual={individual} personNames={personNames} rows={filtered} onOpen={setDetail}/>}
  {(view==='overview')&&<SlaCoverage rows={filtered} kind="piloting" onOpen={setDetail}/>}
  {view==='people'&&!individual&&<PilotSla rows={filtered} rules={rules} canEdit={canEdit} onSave={onSaveRule} onDelete={onDeleteRule} onOpen={setDetail} onDrill={(title,rows)=>setDrill({title,rows})}/>}

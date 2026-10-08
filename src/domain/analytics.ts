@@ -18,7 +18,7 @@ export function statusGroup(s: string) {
     return 'Pending Task';
 }
 export function status(r: MonitoringRecord, kind: DatasetKind) { const s = text(r.payload[fields[kind].status]); return kind === 'corporate' ? statusGroup(s) : s; }
-export function isDone(r: MonitoringRecord, kind: DatasetKind) { return kind === 'ijr' ? r.payload.Status === 'Proses Selesai' : status(r, kind) === 'Done'; }
+export function isDone(r: MonitoringRecord, kind: DatasetKind) { return kind === 'ijr' ? /^(proses selesai|delivered)$/i.test(text(r.payload.Status)) : status(r, kind) === 'Done'; }
 export function isWaiting(r: MonitoringRecord, kind: DatasetKind) { return kind === 'corporate' ? status(r, kind) === 'Pending Task' : /waiting|pending|approval/i.test(text(r.payload[fields[kind].status])); }
 export function productCategory(value: string, kind: DatasetKind) {
     const p = value.toUpperCase();
