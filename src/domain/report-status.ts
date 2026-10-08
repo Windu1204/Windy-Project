@@ -10,7 +10,7 @@ export function reportStatus(r: MonitoringRecord, kind: DatasetKind) { const s =
         return 'On Progress';
     return 'Pending';
 } if (/retur|return|reject/.test(s))
-    return 'Retur'; if (/done|complete|selesai|closed/.test(s))
+    return 'Retur'; if (/done|complete|selesai|closed|delivered/.test(s))
     return 'Done'; if (kind === 'ijr') {
     if (/pending|waiting|approval|submitted|submited|amandment|amendment/.test(s))
         return 'Pending';

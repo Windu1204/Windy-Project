@@ -42,11 +42,11 @@ test('Regional My Performance exposes source milestone dates and no Done action'
 test('SLA reason charts filter only excluded jobs and open their source details',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Buka preview lokal'}).click();await page.getByRole('button',{name:'Regional - Non BNIDirect',exact:true}).click();
  const coverage=page.locator('.sla-coverage');await coverage.locator('.coverage-counts button').nth(2).click();
- const reasons=coverage.locator('.sla-reasons .bar-row'),counts=await reasons.locator('b').allTextContents();expect(counts.reduce((n,s)=>n+Number(s.replace(/\D/g,'')),0)).toBe(900);
+ const reasons=coverage.locator('.sla-reasons .bar-row'),counts=await reasons.locator('b').allTextContents();expect(counts.reduce((n,s)=>n+Number(s.replace(/\D/g,'')),0)).toBe(Number((await coverage.locator('.coverage-counts button').nth(2).locator('strong').innerText()).replace(/\D/g,'')));
  const label=await reasons.first().locator('span').first().innerText(),count=Number(counts[0].replace(/\D/g,''));await reasons.first().click();
  await expect(coverage.locator('.table-heading small')).toContainText(count.toLocaleString());await expect(coverage.locator('tbody .sla-diagnostic-cell').first()).toContainText(label);
  await coverage.locator('tbody .text-button').first().click();await expect(page.getByRole('dialog')).toContainText(label);await page.keyboard.press('Escape');
- await coverage.getByRole('button',{name:'Semua penyebab',exact:true}).click();await expect(coverage.locator('.table-heading small')).toContainText('900');
+ await coverage.getByRole('button',{name:'Semua penyebab',exact:true}).click();await expect(coverage.locator('.table-heading small')).toContainText(counts.reduce((n,s)=>n+Number(s.replace(/\D/g,'')),0).toLocaleString());
 });
 
 test('Regional task dates appear in centered Done confirmation without modifying the source',async({page})=>{

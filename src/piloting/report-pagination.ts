@@ -1,6 +1,6 @@
 // Explicit line budgets keep long source text inside the printable slide area.
 export function discrepancyPages(rows: string[][]) {
-  const widths = [18, 25, 12, 12, 48, 21, 26];
+  const widths = rows[0]?.length===9 ? [16,23,12,12,12,12,38,18,20] : [18,25,12,12,48,21,26];
   const wrap = (text: string, width: number) => {
     const lines: string[] = [];
     for (const paragraph of text.split('\n')) {
@@ -21,7 +21,7 @@ export function discrepancyPages(rows: string[][]) {
     const cells = row.map((text, i) => wrap(text, widths[i]));
     const lines = Math.max(1, ...cells.map(c => c.length));
     for (let start = 0; start < lines; start += 12) {
-      const part = cells.map((cell, i) => i < 4 && start > 0 ? row[i] : cell.slice(start, start + 12).join('\n'));
+      const part = cells.map((cell, i) => i < (row.length===9?6:4) && start > 0 ? cells[i].join('\n') : cell.slice(start, start + 12).join('\n'));
       const height = Math.max(.44, Math.min(12, lines - start) * .16 + .16);
       if (used + height > 5.1 && page.rows.length) { pages.push(page); page = { rows: [], heights: [] }; used = .44; }
       page.rows.push(part); page.heights.push(height); used += height;

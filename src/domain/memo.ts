@@ -95,7 +95,10 @@ export function memoSemanticMatch(r: Payload, rules: SlaRule[]): Match | null {
     const custom = customSlaMatch(r, rules);
     if (custom) return custom;
     const canonical = product.replace(/\becollection\b|\becolletion\b/g, 'e collection');
-    return canonical !== product ? memoSemanticMatch({ ...r, product: canonical }, rules) : null;
+    if (canonical !== product) return memoSemanticMatch({ ...r, product: canonical }, rules);
+    if (product === 'vam') return memoSemanticMatch({...r,product:'VA eColl Portal'},rules);
+    if (product === 'api snap') return memoSemanticMatch({...r,product:'OGP SNAP'},rules);
+    return null;
 }
 export const REG_SLA_RULES: [
     string,

@@ -11,3 +11,4 @@ import './corporate-theme.css';
 import './revisions.css';
 import './approved-theme.css';
 import './personal-theme.css';
+import './upload-revisions.css';

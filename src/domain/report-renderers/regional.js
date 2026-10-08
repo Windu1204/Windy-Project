@@ -1,3 +1,4 @@
+import {regionOverview} from './region-overview';
 import { corporateWordDocument } from './word-style.js';
 import { corporateStyle, summaryCard } from './corporate-style.js';
 // Report layout and aggregation preserved from Corporate_Area_IJR_Monitoring_WCI_v78.html.
@@ -110,7 +111,7 @@ async function exportPptx(m){
   });
   const addOverviewSlides=(title,keyLabel,keyFn,sectionBase)=>{
     const isRegionalWilayah=String(keyLabel).toLowerCase()==='wilayah';
-    const overviewRows=commonOverviewRows();
+    const overviewRows=commonOverviewRows();if(isRegionalWilayah){regionOverview(pptx,overviewRows,{region:r=>String(keyFn(r)||'').trim(),type:r=>managementType(r)==='Maintenance'?'M':'N',month:monthKey,addHeader,colors:C});return;}
     const months=[...new Set(overviewRows.map(monthKey).filter(Boolean))].sort();if(!months.length)return;
     const regionSort=(a,b)=>{const na=parseInt((String(a[0]).match(/\d+/)||['9999'])[0],10),nb=parseInt((String(b[0]).match(/\d+/)||['9999'])[0],10);return na-nb||String(a[0]).localeCompare(String(b[0]))};
     const allCountsRaw=keyCounts(overviewRows,keyFn);

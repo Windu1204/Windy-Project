@@ -1,6 +1,6 @@
 import { discrepancyPages } from './report-pagination';
 
-import { monthlyOverview } from './report-overview';
+import { requestType } from './report-overview';
 
 import {reportCharts,chartPng} from './report-charts';
 
@@ -70,7 +70,7 @@ export function pilotReportModel(source:MonitoringRecord[],person:string,selecte
 
 
 
- for(const [section,key] of [['products',field.product],['segments',field.group]])if(selected.includes(section))for(const part of monthlyOverview(rows,key).pages)pages.push({title:reportSections[section],...part});
+ for(const [section,key] of [['products',field.product],['segments',field.group]])if(selected.includes(section)){const categories=breakdown(rows,key);pages.push({title:reportSections[section],headers:[section==='products'?'Produk':'Segmen','N','M','Lainnya','Total'],rows:categories.map(([name,total])=>{const scoped=rows.filter(r=>(value(r,key)||'—')===name);return [name,...(['N','M','—'] as const).map(type=>String(scoped.filter(r=>requestType(r)===type).length)),String(total)];})});}
 
 
 
@@ -82,7 +82,7 @@ export function pilotReportModel(source:MonitoringRecord[],person:string,selecte
 
 
 
-  if(cases.length)pages.push({title:'Rincian Discrepancy',headers:['Nomor Register','Perusahaan','PIC AT','Status','Alasan Discrepancy','Komitmen','Pemenuhan'],rows:cases.map(r=>[value(r,field.id),value(r,field.company),value(r,field.person),value(r,field.status),...['Alasan Discrepancy','Komitmen Discrepancy','Pemenuhan Discrepancy'].map(k=>value(r,k)||'—')])});
+  if(cases.length)pages.push({title:'Rincian Discrepancy',headers:['Nomor Register','Perusahaan','PIC AT','PIC PS','PM','Status','Alasan Discrepancy','Komitmen','Pemenuhan'],rows:cases.map(r=>[value(r,field.id),value(r,field.company),value(r,field.person),value(r,'PIC PS')||'—',value(r,'PM')||'—',value(r,field.status),...['Alasan Discrepancy','Komitmen Discrepancy','Pemenuhan Discrepancy'].map(k=>value(r,k)||'—')])});
 
 
 
@@ -98,7 +98,7 @@ export function pilotReportModel(source:MonitoringRecord[],person:string,selecte
 
 
 
- add('highlights',['No.','Key Takeaways'],[['01',`${m.done} dari ${m.total} permohonan selesai (${(100*m.done/m.total).toFixed(1)}%).`],['02',`${m.pending} permohonan pending; ${m.returned} reject/retur.`],['03',`${m.discrepancy} permohonan memiliki discrepancy.`],['04',top?`${top[0]}: ${top[1]} permohonan.`:'—'],['05',group?`${group[0]}: ${group[1]} permohonan.`:'—'],['06',m.average===null?'Durasi pekerjaan selesai belum tersedia.':`Rata-rata penyelesaian ${m.average.toFixed(1)} hari kerja dari ${m.measurable} pekerjaan selesai dengan durasi tersedia.`]]);
+ add('highlights',['No.','Key Takeaways'],[['01',`${m.done+m.returned} dari ${m.total} permohonan selesai / close (${(100*(m.done+m.returned)/m.total).toFixed(1)}%): ${m.done} Done dan ${m.returned} Reject/Retur. SLA Achievement ${sm.achievement===null?'—':sm.achievement.toFixed(1)+'%'} (Reject/Retur tidak dihitung dalam SLA).`],['02',`${m.pending} permohonan pending; ${m.returned} reject/retur.`],['03',`${m.discrepancy} permohonan memiliki discrepancy.`],['04',top?`${top[0]}: ${top[1]} permohonan.`:'—'],['05',group?`${group[0]}: ${group[1]} permohonan.`:'—'],['06',m.average===null?'Durasi pekerjaan selesai belum tersedia.':`Rata-rata penyelesaian ${m.average.toFixed(1)} hari kerja dari ${m.measurable} pekerjaan selesai dengan durasi tersedia.`]]);
 
 
 
@@ -198,7 +198,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-   const chartSlide=(existing?:ReturnType<typeof slide>)=>{const g=existing||slide(p.title+' · Grafik'),compact=!!existing;charts.forEach((chart,i)=>{const x=.55+i*6.18;g.addText(chart.title,{x,y:compact?4.28:1.65,w:5.7,h:.3,fontSize:compact?13:16,bold:true,color:'08275C',margin:0});if(chart.items.length)g.addChart(pptx.ChartType.bar,[{name:'Permohonan',labels:chart.items.map(x=>x[0]==='Masih Pending'?'Pending':x[0]),values:chart.items.map(x=>x[1])}],{x,y:compact?4.7:2.25,w:5.7,h:compact?2.15:4.2,barDir:p.title==='Proses Implementasi'?'col':'bar',showLegend:false,showValue:true,showTitle:false,chartColors:[chart.color],catAxisLabelFontSize:compact?9:11,valAxisLabelFontSize:9,dataLabelFormatCode:'0',dataLabelPosition:'outEnd'});else g.addText('Tidak ada data',{x,y:compact?5:3,w:5.7,h:.5,fontSize:14,color:'61798D'});});};
+   const chartSlide=(existing?:ReturnType<typeof slide>)=>{const g=existing||slide(p.title+' · Grafik'),compact=!!existing;charts.forEach((chart,i)=>{const wide=charts.length===1,x=.55+i*6.18,w=wide?12.1:5.7;g.addText(chart.title,{x,y:compact?4.28:1.65,w,h:.3,fontSize:compact?13:16,bold:true,color:'08275C',margin:0});if(chart.items.length)g.addChart(pptx.ChartType.bar,(chart.series||[{name:'Permohonan',color:chart.color,values:chart.items.map(x=>x[1])}]).map(series=>({name:series.name,labels:chart.items.map(x=>x[0]==='Masih Pending'?'Pending':x[0]),values:series.values})),{x,y:compact?4.7:2.25,w,h:compact?2.15:4.2,barDir:p.title==='Proses Implementasi'?'col':'bar',showLegend:!!chart.series,legendPos:'b',showValue:true,showTitle:false,chartColors:chart.series?.map(s=>s.color)||[chart.color],catAxisLabelFontSize:compact?9:chart.items.length>15?8:11,valAxisLabelFontSize:9,dataLabelFormatCode:'0',dataLabelPosition:'outEnd'});else g.addText('Tidak ada data',{x,y:compact?5:3,w:5.7,h:.5,fontSize:14,color:'61798D'});});};
 
 
 
@@ -210,7 +210,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
      const cells=[p.headers.map(text=>({text,options:{bold:true,color:'FFFFFF',fill:{color:'087F8C'}}})),...part.rows.map((row,i)=>row.map(text=>({text,options:{fill:{color:i%2?'F2F5F7':'FFFFFF'},color:'08275C'}})))];
 
-     s.addTable(cells,{x:.38,y:1.6,w:12.55,colW:[1.3,1.8,.9,.9,3.5,1.65,2.5],rowH:[.44,...part.heights],fontFace:'Arial',fontSize:10,margin:.06,align:'left',valign:'top',border:{type:'solid',color:'DCE3E7',pt:.5},autoPage:false});
+     s.addTable(cells,{x:.38,y:1.6,w:12.55,colW:[1.2,1.7,.85,.85,.85,.85,3.1,1.45,1.7],rowH:[.44,...part.heights],fontFace:'Arial',fontSize:10,margin:.06,align:'left',valign:'top',border:{type:'solid',color:'DCE3E7',pt:.5},autoPage:false});
 
     });
 
@@ -220,7 +220,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
    const expanded=p.rows;
 
-   const overview=p.title==='Overview Produk'||p.title==='Overview per Segmen';const size=p.title==='Rincian Discrepancy'?6:overview?10:8,combined=charts.length>0&&expanded.length<=5&&p.title!=='Rincian Discrepancy';
+   const overview=p.title==='Overview Produk'||p.title==='Overview per Segmen';const size=p.title==='Rincian Discrepancy'?6:overview?10:8,combined=!overview&&charts.length>0&&expanded.length<=5&&p.title!=='Rincian Discrepancy';
 
 
 
@@ -228,7 +228,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-    if(overview)s.addText('M = Maintenance · N = New · — = Jenis belum tersedia',{x:.38,y:6.87,w:12.55,h:.16,fontSize:8,color:'08275C',margin:0});
+    if(overview)s.addText('N = New · M = Maintenance',{x:.38,y:6.87,w:12.55,h:.16,fontSize:8,color:'08275C',margin:0});
 
     s.addTable(cells.map(row=>row.map(cell=>({...cell,text:cell.text==='Masih Pending'?'Pending':cell.text}))),{x:.38,y:1.6,w:12.55,h:combined?2.35:p.headers.length===7?5.1:4.7,border:{type:'solid',color:'DCE3E7',pt:.5},fontFace:'Arial',fontSize:overview?9:p.title==='Rincian Discrepancy'?(p.headers.length===7?11:14):13,margin:.1,rowH:.45,colW:overview?[2.35,...Array(p.headers.length-2).fill(9/(p.headers.length-2)),1.2]:p.headers.length===2?[3,9.55]:p.title==='Rincian Discrepancy'?[1.4,1.8,.95,.95,3,1.65,2.8]:undefined,autoPage:false,verbose:false});if(combined)chartSlide(s);
 

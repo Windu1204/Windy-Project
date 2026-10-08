@@ -1,0 +1,14 @@
+import {useEffect,useState} from 'react';
+import {supabase} from '../lib/supabase';
+import {type ApplicationKind} from '../types';
+type Issue={id:number;file_name:string;source_row:number|null;sheet:string;reason:string;created_at:string};
+type Summary={file:string;source:number;valid:number;failed:number;committed:boolean;reasons:{reason:string;count:number}[]};
+export function UploadIssues({workspace,kind,revision,preview=false}:{workspace:string;kind:ApplicationKind;revision:number;preview?:boolean}){
+ const [rows,setRows]=useState<Issue[]>([]),[count,setCount]=useState(0),[page,setPage]=useState(0),[error,setError]=useState('');
+ const [summary,setSummary]=useState<Summary|null>(null);
+ useEffect(()=>{let active=true;setSummary(null);if(preview||!supabase)return;supabase.rpc('wci_upload_summary',{p_workspace:workspace,p_kind:kind}).then(({data,error})=>{if(active&&!error)setSummary(data as Summary|null);});return()=>{active=false;};},[workspace,kind,revision,preview]);
+ useEffect(()=>{setPage(0);},[workspace,kind]);
+ useEffect(()=>{let active=true;if(preview||!supabase)return;setError('');supabase.from('wci_upload_issues').select('id,file_name,source_row,sheet,reason,created_at',{count:'exact'}).eq('workspace_id',workspace).eq('dataset',kind).order('id',{ascending:false}).range(page*20,page*20+19).then(({data,error,count})=>{if(!active)return;if(error){setError(error.message);return;}setRows(data||[]);setCount(count||0);});return()=>{active=false;};},[workspace,kind,revision,page,preview]);
+ if(preview||(!count&&!error&&!summary))return null;
+ return <details className="panel upload-issues"><summary>Hasil pemeriksaan upload{summary?' · '+summary.file:''}</summary>{summary&&<><div className="quality-grid">{[['Baris sumber',summary.source],['Valid',summary.valid],['Perlu diperiksa',summary.failed]].map(([label,n])=><div key={label}><b>{Number(n).toLocaleString()}</b><small>{label}</small></div>)}</div><p className="muted">Ringkasan seluruh file · {summary.committed?'Sudah diterapkan':'Belum diterapkan'}. Detail baris mengikuti akses Anda.</p>{summary.reasons?.length>0&&<ul>{summary.reasons.map(x=><li key={x.reason}>{x.reason}: {x.count.toLocaleString()}</li>)}</ul>}</>}{error?<p role="alert" className="error">{error}</p>:count>0?<><div className="table-scroll"><table><thead><tr><th>File</th><th>Sheet</th><th>Baris Excel</th><th>Alasan</th></tr></thead><tbody>{rows.map(r=><tr key={r.id}><td>{r.file_name}</td><td>{r.sheet||'—'}</td><td>{r.source_row||'—'}</td><td>{r.reason}</td></tr>)}</tbody></table></div><div className="pagination"><button className="secondary" disabled={!page} onClick={()=>setPage(page-1)}>Sebelumnya</button><span>{page+1} / {Math.max(1,Math.ceil(count/20))}</span><button className="secondary" disabled={(page+1)*20>=count} onClick={()=>setPage(page+1)}>Berikutnya</button></div></>:null}</details>;
+}
