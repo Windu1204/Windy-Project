@@ -30,10 +30,10 @@ test('Regional status and milestone selections show adjacent details without dup
 });
 
 test('Theme choices preserve layout and semantic colors, persist per account, and credit stays regular gray',async({page})=>{
- await page.goto('/');await expect(page.locator('.login-foot')).toHaveText('© Internal Application by Windy Olivia');
+ await page.goto('/');await expect(page.locator('.login-foot')).toHaveText('Internal Application');
  expect(await page.locator('.login-foot').evaluate(el=>getComputedStyle(el).fontWeight)).toBe('400');
  await page.getByRole('button',{name:'Buka preview lokal'}).click();
- const footer=page.locator('.sidebar .foot');await expect(footer).toHaveText('© Internal Application by Windy Olivia');
+ const footer=page.locator('.sidebar .foot');await expect(footer).toHaveText('Internal Application');
  expect(await footer.evaluate(el=>({weight:getComputedStyle(el).fontWeight,wrap:getComputedStyle(el).whiteSpace,fits:el.scrollWidth<=el.clientWidth}))).toEqual({weight:'400',wrap:'nowrap',fits:true});
  expect(await footer.evaluate(el=>window.innerHeight-el.getBoundingClientRect().bottom)).toBeLessThan(30);
  const existing=await page.locator('.topbar').evaluate(el=>getComputedStyle(el).backgroundImage);

@@ -118,7 +118,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
- const model=pilotReportModel(source,person,selected),[logo,photo]=await Promise.all([asset('/brand/source-f56b239053.png'),asset('/brand/report-cover-blended.png')]);
+ const model=pilotReportModel(source,person,selected),[logo,photo]=await Promise.all([asset('/brand/source-f56b239053.png'),asset('/brand/report-cover-monitor.png')]);
 
 
 
