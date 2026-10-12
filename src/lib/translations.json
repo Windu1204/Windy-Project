@@ -2055,6 +2055,10 @@
     "Waiting for Approval",
     "Waiting for Approval"
   ],
+  "Pembaruan data gagal. Data yang tampil belum dapat dipastikan terbaru.": [
+    "Pembaruan data gagal. Data yang tampil belum dapat dipastikan terbaru.",
+    "Data refresh failed. The displayed data may not be up to date."
+  ],
   "Waiting for Onboarding": [
     "Waiting for Onboarding",
     "Waiting for Onboarding"

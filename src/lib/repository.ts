@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { SessionCache } from './session-cache';
 import { type ApplicationKind, type Payload, type Membership, type SlaRule } from '../types';
 export interface StoredRow {
     id: string;
@@ -7,6 +8,32 @@ export interface StoredRow {
 }
 const client = () => { if (!supabase)
     throw new Error('Supabase belum dikonfigurasi.'); return supabase; };
+const snapshots = new SessionCache<{ rows: StoredRow[]; rules: SlaRule[] }>();
+export function clearSessionCache() { snapshots.clear(); }
+async function revision(workspace: string) {
+    const { data, error } = await client().from('wci_events').select('revision').eq('workspace_id', workspace).maybeSingle();
+    if (error) throw error;
+    return data ? String(data.revision) : null;
+}
+/** Verify revision and rules even on a cache hit; never cache across authenticated users. */
+export async function loadSnapshot(workspace: string, kind: ApplicationKind, version: string, owner: string) {
+    const key = JSON.stringify([owner, workspace, kind, version]);
+    for (let attempt = 0; attempt < 3; attempt++) {
+        const [before, rules] = await Promise.all([revision(workspace), loadRules(workspace, kind)]);
+        if (!owner || before === null) return { rows: await loadRows(workspace, kind, version), rules };
+        const stamp = JSON.stringify([before, rules]);
+        const snapshot = await snapshots.load(key, stamp, async () => {
+            const rows = await loadRows(workspace, kind, version);
+            if (await revision(workspace) !== before) throw new Error('WCI_REVISION_CHANGED');
+            return { rows, rules };
+        }).catch(error => {
+            if (error instanceof Error && error.message === 'WCI_REVISION_CHANGED') return null;
+            throw error;
+        });
+        if (snapshot) return snapshot;
+    }
+    throw new Error('Data sedang diperbarui. Silakan muat ulang untuk mendapatkan data terbaru.');
+}
 export async function memberships(): Promise<Membership[]> { const { data, error } = await client().from('wci_members').select('workspace_id,role,wci_workspaces(name)'); if (error)
     throw error; return data as unknown as Membership[]; }
 export async function loadRows(workspace: string, kind: ApplicationKind, version?:string): Promise<StoredRow[]> {
