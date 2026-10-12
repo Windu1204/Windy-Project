@@ -23,6 +23,7 @@ export default function App() { const { t, language, setLanguage } = useLanguage
     const [account,setAccount]=useState<access.Profile|null>(null),[grants,setGrants]=useState<access.Grant[]>([]),[teamPeople,setTeamPeople]=useState<{team_id:string;pic:string}[]>([]),[adminView,setAdminView]=useState(false),[version,setVersion]=useState(''),[versions,setVersions]=useState<access.Batch[]>([]),[dataMode,setDataMode]=useState('reference'),[source,setSource]=useState<'AT'|'PM'>('AT'),[viewAs,setViewAs]=useState<{profile:access.Profile;directory:Awaited<ReturnType<typeof access.adminDirectory>>}|null>(null),[recovery,setRecovery]=useState(false);
     const [lastUpdated,setLastUpdated]=useState<Date|null>(null),[connected,setConnected]=useState(false);
     const loadedScope=useRef('');
+    useEffect(() => { repository.clearSessionCache(); loadedScope.current=''; setRaw([]); setOriginal([]); setRules([]); return () => repository.clearSessionCache(); }, [user?.id, preview]);
     const localProfile:access.Profile={workspace_id:'local',user_id:'local',name:'Local Preview',email:'',role:'super_admin',active:true};
     const currentProfile=viewAs?.profile||(preview?localProfile:account);
     const currentGrants=viewAs?viewAs.directory.grants.filter(g=>g.user_id===viewAs.profile.user_id):grants;
@@ -55,20 +56,20 @@ export default function App() { const { t, language, setLanguage } = useLanguage
             setError('Akun belum memiliki akses workspace. Hubungi administrator.');
     } }).catch(e => { if (active)
         setError(e.message); }); return () => { active = false; }; }, [user, preview]);
-    useEffect(() => { if (!preview && !workspace)
-        return; let active = true; const scope=[kind,workspace,preview,version].join('|'); const switching=loadedScope.current!==scope; if(switching){setLoading(true);setRaw([]);} setError(''); const load = preview ? (async () => { const response = await fetch('/__local-data/' + kind); if (!response.ok)
-        throw new Error('File source lokal tidak tersedia.'); const payload = await response.json() as Payload[]; return { rows: payload.map((p, i) => ({ id: kind + '-' + i, payload: p, position: i + 1 })), rules: [] as SlaRule[] }; })() : Promise.all([repository.loadRows(workspace, kind,version), repository.loadRules(workspace,kind)]).then(([rows, rules]) => ({ rows, rules })); load.then(result => { if (active) {
+    useEffect(() => { if (!preview && (!workspace || !user))
+        return; let active = true; const scope=[user?.id,kind,workspace,preview,version].join('|'); const switching=loadedScope.current!==scope; if(switching){setLoading(true);setRaw([]);} setError(''); const load = preview ? (async () => { const response = await fetch('/__local-data/' + kind); if (!response.ok)
+        throw new Error('File source lokal tidak tersedia.'); const payload = await response.json() as Payload[]; return { rows: payload.map((p, i) => ({ id: kind + '-' + i, payload: p, position: i + 1 })), rules: [] as SlaRule[] }; })() : repository.loadSnapshot(workspace, kind, version, user!.id); load.then(result => { if (active) {
         loadedScope.current=scope;
         setRaw(result.rows);
         setOriginal(result.rows);
         setRules(result.rules);setLastUpdated(new Date());
     } }).catch(e => { if (active)
-        setError(e.message); }).finally(() => { if (active)
-        setLoading(false); }); return () => { active = false; }; }, [kind, workspace, preview, refresh,version]);
+        setError(t('Pembaruan data gagal. Data yang tampil belum dapat dipastikan terbaru.')+' '+e.message); }).finally(() => { if (active)
+        setLoading(false); }); return () => { active = false; }; }, [kind, workspace, preview, refresh,version,user?.id]);
     const visibleRaw=useMemo(()=>viewAs?access.scopedRows(raw,kind,viewAs.profile,viewAs.directory.grants.filter(g=>g.user_id===viewAs.profile.user_id),viewAs.directory.teams,viewAs.directory.people):raw,[raw,kind,viewAs]);
     const rows = useMemo<MonitoringRecord[]>(() => (effectiveSource==='PM'?[]:visibleRaw).map(r => ({ id: r.id, payload: r.payload, sla: kind === 'piloting' ? pilotSla(r.payload, rules) : calculateSla(r.payload, kind, rules) })), [visibleRaw, kind, rules,effectiveSource]);
     const membership = members.find(m => m.workspace_id === workspace), canEdit = !viewAs&&(preview||account?.role==='super_admin'), canDone=!viewAs&&!version&&kind==='regional'&&account?.role==='individual';
-    const reload = useCallback(() => setRefresh(n => n + 1), []);
+    const reload = useCallback(() => { repository.clearSessionCache(); setRefresh(n => n + 1); }, []);
     async function apply(payload: Payload[], name: string) { if (preview) {
         setRaw(payload.map((p, i) => ({ id: kind + '-' + i, payload: p, position: i + 1 })));
         return;
@@ -95,7 +96,7 @@ export default function App() { const { t, language, setLanguage } = useLanguage
             setError(error.message);
             return;
         }
-    } setPreview(false); setUser(null); setRaw([]); setRules([]); setProfile(false); setError(''); }
+    } repository.clearSessionCache(); setPreview(false); setUser(null); setRaw([]); setRules([]); setProfile(false); setError(''); }
     async function saveProfile() { const result=await supabase!.rpc('wci_set_profile_name',{p_workspace:workspace,p_name:displayName});if(result.error){setError(result.error.message);return;} const { error } = await supabase!.auth.updateUser({ data: { display_name: displayName } }); if (error)
         setError(error.message);
     else {
