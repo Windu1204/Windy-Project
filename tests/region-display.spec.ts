@@ -20,6 +20,7 @@ for(const [kind,name] of [['regional','Regional - Non BNIDirect'],['ijr','IJR - 
   if(kind==='regional')expect(await groups.locator('strong').allTextContents()).not.toContain('0');
   const count=Number((await button.locator('b').innerText()).replace(/\D/g,'')),groupCount=await groups.count();await button.click();await expect(button).toHaveAttribute('aria-pressed','true');expect(await groups.count()).toBe(groupCount);
   await expect(page.locator('.region-detail .table-heading small')).toContainText(count.toLocaleString());
+  await expect(page.locator('.region-detail .records .region-detail-filters')).toBeVisible();
   for(const filter of await page.locator('.region-detail-filters button').all()){
    const n=Number((await filter.locator('b').innerText()).replace(/\D/g,''));await filter.click();await expect(filter).toHaveAttribute('aria-pressed','true');await expect(page.locator('.region-detail .table-heading small')).toContainText(n.toLocaleString());
    for(const cell of await page.locator('.region-detail tbody tr').all())await expect(cell).toContainText(region);
@@ -29,8 +30,8 @@ for(const [kind,name] of [['regional','Regional - Non BNIDirect'],['ijr','IJR - 
 }
 test('login uses one logo and a proportional illustration on desktop and mobile',async({page})=>{
  await page.goto('/');await expect(page.locator('.login-brand')).toHaveCount(1);
- expect(await page.locator('.login-hero').evaluate(el=>getComputedStyle(el).backgroundSize)).toBe('contain');
- expect(await page.locator('.login-hero').evaluate(el=>getComputedStyle(el).backgroundImage)).toContain('login-monitor-v2.png');
+ expect(await page.locator('.login-hero').evaluate(el=>getComputedStyle(el,'::before').backgroundSize)).toBe('contain');
+ expect(await page.locator('.login-hero').evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).toContain('login-monitor-v2.png');
  await page.screenshot({path:'private/pending-qa/login-v2-desktop.png'});await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 test('Department Head and Team Leader region menus expose only their supplied data',async({page})=>{
