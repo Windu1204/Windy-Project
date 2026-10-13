@@ -27,7 +27,7 @@
 .upload-issues summary{cursor:pointer}.upload-issues .issue-stats{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0}
 .bar-row.selected,.legend button.selected,.region-activity-bar.selected{outline:2px solid var(--chart-accent,#087f8c);outline-offset:2px;background:#e9f4f5}
 .kpi[aria-pressed=true]{outline:2px solid var(--chart-accent,#087f8c);outline-offset:2px}
-.region-detail-filters{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
-.region-detail-filters button{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #d7e2ec;border-radius:7px;background:#fff;color:#173a63;min-height:44px}
+.region-detail-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.region-detail-filters button{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #d7e2ec;border-radius:7px;background:#fff;color:#173a63;min-height:44px;font-size:14px;font-weight:400}
 .region-detail-filters button.active{background:#e9f4f5;border-color:var(--chart-accent,#087f8c);color:#007a87}
 .region-detail-filters b{font-size:inherit}.region-detail-note{font-size:13px;margin:0 0 16px}.region-activity-row>strong{white-space:normal;overflow-wrap:anywhere}
