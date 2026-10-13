@@ -45,7 +45,7 @@ describe('pending revisions preserve populations and SLA rules',()=>{
       expect(page.rows.slice(0,-1).map(row=>row[0])).toEqual(result.names);
       const total=page.rows.at(-1)!;
       for(let i=1;i<page.headers.length;i++)expect(page.rows.slice(0,-1).reduce((n,row)=>n+Number(row[i]),0)).toBe(Number(total[i]));
-      for(let i=1;i<total.length-1;i+=3)expect(Number(total[i])+Number(total[i+1])).toBe(Number(total[i+2]));
+      expect(total.slice(1,-1).reduce<number>((n,v)=>n+Number(v),0)).toBe(Number(total.at(-1)));
       reconciled+=Number(total.at(-1));
     }
     expect(reconciled).toBe(rows.length);

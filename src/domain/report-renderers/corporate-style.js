@@ -47,13 +47,13 @@ export function corporateStyle(pptx, context, title) {
       const overview = ['Overall Total','Total Periode'].includes(cellText(rows[0].at(-1)));
       const styled = rows.map((row, ri) => row.map((cell, ci) => ({ text: cellText(cell), options: {
         ...(typeof cell === 'object' ? cell.options : {}),
-        fill: ri === 0 ? '008997' : cellText(row[0]) === 'Grand Total' || overview && ci === row.length - 1 ? 'DDF0F1' : ri % 2 ? 'FFFFFF' : 'F0F3F5',
-        color: ri === 0 ? 'FFFFFF' : '08275C', bold: ri === 0 || cellText(row[0]) === 'Grand Total' || overview && ci === row.length - 1,
-        align: ci === (people ? 1 : 0) ? 'left' : 'center', valign: 'middle'
+        fill: ri < (options.regionOverviewHeaderRows || 1) ? '008997' : cellText(row[0]) === 'Grand Total' || overview && ci === row.length - 1 ? 'DDF0F1' : ri % 2 ? 'FFFFFF' : 'F0F3F5',
+        color: ri < (options.regionOverviewHeaderRows || 1) ? 'FFFFFF' : '08275C', bold: ri < (options.regionOverviewHeaderRows || 1) || cellText(row[0]) === 'Grand Total' || overview && ci === row.length - 1,
+        align: options.regionOverviewLayout ? 'center' : ci === (people ? 1 : 0) ? 'left' : 'center', valign: 'middle'
       } })));
       // Region matrices have an explicit height budget; retain their sizing.
       if (options.regionOverviewLayout) {
-        const {regionOverviewLayout, ...layout} = options;
+        const {regionOverviewLayout, regionOverviewHeaderRows, ...layout} = options;
         return table(styled, layout);
       }
       if (overview) {
