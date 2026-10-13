@@ -2062,5 +2062,21 @@
   "Waiting for Onboarding": [
     "Waiting for Onboarding",
     "Waiting for Onboarding"
+  ],
+  "Belum diisi": [
+    "Belum diisi",
+    "Not provided"
+  ],
+  "Filter detail wilayah": [
+    "Filter detail wilayah",
+    "Region detail filters"
+  ],
+  "Status lainnya": [
+    "Status lainnya",
+    "Other statuses"
+  ],
+  "Overdue adalah subset pekerjaan; tidak ditambahkan ke total.": [
+    "Overdue adalah subset pekerjaan; tidak ditambahkan ke total.",
+    "Overdue is a subset of jobs; do not add it to the total."
   ]
 }

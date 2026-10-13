@@ -14,8 +14,8 @@ test('IJR status cards cover all source statuses and region charts share the sam
  await page.getByRole('button',{name:'Reset Filter',exact:true}).click();
  await page.locator('.kpis .kpi').first().click();await expect(page.locator('.inline-drill-detail .records')).toHaveCount(1);
  await page.getByRole('button',{name:'Wilayah',exact:true}).click();
- const panel=page.locator('.panel').filter({has:page.getByRole('heading',{name:'Data per Wilayah',exact:true})});
- const region=await panel.locator('.bar-row').first().getAttribute('title');await panel.locator('.bar-row').first().click();
+ const panel=page.locator('.region-activity-row').first();
+ const region=await panel.locator('strong').innerText();await panel.locator('.volume').click();
  const scoped=data.filter((r:any)=>String(r.Wilayah||'').trim()===region);
  for(const [heading,key] of [['Cabang Terbanyak','Cabang'],['Unit Pembuka Terbanyak','Unit Pembuka']]){
   const chart=page.locator('.panel').filter({has:page.getByRole('heading',{name:heading,exact:true})});

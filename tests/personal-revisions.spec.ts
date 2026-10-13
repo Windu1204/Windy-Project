@@ -17,16 +17,15 @@ test('Corporate detail is adjacent to its selected card or chart, with one activ
  }
 });
 
-test('Regional status and milestone selections show adjacent details without duplicate distribution',async({page})=>{
+test('Regional status selections retain milestone data without duplicate charts',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Buka preview lokal'}).click();await page.getByRole('button',{name:'Regional - Non BNIDirect',exact:true}).click();await page.getByRole('button',{name:'Proses Implementasi',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Distribusi Status',exact:true})).toHaveCount(0);
  await page.locator('.kpis button').filter({hasText:'Pending Doc'}).click();
  await expect(page.locator('.inline-drill-detail tbody tr').first()).toBeVisible();
  expect(await page.locator('.inline-drill-detail').evaluate(el=>el.previousElementSibling?.getAttribute('data-drill-anchor'))).toBe('summary');
  await page.getByRole('button',{name:'Reset Filter',exact:true}).click();
- const milestone=page.locator('.panel').filter({has:page.getByRole('heading',{name:'Kelengkapan Milestone',exact:true})});
- await milestone.locator('.bar-row').first().click();await expect(page.locator('.inline-drill-detail tbody tr').first()).toBeVisible();
- expect(await page.locator('.inline-drill-detail').evaluate(el=>el.previousElementSibling?.getAttribute('data-drill-anchor'))).toBe('Kelengkapan Milestone');
+ await expect(page.getByRole('heading',{name:'Kelengkapan Milestone',exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Data',exact:true}).click();await expect(page.locator('.records thead')).toContainText('Dokumen Lengkap');
 });
 
 test('Theme choices preserve layout and semantic colors, persist per account, and credit stays regular gray',async({page})=>{

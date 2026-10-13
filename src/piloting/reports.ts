@@ -2,7 +2,7 @@ import { discrepancyPages } from './report-pagination';
 
 import { requestType } from './report-overview';
 
-import {reportCharts,chartPng,productChartPanels} from './report-charts';
+import {reportCharts,chartPng,productChartPanels,executiveStatusItems} from './report-charts';
 
 
 
@@ -138,7 +138,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-  const slide=(name:string,cover=false)=>{const s=pptx.addSlide();page++;s.background={color:'FFFFFF'};if(cover)s.addImage({data:photo,x:0,y:0,w:13.333,h:7.02});s.addImage({data:logo,x:.38,y:.16,w:1.2,h:.46});if(!cover){s.addText(title+' | Monitoring Report',{x:7,y:.16,w:5.9,h:.22,fontSize:10,bold:true,color:'173A63',align:'right',margin:0});s.addText(period,{x:7,y:.42,w:5.9,h:.22,fontSize:9,color:'173A63',align:'right',margin:0});s.addText(name,{x:.38,y:.76,w:12.55,h:.5,fontSize:24,bold:true,color:'08275C',margin:0});s.addShape(pptx.ShapeType.line,{x:.38,y:1.32,w:.65,h:0,line:{color:'FF7518',width:2}});}s.addShape(pptx.ShapeType.line,{x:.38,y:7.1,w:12.55,h:0,line:{color:'CBD8DE',width:.6}});s.addText(title+' | Monitoring Report',{x:.38,y:7.2,w:11.8,h:.16,fontSize:8,color:'08275C',margin:0});s.addText(String(page),{x:12.45,y:7.2,w:.5,h:.16,fontSize:8,color:'08275C',align:'right',margin:0});return s;};
+  const slide=(name:string,cover=false)=>{const s=pptx.addSlide();page++;s.background={color:'FFFFFF'};if(cover)s.addImage({data:photo,x:0,y:0,w:13.333,h:7.1});s.addImage({data:logo,x:.38,y:.16,w:1.2,h:.46});if(!cover){s.addText(title+' | Monitoring Report',{x:7,y:.16,w:5.9,h:.22,fontSize:10,bold:true,color:'173A63',align:'right',margin:0});s.addText(period,{x:7,y:.42,w:5.9,h:.22,fontSize:9,color:'173A63',align:'right',margin:0});s.addText(name,{x:.38,y:.76,w:12.55,h:.5,fontSize:24,bold:true,color:'08275C',margin:0});s.addShape(pptx.ShapeType.line,{x:.38,y:1.32,w:.65,h:0,line:{color:'FF7518',width:2}});}s.addShape(pptx.ShapeType.line,{x:.38,y:7.1,w:12.55,h:0,line:{color:'CBD8DE',width:.6}});s.addText(title+' | Monitoring Report',{x:.38,y:7.2,w:11.8,h:.16,fontSize:8,color:'08275C',margin:0});s.addText(String(page),{x:12.45,y:7.2,w:.5,h:.16,fontSize:8,color:'08275C',align:'right',margin:0});return s;};
 
 
 
@@ -166,7 +166,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-    bars('Status Pekerjaan',breakdown(model.rows,field.status).map(([n,v])=>[n==='Masih Pending'?'Pending':n,v]),.38);bars('Produk Terbanyak',breakdown(model.rows,field.product).slice(0,5),6.82);continue;
+    bars('Status Pekerjaan',executiveStatusItems(model.rows),.38);s.addText('Overdue adalah subset pekerjaan Done yang terukur SLA; tidak ditambahkan ke total status.',{x:.58,y:6.15,w:5.7,h:.3,fontSize:9,color:'61798D',margin:0});bars('Produk Terbanyak',breakdown(model.rows,field.product).slice(0,5),6.82);continue;
 
 
 
@@ -286,7 +286,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-   return [heading,new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({tableHeader:true,children:p.headers.map(text=>new TableCell({shading:{fill:'087F8C'},children:[new Paragraph({children:[new TextRun({text,bold:true,color:'FFFFFF',size:22})]})]}))}),...p.rows.map((r,i)=>new TableRow({cantSplit:false,children:r.map((text,j)=>new TableCell({shading:{fill:i%2?'F2F5F7':'FFFFFF'},children:[new Paragraph({alignment:j>0&&(p.title==='Overview Produk'||p.title==='Overview per Segmen')?AlignmentType.CENTER:j>1&&p.title!=='Rincian Discrepancy'?AlignmentType.CENTER:AlignmentType.LEFT,children:[new TextRun({text:text==='Masih Pending'?'Pending':text,color:'08275C',size:22})]})]}))}))]}),...images];
+   return [heading,new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({tableHeader:true,children:p.headers.map(text=>new TableCell({shading:{fill:'087F8C'},children:[new Paragraph({children:[new TextRun({text,bold:true,color:'FFFFFF',size:22})]})]}))}),...p.rows.map((r,i)=>new TableRow({cantSplit:false,children:r.map((text,j)=>new TableCell({shading:{fill:i%2?'F2F5F7':'FFFFFF'},children:[new Paragraph({alignment:j>0&&(p.title==='Overview Produk'||p.title==='Overview per Segmen')?AlignmentType.CENTER:j>1&&p.title!=='Rincian Discrepancy'?AlignmentType.CENTER:AlignmentType.LEFT,children:[new TextRun({text:text==='Masih Pending'?'Pending':text,color:'08275C',size:22})]})]}))}))]}),...images,...(p.title==='Executive Summary'?[para('Overdue adalah subset pekerjaan Done yang terukur SLA; tidak ditambahkan ke total status.')]:[])];
 
 
 

@@ -3,7 +3,7 @@ import { Files, CheckCircle2, Clock3, AlertCircle, ArrowUpRight, BarChart3 } fro
 import { type DatasetKind, type MonitoringRecord, text } from '../types';
 import { metrics, counts, status } from '../domain/analytics';
 const icons = [Files, CheckCircle2, ArrowUpRight, Clock3, AlertCircle, BarChart3];
-export function Kpis({ rows, kind, sla = false, view = 'overview', onSelect, availableStatuses, onTotal }: {
+export function Kpis({ rows, kind, sla = false, view = 'overview', onSelect, availableStatuses, onTotal, selected }: {
     rows: MonitoringRecord[];
     kind: DatasetKind;
     sla?: boolean;
@@ -11,6 +11,7 @@ export function Kpis({ rows, kind, sla = false, view = 'overview', onSelect, ava
     onSelect?: (value: string, isSla: boolean) => void;
     availableStatuses?: string[];
     onTotal?: () => void;
+    selected?: string;
 }) { const { t } = useLanguage(); 
     const m = metrics(rows, kind);
     let cards: [
@@ -47,5 +48,5 @@ export function Kpis({ rows, kind, sla = false, view = 'overview', onSelect, ava
         cards = view === 'status' ? [done, progress, pending, ['Reject', rows.filter(r => r.payload.status === 'Reject').length, 'Status = Reject','Reject'], card('Email Sales Date', rows.filter(r => text(r.payload.salesDate)).length, 'Record dengan milestone Email Sales valid')] : [card(view === 'regional' ? 'Wilayah' : 'Implementor', distinct(view === 'regional' ? 'region' : 'implementor'), 'Jumlah pada filter aktif'), done, progress, pending, card('Records', m.total, 'Record sesuai filter aktif')];
     }
     const colors = sla ? ['green', 'red', 'blue', 'purple', 'amber', 'purple'] : kind === 'ijr' ? view === 'overview' ? ['blue', 'green', 'blue', 'amber', 'red'] : ['blue', 'purple', 'green', 'amber', 'blue'] : kind === 'regional' ? view === 'status' ? ['green', 'amber', 'red', 'purple', 'blue'] : view === 'people' ? ['blue', 'green', 'amber', 'red', 'purple'] : ['blue', 'green', 'amber', 'red', view === 'regional' ? 'blue' : 'purple'] : ['blue', 'green', 'teal', 'amber', 'purple', 'red', 'red'];
-    return <div className={sla ? "kpis sla-kpis" : "kpis"}>{cards.map(([label, n, hint, filter], i) => { const Icon = icons[i % icons.length]; const color = kind==='ijr' && view==='overview' && !sla ? /selesai|delivered/i.test(filter)?'green':/batal/i.test(filter)?'purple':/amand|amend/i.test(filter)?'red':/waiting/i.test(filter)?'amber':'blue' : colors[i] || 'blue'; const total = label==='Total Records' && !!onTotal; return <button key={label} className={'kpi tone-' + i % 6 + ' source-' + color} disabled={total?false:!filter || !onSelect} onClick={() => total?onTotal?.():onSelect?.(filter, sla || (kind === 'corporate' && filter === 'Overdue'))}><Icon size={19}/><small>{t(label)}</small><strong>{typeof n === 'number' ? kind === 'corporate' && sla ? String(n) : n.toLocaleString() : n}</strong><span>{t(hint).replace('% dari total records', t('% dari total records'))}</span></button>; })}</div>;
+    return <div className={sla ? "kpis sla-kpis" : "kpis"}>{cards.map(([label, n, hint, filter], i) => { const Icon = icons[i % icons.length]; const color = kind==='ijr' && view==='overview' && !sla ? /selesai|delivered/i.test(filter)?'green':/batal/i.test(filter)?'purple':/amand|amend/i.test(filter)?'red':/waiting/i.test(filter)?'amber':'blue' : colors[i] || 'blue'; const total = label==='Total Records' && !!onTotal; return <button key={label} aria-pressed={selected===filter} className={'kpi tone-' + i % 6 + ' source-' + color} disabled={total?false:!filter || !onSelect} onClick={() => total?onTotal?.():onSelect?.(filter, sla || (kind === 'corporate' && filter === 'Overdue'))}><Icon size={19}/><small>{t(label)}</small><strong>{typeof n === 'number' ? kind === 'corporate' && sla ? String(n) : n.toLocaleString() : n}</strong><span>{t(hint).replace('% dari total records', t('% dari total records'))}</span></button>; })}</div>;
 }

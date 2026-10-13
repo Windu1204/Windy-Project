@@ -3,9 +3,13 @@ import {type MonitoringRecord} from '../types';
 import {breakdown,field,value,duration,people} from './model';
 import {slaMetrics} from './sla';
 export interface ReportChart{title:string;items:[string,number][];color:string;series?:{name:string;color:string;values:number[]}[]}
+export function executiveStatusItems(rows:MonitoringRecord[]):[string,number][] {
+ return [...breakdown(rows,field.status).map(([name,n]):[string,number]=>[name==='Masih Pending'?'Pending':name,n]),['Overdue',slaMetrics(rows).overdue]];
+}
 export function reportCharts(title:string,rows:MonitoringRecord[]):ReportChart[]{
  const chart=(title:string,items:[string,number][],color='087F8C')=>({title,items,color});
  const done=rows.filter(r=>value(r,field.status)==='Done');
+ if(title==='Executive Summary')return [chart('Status Pekerjaan',executiveStatusItems(rows))];
  if(title==='Kinerja & Beban Kerja')return [chart('Beban Kerja per PIC',people(rows).map((p):[string,number]=>[p.name,p.total]).slice(0,6)),chart('Selesai per PIC',people(rows).map((p):[string,number]=>[p.name,p.done]).slice(0,6))];
  if(title==='Proses Implementasi'){
   const weekly=new Map<string,number>();for(const r of rows){const date=value(r,field.assigned);if(!/^\d{4}-\d{2}-\d{2}$/.test(date))continue;const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-(d.getUTCDay()+6)%7);const key=d.toISOString().slice(0,10);weekly.set(key,(weekly.get(key)||0)+1);}

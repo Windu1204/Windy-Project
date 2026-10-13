@@ -1,22 +1,26 @@
-import { type MonitoringRecord, text } from '../types';
-import { counts, status } from '../domain/analytics';
+import { type MonitoringRecord, type DatasetKind } from '../types';
+import { counts, isDone } from '../domain/analytics';
+import { regionName, validRegion } from '../domain/region-details';
 import { useLanguage } from '../lib/language';
 import { Panel } from './Charts';
 
-export function RegionActivity({ rows, onSelect }: {
+export function RegionActivity({ rows, kind='regional', selected, onSelect }: {
   rows: MonitoringRecord[];
+  kind?: DatasetKind;
+  selected?: {region:string;completed:boolean}|null;
   onSelect: (region: string, completed: boolean) => void;
 }) {
   const { t } = useLanguage();
-  const regions = counts(rows, row => text(row.payload.region) || '—');
+  const regions = counts(rows, row => regionName(row,kind)).filter(([name])=>validRegion(name,kind));
   const peak = Math.max(1, ...regions.map(([, total]) => total));
   return <Panel title="Volume dan Selesai per Wilayah" hint="Klik bar untuk melihat pekerjaan sesuai wilayah dan kategori.">
     <div className="region-activity-legend"><span><i className="volume-key"/>{t('Volume')}</span><span><i className="completed-key"/>{t('Selesai')}</span></div>
     <div className="region-activity">{regions.map(([region, total]) => {
-      const completed = rows.filter(row => (text(row.payload.region) || '—') === region && status(row, 'regional') === 'Done').length;
+      const completed = rows.filter(row => regionName(row,kind) === region && isDone(row,kind)).length;
       return <div className="region-activity-row" key={region}><strong>{region}</strong><div>{[[false, total], [true, completed]].map(([done, value]) => {
         const n = Number(value), label = t(done ? 'Selesai' : 'Volume');
-        return <button key={label} className={'region-activity-bar ' + (done ? 'completed' : 'volume')} aria-label={`${region} · ${label}: ${n}`} onClick={() => onSelect(region, Boolean(done))}>
+        const active=selected?.region===region&&selected.completed===Boolean(done);
+        return <button key={label} aria-pressed={active} className={'region-activity-bar ' + (done ? 'completed' : 'volume')+(active?' selected':'')} aria-label={`${region} · ${label}: ${n}`} onClick={() => onSelect(region, Boolean(done))}>
           <span>{label}</span><span className="bar-track"><i style={{ width: `${n / peak * 100}%` }}/></span><b>{n.toLocaleString()}</b>
         </button>;
       })}</div></div>;
