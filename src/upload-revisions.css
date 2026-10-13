@@ -25,3 +25,9 @@
 @media(max-width:640px){.region-activity-row{gap:10px;grid-template-columns:55px minmax(0,1fr)}.region-activity-bar{grid-template-columns:48px minmax(0,1fr) 35px;gap:8px;font-size:12px}}
 .upload-issues .table-scroll{max-height:440px;overflow:auto}.upload-issues td{overflow-wrap:anywhere;white-space:normal;max-width:460px}
 .upload-issues summary{cursor:pointer}.upload-issues .issue-stats{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0}
+.bar-row.selected,.legend button.selected,.region-activity-bar.selected{outline:2px solid var(--chart-accent,#087f8c);outline-offset:2px;background:#e9f4f5}
+.kpi[aria-pressed=true]{outline:2px solid var(--chart-accent,#087f8c);outline-offset:2px}
+.region-detail-filters{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+.region-detail-filters button{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #d7e2ec;border-radius:7px;background:#fff;color:#173a63;min-height:44px}
+.region-detail-filters button.active{background:#e9f4f5;border-color:var(--chart-accent,#087f8c);color:#007a87}
+.region-detail-filters b{font-size:inherit}.region-detail-note{font-size:13px;margin:0 0 16px}.region-activity-row>strong{white-space:normal;overflow-wrap:anywhere}
