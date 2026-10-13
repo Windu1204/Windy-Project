@@ -41,6 +41,6 @@ describe('approved SLA and repeated uploads',()=>{
 });
 it('AT product/segment charts include all categories with N/M consistent and close includes rejects',()=>{
  const rows=Array.from({length:20},(_,i)=>{const payload={'No. Register':String(i),'PIC AT':'AT','PIC PS':'PS','PM':'PM','PIC Sales':'Sales','Nama Perusahaan':'Company','Kelompok':'Segmen '+i,'Jenis Produk / Solusi':'Produk '+i,'Jenis Formulir':i%2?'Maintenance':'New',Kategori:i===0?'Reject/Retur':'Done','Status Discrepancy':'Discrepancy'};return {id:String(i),payload,sla:pilotSla(payload)};});
- const charts=reportCharts('Overview Produk',rows);expect(charts).toHaveLength(1);expect(charts[0].items).toHaveLength(20);expect(charts[0].series?.map(s=>s.name)).toEqual(['N','M']);
- const report=pilotReportModel(rows,'',['discrepancy','highlights']);expect(report.pages[0].headers).toContain('PIC PS');expect(report.pages[0].headers).toContain('PM');expect(report.pages[1].rows[0][1]).toContain('20 dari 20');expect(report.pages[1].rows[0][1]).toContain('SLA Achievement');
+ const charts=reportCharts('Overview Produk',rows);expect(charts).toHaveLength(2);expect(charts[0].items).toHaveLength(20);expect(charts[0].series?.map(s=>s.name)).toEqual(['N','M']);
+ const report=pilotReportModel(rows,'',['discrepancy','highlights']);expect(report.pages[0].headers).toContain('PIC PS');expect(report.pages[0].headers).toContain('PM');expect(report.pages[1].rows[0][1]).toContain('20 dari 20');expect(report.pages[1].rows[5][1]).toContain('SLA Achievement');
 });
