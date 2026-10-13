@@ -30,8 +30,8 @@ for(const [kind,name] of [['regional','Regional - Non BNIDirect'],['ijr','IJR - 
 }
 test('login uses one logo and a proportional illustration on desktop and mobile',async({page})=>{
  await page.goto('/');await expect(page.locator('.login-brand')).toHaveCount(1);
- expect(await page.locator('.login-hero').evaluate(el=>getComputedStyle(el,'::before').backgroundSize)).toBe('contain');
- expect(await page.locator('.login-hero').evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).toContain('login-monitor-v2.png');
+ expect(await page.locator('.login-hero').evaluate(el=>getComputedStyle(el).backgroundSize)).toBe('cover');
+ expect(await page.locator('.login-hero').evaluate(el=>getComputedStyle(el).backgroundImage)).toContain('login-monitor-v3.png');
  await page.screenshot({path:'private/pending-qa/login-v2-desktop.png'});await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 test('Department Head and Team Leader region menus expose only their supplied data',async({page})=>{
