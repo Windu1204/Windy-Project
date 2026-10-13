@@ -2,7 +2,7 @@ import { type ApplicationKind, type Payload, text } from '../types';
 import {completionDate} from './work-calendar';
 // Status and PIC are mutable, so neither is part of a job's identity.
 export function identity(kind: ApplicationKind, row: Payload): string {
-  const keys = kind === 'ijr' ? ['Application Number'] : kind === 'corporate' ? ['noreg'] : kind === 'piloting' ? ['No. Register'] : ['company','cid','product','type','salesDate'];
+  const keys = kind === 'ijr' ? ['Application Number'] : kind === 'corporate' ? ['noreg'] : kind === 'piloting' ? ['No. Register','Tanggal Assign to AT'] : ['company','cid','product','type','salesDate'];
   if (!text(row[keys[0]]) || (kind === 'regional' && (!text(row.product) || !text(row.salesDate)))) throw new Error('Identitas pekerjaan tidak lengkap. Periksa nomor register / perusahaan, produk dan tanggal permohonan.');
   return JSON.stringify(keys.map(k=>text(row[k]).toLocaleLowerCase()));
 }

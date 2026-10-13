@@ -3,8 +3,8 @@ import {auditRows,sheetRows,type RejectedRow} from './imports';
 import {readPiloting} from '../piloting/imports';
 import {type ApplicationKind,type Payload,text} from '../types';
 export interface UploadAudit {rows:Payload[];issues:RejectedRow[];source:number;duplicates:number;file:string;}
-export async function readUpload(file:File,kind:ApplicationKind):Promise<UploadAudit>{
- if(kind==='piloting'){const a=await readPiloting(file);return {rows:a.validRows,issues:a.revisions,source:a.source,duplicates:a.duplicates,file:file.name};}
+export async function readUpload(file:File,kind:ApplicationKind,attachments:File[]=[]):Promise<UploadAudit>{
+ if(kind==='piloting'){const a=await readPiloting(file,attachments);return {rows:a.validRows,issues:a.revisions,source:a.source,duplicates:a.duplicates,file:[file,...attachments].map(f=>f.name).join(' + ')};}
  const wb=XLSX.read(await file.arrayBuffer(),{type:'array'}),matches:UploadAudit[]=[];
  for(const name of wb.SheetNames){let raw:Payload[];try{raw=sheetRows(wb.Sheets[name],kind,name);}catch{continue;}
   const a=auditRows(raw,kind);matches.push({rows:a.rows,issues:a.revisions,source:a.source,duplicates:a.duplicates,file:file.name});

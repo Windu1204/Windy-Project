@@ -50,14 +50,14 @@ describe('pending revisions preserve populations and SLA rules',()=>{
     }
     expect(reconciled).toBe(rows.length);
   });
-  it('splits product chart panels without losing labels, counts or N/M colors and removes only discrepancy charts',()=>{
+  it('keeps a single product chart without losing labels, counts or N/M colors and removes only discrepancy charts',()=>{
     const rows:MonitoringRecord[]=Array.from({length:20},(_,i)=>({id:String(i),payload:{[field.product]:'Product '+i,[field.form]:i%2?'Maintenance':'New'},sla:calculateSla({},'corporate')}));
     const chart=reportCharts('Overview Produk',rows)[0],panels=productChartPanels(chart);
-    expect(panels).toHaveLength(2);
+    expect(panels).toHaveLength(1);
     expect(panels.flatMap(p=>p.items)).toEqual(chart.items);
     chart.series!.forEach((series,i)=>{
       expect(panels.flatMap(p=>p.series![i].values)).toEqual(series.values);
-      expect(panels.map(p=>p.series![i].color)).toEqual([series.color,series.color]);
+      expect(panels.map(p=>p.series![i].color)).toEqual([series.color]);
     });
     expect(reportCharts('Rincian Discrepancy',rows)).toEqual([]);
     expect(reportCharts('Overview per Segmen',rows)).toHaveLength(1);

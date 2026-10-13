@@ -2,7 +2,7 @@ import {requestType} from './report-overview';
 import {type MonitoringRecord} from '../types';
 import {breakdown,field,value,duration,people} from './model';
 import {slaMetrics} from './sla';
-export interface ReportChart{title:string;items:[string,number][];color:string;series?:{name:string;color:string;values:number[]}[]}
+export interface ReportChart{title:string;items:[string,number][];color:string;kind?:'composition';series?:{name:string;color:string;values:number[]}[]}
 export function executiveStatusItems(rows:MonitoringRecord[]):[string,number][] {
  return [...breakdown(rows,field.status).map(([name,n]):[string,number]=>[name==='Masih Pending'?'Pending':name,n]),['Overdue',slaMetrics(rows).overdue]];
 }
@@ -19,22 +19,27 @@ export function reportCharts(title:string,rows:MonitoringRecord[]):ReportChart[]
  if(title==='Overview Produk'||title==='Overview per Segmen'){
   const key=title==='Overview Produk'?field.product:field.group,items=breakdown(rows,key);
   const series=(['N','M','—'] as const).map((type,i)=>({name:type,color:['F97316','087F8C','8996A4'][i],values:items.map(([label])=>rows.filter(r=>(value(r,key)||'—')===label&&requestType(r)===type).length)})).filter(s=>s.name!=='—'||s.values.some(Boolean));
-  return [{title,items,color:'087F8C',series}];
+  const overall:ReportChart[]=title==='Overview Produk'?[{title:'Komposisi Overall New / Maintenance',kind:'composition',color:'087F8C',items:(['N','M'] as const).map(type=>[type==='N'?'New':'Maintenance',rows.filter(r=>requestType(r)===type).length])}]:[];
+  return [{title,items,color:'087F8C',series},...overall];
  }
  // Discrepancy details remain in the table; no discrepancy chart page.
  if(title==='Rincian Discrepancy')return [];
  return [];
 }
 export function productChartPanels(chart:ReportChart):ReportChart[]{
- if(chart.items.length<=6)return [chart];
- const middle=Math.ceil(chart.items.length/2);
- return [[0,middle],[middle,chart.items.length]].map(([start,end],i)=>({...chart,title:i===0?'Produk · Volume Lebih Besar':'Produk · Volume Lebih Kecil',items:chart.items.slice(start,end),series:chart.series?.map(s=>({...s,values:s.values.slice(start,end)}))}));
+ return [chart];
 }
 export async function chartPng(chart:ReportChart):Promise<Uint8Array>{
  const panels=chart.title==='Overview Produk'?productChartPanels(chart):[chart];
- const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=panels.length>1?760:430;const c=canvas.getContext('2d');if(!c)throw new Error('Grafik report tidak dapat dibuat.');c.fillStyle='#fff';c.fillRect(0,0,canvas.width,canvas.height);
+ const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=Math.max(430,chart.items.length*48+110);const c=canvas.getContext('2d');if(!c)throw new Error('Grafik report tidak dapat dibuat.');c.fillStyle='#fff';c.fillRect(0,0,canvas.width,canvas.height);
+ if(chart.kind==='composition'){
+  const total=chart.items.reduce((n,item)=>n+item[1],0),colors=['F97316','087F8C'];let angle=-Math.PI/2;
+  chart.items.forEach(([label,n],i)=>{const end=angle+2*Math.PI*n/Math.max(1,total);c.beginPath();c.moveTo(370,225);c.arc(370,225,145,angle,end);c.closePath();c.fillStyle='#'+colors[i];c.fill();angle=end;
+   c.fillRect(650,150+i*70,20,20);c.fillStyle='#173a63';c.font='24px Arial';c.fillText(`${label}: ${n} (${(100*n/Math.max(1,total)).toFixed(1)}%)`,690,170+i*70);});
+  c.beginPath();c.arc(370,225,90,0,2*Math.PI);c.fillStyle='#fff';c.fill();c.fillStyle='#173a63';c.font='bold 38px Arial';c.textAlign='center';c.fillText(String(total),370,240);c.textAlign='left';
+ }else
  panels.forEach((panel,index)=>{
-  const offset=index*360,series=panel.series||[{name:'Permohonan',color:panel.color,values:panel.items.map(x=>x[1])}],peak=Math.max(1,...series.flatMap(s=>s.values)),size=Math.min(44,265/Math.max(1,panel.items.length));
+  const offset=index*360,series=panel.series||[{name:'Permohonan',color:panel.color,values:panel.items.map(x=>x[1])}],peak=Math.max(1,...series.flatMap(s=>s.values)),size=Math.min(44,(canvas.height-110)/Math.max(1,panel.items.length));
   c.fillStyle='#08275c';c.font='bold 25px Arial';c.fillText(panel.title,24,offset+32);
   if(panel.series){c.font='18px Arial';series.forEach((s,i)=>{c.fillStyle='#'+s.color;c.fillRect(520+i*150,offset+42,16,12);c.fillStyle='#173a63';c.fillText(s.name,543+i*150,offset+55);});}
   panel.items.forEach(([label],i)=>{
@@ -47,4 +52,3 @@ export async function chartPng(chart:ReportChart):Promise<Uint8Array>{
  if(panels.length>1){c.fillStyle='#61798d';c.font='18px Arial';c.fillText('Skala tiap panel berbeda; bandingkan angka pada bar. N = New · M = Maintenance',24,744);}
  const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Grafik tidak tersedia.')),'image/png'));return new Uint8Array(await blob.arrayBuffer());
 }
-

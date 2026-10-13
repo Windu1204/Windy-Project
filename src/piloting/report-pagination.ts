@@ -1,6 +1,6 @@
 // Explicit line budgets keep long source text inside the printable slide area.
 export function discrepancyPages(rows: string[][]) {
-  const widths = rows[0]?.length===9 ? [16,23,12,12,12,12,38,18,20] : [18,25,12,12,48,21,26];
+  const widths = rows[0]?.length===9 ? [17,20,10,17,17,10,35,19,22] : [18,25,12,12,48,21,26];
   const wrap = (text: string, width: number) => {
     const lines: string[] = [];
     for (const paragraph of text.split('\n')) {
