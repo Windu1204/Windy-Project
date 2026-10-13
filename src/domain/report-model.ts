@@ -1,3 +1,4 @@
+import { corporateProductFallback } from './product-fallback';
 import { type DatasetKind, type Filters, type MonitoringRecord, type Payload, type Value, text } from '../types';
 import { counts, fields, productCategory } from './analytics';
 import { validDate } from './imports';
@@ -68,5 +69,5 @@ export function reportContext(rows: MonitoringRecord[], kind: DatasetKind, selec
   for (const [label] of counts(dataset, row => text(row.payload.product))) if (!labels.has(normalize(label))) labels.set(normalize(label), label);
   return { rows: model.rows, dataset: reportModel(dataset, kind).rows, person: model.person || 'All Name', selected, period,
     presentationPeriod: period === 'All Period' && dates.length ? `All Period\n${formatDate(dates[0])} – ${formatDate(dates[dates.length - 1])}` : period,
-    productCategory: value => productCategory(value, kind), productName: value => labels.get(normalize(String(value || ''))) || String(value || ''), validDate: value => validDate(value, kind === 'regional') };
+    productCategory: value => productCategory(value, kind), productName: value => labels.get(normalize(String(value || ''))) || (kind==='corporate'?corporateProductFallback(String(value||'')):String(value||'')), validDate: value => validDate(value, kind === 'regional') };
 }

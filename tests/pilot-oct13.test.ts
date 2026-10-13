@@ -24,6 +24,6 @@ it('reports overdue, N/M totals, one product chart, overall mix and monthly comp
  const rows=[row(job),row({...job,[field.id]:'R-2','Jenis Formulir':'Maintenance, Form','Status Discrepancy':'Tidak Discrepancy'})];rows[0].sla.status='Overdue';
  const model=pilotReportModel(rows,'',['summary','products','highlights']);expect(model.pages[0].rows).toContainEqual(['Overdue','1']);
  const products=model.pages.find(p=>p.title==='Overview Produk')!;expect(products.headers).toEqual(['Produk','N','M','Total']);expect(products.rows.at(-1)).toEqual(['Grand Total','1','1','2']);
- const charts=reportCharts('Overview Produk',rows);expect(charts).toHaveLength(2);expect(productChartPanels(charts[0])).toHaveLength(1);expect(charts[1].items).toEqual([['New',1],['Maintenance',1]]);
+ const charts=reportCharts('Overview Produk',rows);expect(charts).toHaveLength(3);expect(productChartPanels(charts[0])).toHaveLength(1);expect(charts[1].items).toEqual([['New',1],['Maintenance',1]]);
  const takeaways=model.pages.find(p=>p.title==='Key Takeaways')!.rows;expect(takeaways[2][1]).toContain('2026-08: 50.0%');expect(takeaways[5][1]).toContain('SLA Achievement');
 });

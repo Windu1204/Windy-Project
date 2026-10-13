@@ -1,3 +1,4 @@
+import { corporateProductFallback } from './product-fallback';
 import { type Payload, type Value, type SlaRule, type Match } from '../types';
 const slaNorm = (v: Value) => String(v ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
 const normSlaText = (v: Value) => String(v || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -96,8 +97,8 @@ export function memoSemanticMatch(r: Payload, rules: SlaRule[]): Match | null {
     if (custom) return custom;
     const canonical = product.replace(/\becollection\b|\becolletion\b/g, 'e collection');
     if (canonical !== product) return memoSemanticMatch({ ...r, product: canonical }, rules);
-    if (product === 'vam') return memoSemanticMatch({...r,product:'VA eColl Portal'},rules);
-    if (product === 'api snap') return memoSemanticMatch({...r,product:'OGP SNAP'},rules);
+    const fallback=corporateProductFallback(String(r.product||''));
+    if(fallback!==String(r.product||''))return memoSemanticMatch({...r,product:fallback},rules);
     return null;
 }
 export const REG_SLA_RULES: [

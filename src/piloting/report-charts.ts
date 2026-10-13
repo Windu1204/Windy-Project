@@ -2,7 +2,7 @@ import {requestType} from './report-overview';
 import {type MonitoringRecord} from '../types';
 import {breakdown,field,value,duration,people} from './model';
 import {slaMetrics} from './sla';
-export interface ReportChart{title:string;items:[string,number][];color:string;kind?:'composition';series?:{name:string;color:string;values:number[]}[]}
+export interface ReportChart{title:string;items:[string,number][];color:string;kind?:'composition'|'vertical';series?:{name:string;color:string;values:number[]}[]}
 export function executiveStatusItems(rows:MonitoringRecord[]):[string,number][] {
  return [...breakdown(rows,field.status).map(([name,n]):[string,number]=>[name==='Masih Pending'?'Pending':name,n]),['Overdue',slaMetrics(rows).overdue]];
 }
@@ -13,14 +13,14 @@ export function reportCharts(title:string,rows:MonitoringRecord[]):ReportChart[]
  if(title==='Kinerja & Beban Kerja')return [chart('Beban Kerja per PIC',people(rows).map((p):[string,number]=>[p.name,p.total]).slice(0,6)),chart('Selesai per PIC',people(rows).map((p):[string,number]=>[p.name,p.done]).slice(0,6))];
  if(title==='Proses Implementasi'){
   const weekly=new Map<string,number>();for(const r of rows){const date=value(r,field.assigned);if(!/^\d{4}-\d{2}-\d{2}$/.test(date))continue;const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-(d.getUTCDay()+6)%7);const key=d.toISOString().slice(0,10);weekly.set(key,(weekly.get(key)||0)+1);}
-  return [chart('Permohonan Assign ke AT',[...weekly].sort((a,b)=>a[0].localeCompare(b[0]))),chart('Durasi Pekerjaan Selesai',['Same Day','1 Hari','2 Hari','>2 Hari','Unavailable'].map(b=>[b==='Same Day'?'0 hari':b==='Unavailable'?'Belum tersedia':b,done.filter(r=>duration(r)===b).length]),'F97316')];
+  return [chart('Permohonan Assign ke AT',[...weekly].sort((a,b)=>a[0].localeCompare(b[0]))),chart('Durasi Pekerjaan Selesai',['Same Day','1 Hari','2 Hari','>2 Hari','Unavailable'].map(b=>[b==='Same Day'?'0 hari':b==='Unavailable'?'Belum tersedia':b,done.filter(r=>duration(r)===b).length]).filter(([label,n])=>label!=='Belum tersedia'||Number(n)>0) as [string,number][],'F97316')];
  }
  if(title==='Kinerja SLA'){const m=slaMetrics(rows);return [chart('Kinerja SLA',[['Within SLA',m.within],['Overdue',m.overdue]]),chart('Overdue per PIC',people(rows).map((p):[string,number]=>[p.name,slaMetrics(p.rows).overdue]).slice(0,6),'F97316')];}
  if(title==='Overview Produk'||title==='Overview per Segmen'){
   const key=title==='Overview Produk'?field.product:field.group,items=breakdown(rows,key);
   const series=(['N','M','—'] as const).map((type,i)=>({name:type,color:['F97316','087F8C','8996A4'][i],values:items.map(([label])=>rows.filter(r=>(value(r,key)||'—')===label&&requestType(r)===type).length)})).filter(s=>s.name!=='—'||s.values.some(Boolean));
   const overall:ReportChart[]=title==='Overview Produk'?[{title:'Komposisi Overall New / Maintenance',kind:'composition',color:'087F8C',items:(['N','M'] as const).map(type=>[type==='N'?'New':'Maintenance',rows.filter(r=>requestType(r)===type).length])}]:[];
-  return [{title,items,color:'087F8C',series},...overall];
+  return [{title,items,color:'087F8C',series,...(title==='Overview Produk'?{kind:'vertical' as const}:{})},...overall,...(title==='Overview Produk'?[chart('Top 5 Produk',items.slice(0,5))]:[])];
  }
  // Discrepancy details remain in the table; no discrepancy chart page.
  if(title==='Rincian Discrepancy')return [];
@@ -33,10 +33,21 @@ export async function chartPng(chart:ReportChart):Promise<Uint8Array>{
  const panels=chart.title==='Overview Produk'?productChartPanels(chart):[chart];
  const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=Math.max(430,chart.items.length*48+110);const c=canvas.getContext('2d');if(!c)throw new Error('Grafik report tidak dapat dibuat.');c.fillStyle='#fff';c.fillRect(0,0,canvas.width,canvas.height);
  if(chart.kind==='composition'){
+  c.fillStyle='#08275c';c.font='bold 25px Arial';c.fillText(chart.title,24,32);
   const total=chart.items.reduce((n,item)=>n+item[1],0),colors=['F97316','087F8C'];let angle=-Math.PI/2;
   chart.items.forEach(([label,n],i)=>{const end=angle+2*Math.PI*n/Math.max(1,total);c.beginPath();c.moveTo(370,225);c.arc(370,225,145,angle,end);c.closePath();c.fillStyle='#'+colors[i];c.fill();angle=end;
    c.fillRect(650,150+i*70,20,20);c.fillStyle='#173a63';c.font='24px Arial';c.fillText(`${label}: ${n} (${(100*n/Math.max(1,total)).toFixed(1)}%)`,690,170+i*70);});
   c.beginPath();c.arc(370,225,90,0,2*Math.PI);c.fillStyle='#fff';c.fill();c.fillStyle='#173a63';c.font='bold 38px Arial';c.textAlign='center';c.fillText(String(total),370,240);c.textAlign='left';
+ }else if(chart.kind==='vertical'){
+  canvas.height=650;c.fillStyle='#fff';c.fillRect(0,0,1200,650);c.fillStyle='#08275c';c.font='bold 25px Arial';c.fillText(chart.title,24,32);
+  const series=chart.series||[],peak=Math.max(1,...series.flatMap(s=>s.values)),step=1080/Math.max(1,chart.items.length),base=450;
+  c.strokeStyle='#DCE3E7';c.fillStyle='#173a63';c.font='16px Arial';
+  for(let i=0;i<=5;i++){const y=base-i*70;c.beginPath();c.moveTo(70,y);c.lineTo(1150,y);c.stroke();c.fillText(String(Math.round(peak*i/5)),18,y+5);}
+  chart.items.forEach(([label],i)=>{const x=70+i*step;
+   series.forEach((s,j)=>{const n=s.values[i],w=Math.max(3,step*.7/series.length),h=350*n/peak;c.fillStyle='#'+s.color;c.fillRect(x+step*.15+j*w,base-h,w-2,h);if(n){c.fillStyle='#173a63';c.fillText(String(n),x+step*.15+j*w,base-h-6);}});
+   c.fillStyle='#173a63';c.font='14px Arial';const words=label.split(' '),lines=[''];for(const word of words){const k=lines.length-1;if(c.measureText((lines[k]+' '+word).trim()).width>step-4&&lines[k])lines.push(word);else lines[k]=(lines[k]+' '+word).trim();}c.textAlign='center';lines.forEach((line,j)=>c.fillText(line,x+step/2,base+22+j*17));c.textAlign='left';
+  });
+  series.forEach((s,i)=>{c.fillStyle='#'+s.color;c.fillRect(450+i*150,610,16,12);c.fillStyle='#173a63';c.font='18px Arial';c.fillText(s.name,475+i*150,623);});
  }else
  panels.forEach((panel,index)=>{
   const offset=index*360,series=panel.series||[{name:'Permohonan',color:panel.color,values:panel.items.map(x=>x[1])}],peak=Math.max(1,...series.flatMap(s=>s.values)),size=Math.min(44,(canvas.height-110)/Math.max(1,panel.items.length));
