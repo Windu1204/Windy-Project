@@ -1,3 +1,4 @@
+import { corporateProductFallback } from './product-fallback';
 import { type DatasetKind, type Payload, type MonitoringRecord, type Filters, text } from '../types';
 import { productKey } from './display';
 export const fields = {
@@ -21,7 +22,7 @@ export function status(r: MonitoringRecord, kind: DatasetKind) { const s = text(
 export function isDone(r: MonitoringRecord, kind: DatasetKind) { return kind === 'ijr' ? /^(proses selesai|delivered)$/i.test(text(r.payload.Status)) : status(r, kind) === 'Done'; }
 export function isWaiting(r: MonitoringRecord, kind: DatasetKind) { return kind === 'corporate' ? status(r, kind) === 'Pending Task' : /waiting|pending|approval/i.test(text(r.payload[fields[kind].status])); }
 export function productCategory(value: string, kind: DatasetKind) {
-    const p = value.toUpperCase();
+    const p = (kind==='corporate'?corporateProductFallback(value):value).toUpperCase();
     if (!p)
         return '';
     if (p.includes('API'))

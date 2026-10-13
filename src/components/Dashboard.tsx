@@ -1,3 +1,4 @@
+import { corporateProductFallback } from '../domain/product-fallback';
 import {InlineDrill,DrillSlot} from './InlineDrill';
 import { ProcessPeople } from './ProcessPeople';
 import { CorporateOverview, CorporateProcess } from './CorporateViews';
@@ -44,7 +45,7 @@ export default function Dashboard(p: Props) { const { t } = useLanguage();
     const [regionSelection,setRegionSelection]=useState<{region:string;completed:boolean}|null>(null);
     const [processDetail,setProcessDetail]=useState<{label:string;rows:MonitoringRecord[]}|null>(null);
     const productLabels = useMemo(() => regionalProductLabels(rows), [rows]);
-    const productName = (value: string) => kind === 'regional' ? productLabels.get(productKey(value)) || value : value;
+    const productName = (value: string) => kind === 'regional' ? productLabels.get(productKey(value)) || value : kind==='corporate'?corporateProductFallback(value):value;
     const filtered = useMemo(() => filterRows(rows, kind, filters), [rows, kind, filters]), k = fields[kind];
     const set = (key: FilterKey, v: string) => {
       setProcessDetail(null);

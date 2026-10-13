@@ -68,7 +68,7 @@ export function pilotReportModel(source:MonitoringRecord[],person:string,selecte
 
 
 
- add('process',['Durasi pekerjaan selesai','Jumlah'],['Same Day','1 Hari','2 Hari','>2 Hari','Unavailable'].map(b=>[b==='Same Day'?'Hari yang sama':b==='Unavailable'?'Durasi belum tersedia':b,String(done.filter(r=>duration(r)===b).length)]));
+ add('process',['Durasi pekerjaan selesai','Jumlah'],['Same Day','1 Hari','2 Hari','>2 Hari','Unavailable'].map(b=>[b==='Same Day'?'Hari yang sama':b==='Unavailable'?'Durasi belum tersedia':b,String(done.filter(r=>duration(r)===b).length)]).filter(([label,n])=>label!=='Durasi belum tersedia'||Number(n)>0));
 
 
 
@@ -210,12 +210,12 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
    const chartSlide=(existing?:ReturnType<typeof slide>)=>{
-    charts.forEach((chart,i)=>{
+    charts.filter(chart=>p.title!=='Overview Produk'||chart.kind==='vertical').forEach((chart,i)=>{
      const g=p.title==='Overview Produk'?slide(chart.title+' · Grafik'):existing||slide(p.title+' · Grafik'),compact=!!existing;
      const wide=p.title==='Overview Produk'||charts.length===1,x=wide?.55:.55+i*6.18,w=wide?12.1:5.7;
      g.addText(chart.title,{x,y:compact?4.28:1.65,w,h:.3,fontSize:16,bold:true,color:'08275C',margin:0});
      if(chart.kind==='composition'){g.addChart(pptx.ChartType.doughnut,[{name:'Permohonan',labels:chart.items.map(x=>x[0]),values:chart.items.map(x=>x[1])}],{x:2.7,y:2.15,w:8,h:4.6,showLegend:true,legendPos:'r',legendFontSize:14,showValue:true,showPercent:true,chartColors:['F97316','087F8C'],holeSize:60,dataLabelPosition:'bestFit'});return;}
-     if(chart.items.length)g.addChart(pptx.ChartType.bar,(chart.series||[{name:'Permohonan',color:chart.color,values:chart.items.map(x=>x[1])}]).map(series=>({name:series.name,labels:chart.items.map(x=>x[0]),values:series.values})),{x,y:compact?4.7:2.15,w,h:compact?2.15:4.6,barDir:p.title==='Proses Implementasi'?'col':'bar',showLegend:!!chart.series,legendPos:'b',legendFontSize:11,valAxisMinVal:0,barGrouping:'clustered',showValue:true,showTitle:false,chartColors:chart.series?.map(s=>s.color)||[chart.color],catAxisLabelFontSize:compact?9:11,valAxisLabelFontSize:9,dataLabelFormatCode:'0',dataLabelPosition:'outEnd'});
+     if(chart.items.length)g.addChart(pptx.ChartType.bar,(chart.series||[{name:'Permohonan',color:chart.color,values:chart.items.map(x=>x[1])}]).map(series=>({name:series.name,labels:chart.items.map(x=>x[0]),values:series.values})),{x,y:compact?4.7:2.15,w,h:compact?2.15:4.6,barDir:p.title==='Proses Implementasi'||chart.kind==='vertical'?'col':'bar',showLegend:!!chart.series,legendPos:'b',legendFontSize:11,valAxisMinVal:0,barGrouping:'clustered',showValue:true,showTitle:false,chartColors:chart.series?.map(s=>s.color)||[chart.color],catAxisLabelFontSize:compact?9:11,valAxisLabelFontSize:9,dataLabelFormatCode:'0',dataLabelPosition:'outEnd'});
      else g.addText('Tidak ada data',{x,y:3,w,h:.5,fontSize:14,color:'61798D'});
     });
    };
@@ -234,6 +234,22 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
     if(charts.length)chartSlide();continue;
 
+   }
+
+   if(p.title==='Overview Produk'){
+    const chunks:string[][][]=[],remaining=[...p.rows];while(remaining.length>5)chunks.push(remaining.splice(0,Math.min(10,remaining.length-5)));chunks.push(remaining);
+    chunks.forEach((part,index)=>{const s=slide(p.title+(chunks.length>1?` · ${index+1}/${chunks.length}`:'')),last=index===chunks.length-1;
+     const tableH=(part.length+1)*(last?.3:.42);
+     const cells=[p.headers.map(text=>({text,options:{bold:true,color:'FFFFFF',fill:{color:'087F8C'},align:'center' as const}})),...part.map((r,i)=>r.map((text,j)=>({text,options:{bold:r[0]==='Grand Total',fill:{color:r[0]==='Grand Total'?'DFF1F1':i%2?'F2F5F7':'FFFFFF'},align:j?'center' as const:'left' as const,color:'08275C'}})))];
+     s.addTable(cells,{x:.38,y:1.6,w:12.55,h:tableH,colW:[4.55,...Array(p.headers.length-1).fill(8/(p.headers.length-1))],fontSize:12,rowH:last?.3:.42,margin:.05,border:{type:'solid',color:'DCE3E7',pt:.5},autoPage:false});
+     if(last){const y=1.6+tableH+.12,overall=charts.find(c=>c.kind==='composition')!,top=charts.find(c=>c.title==='Top 5 Produk')!;
+      s.addText(overall.title,{x:.55,y,w:12,h:.22,fontSize:12,bold:true,color:'08275C',margin:0});
+      s.addChart(pptx.ChartType.doughnut,[{name:'Permohonan',labels:overall.items.map(x=>x[0]),values:overall.items.map(x=>x[1])}],{x:3.6,y:y+.22,w:3,h:1.35,showLegend:false,showValue:false,showPercent:false,chartColors:['F97316','087F8C'],holeSize:60});
+      overall.items.forEach(([label,n],i)=>s.addText(`${label}: ${n} (${(100*n/Math.max(1,model.rows.length)).toFixed(1)}%)`,{x:7.1,y:y+.5+i*.35,w:4,h:.25,fontSize:12,color:i?'087F8C':'F97316',margin:0}));
+      s.addText(top.title,{x:.55,y:y+1.6,w:12,h:.22,fontSize:12,bold:true,color:'08275C',margin:0});
+      s.addChart(pptx.ChartType.bar,[{name:'Permohonan',labels:top.items.map(x=>x[0]),values:top.items.map(x=>x[1])}],{x:.55,y:y+1.85,w:12.1,h:1.55,barDir:'bar',showLegend:false,showValue:true,chartColors:['087F8C'],catAxisLabelFontSize:9,valAxisLabelFontSize:8,valAxisMinVal:0,dataLabelPosition:'outEnd'});
+     }
+    });chartSlide();continue;
    }
 
    const expanded=p.rows;
@@ -300,7 +316,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-   const images=await Promise.all(reportCharts(p.title,model.rows).map(async chart=>new Paragraph({pageBreakBefore:p.title==='Overview Produk'||p.title==='Overview per Segmen',children:[new ImageRun({data:await chartPng(chart),transformation:{width:580,height:chart.items.length>6?367:208}})],spacing:{before:160,after:160}})));
+   const images=await Promise.all(reportCharts(p.title,model.rows).sort((a,b)=>p.title==='Overview Produk'?Number(a.kind==='vertical')-Number(b.kind==='vertical'):0).map(async chart=>new Paragraph({pageBreakBefore:chart.kind==='vertical'||p.title==='Overview per Segmen',children:[new ImageRun({data:await chartPng(chart),transformation:{width:580,height:chart.kind==='vertical'?314:chart.items.length>6?367:208}})],spacing:{before:160,after:160}})));
 
 
 
