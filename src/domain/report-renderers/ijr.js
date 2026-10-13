@@ -1,3 +1,4 @@
+import { exportIJR } from './ijr-complete.js';
 import {regionOverview} from './region-overview';
 import { corporateWordDocument } from './word-style.js';
 import { corporateStyle, summaryCard } from './corporate-style.js';
@@ -124,5 +125,5 @@ async function exportDocx(m){
 
   const doc=corporateWordDocument(docx,context,RC.title,children);const blob=await Packer.toBlob(doc);if(context.saveFile){context.saveFile(blob,`${cleanFileName(RC.title)}_Monitoring_Report_${new Date().toISOString().slice(0,10)}.docx`);}else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${cleanFileName(RC.title)}_Monitoring_Report_${new Date().toISOString().slice(0,10)}.docx`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 }
-return {model:reportModel,pptx:exportPptx,docx:exportDocx};
+return {model:reportModel,pptx:()=>exportIJR(context,'pptx'),docx:()=>exportIJR(context,'docx')};
 }
