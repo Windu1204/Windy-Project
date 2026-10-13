@@ -2,7 +2,7 @@ import {requestType} from './report-overview';
 import {type MonitoringRecord} from '../types';
 import {breakdown,field,value,duration,people} from './model';
 import {slaMetrics} from './sla';
-export interface ReportChart{title:string;items:[string,number][];color:string;kind?:'composition'|'vertical';series?:{name:string;color:string;values:number[]}[]}
+export interface ReportChart{title:string;items:[string,number][];color:string;panel?:boolean;kind?:'composition'|'vertical';series?:{name:string;color:string;values:number[]}[]}
 export function executiveStatusItems(rows:MonitoringRecord[]):[string,number][] {
  return [...breakdown(rows,field.status).map(([name,n]):[string,number]=>[name==='Masih Pending'?'Pending':name,n]),['Overdue',slaMetrics(rows).overdue]];
 }
@@ -36,16 +36,16 @@ export async function chartPng(chart:ReportChart):Promise<Uint8Array>{
   c.fillStyle='#08275c';c.font='bold 25px Arial';c.fillText(chart.title,24,32);
   const total=chart.items.reduce((n,item)=>n+item[1],0),colors=['F97316','087F8C'];let angle=-Math.PI/2;
   chart.items.forEach(([label,n],i)=>{const end=angle+2*Math.PI*n/Math.max(1,total);c.beginPath();c.moveTo(370,225);c.arc(370,225,145,angle,end);c.closePath();c.fillStyle='#'+colors[i];c.fill();angle=end;
-   c.fillRect(650,150+i*70,20,20);c.fillStyle='#173a63';c.font='24px Arial';c.fillText(`${label}: ${n} (${(100*n/Math.max(1,total)).toFixed(1)}%)`,690,170+i*70);});
+   if(!chart.panel)c.fillRect(650,150+i*70,20,20);c.fillStyle='#173a63';c.font='24px Arial';if(!chart.panel)c.fillText(`${label}: ${n} (${(100*n/Math.max(1,total)).toFixed(1)}%)`,690,170+i*70);});
   c.beginPath();c.arc(370,225,90,0,2*Math.PI);c.fillStyle='#fff';c.fill();c.fillStyle='#173a63';c.font='bold 38px Arial';c.textAlign='center';c.fillText(String(total),370,240);c.textAlign='left';
  }else if(chart.kind==='vertical'){
   canvas.height=650;c.fillStyle='#fff';c.fillRect(0,0,1200,650);c.fillStyle='#08275c';c.font='bold 25px Arial';c.fillText(chart.title,24,32);
-  const series=chart.series||[],peak=Math.max(1,...series.flatMap(s=>s.values)),step=1080/Math.max(1,chart.items.length),base=450;
-  c.strokeStyle='#DCE3E7';c.fillStyle='#173a63';c.font='16px Arial';
+  const series=chart.series||[{name:'Permohonan',color:chart.color,values:chart.items.map(x=>x[1])}],peak=Math.max(1,...series.flatMap(s=>s.values)),step=1080/Math.max(1,chart.items.length),base=450;
+  c.strokeStyle='#DCE3E7';c.fillStyle='#173a63';c.font=chart.panel?'30px Arial':'16px Arial';
   for(let i=0;i<=5;i++){const y=base-i*70;c.beginPath();c.moveTo(70,y);c.lineTo(1150,y);c.stroke();c.fillText(String(Math.round(peak*i/5)),18,y+5);}
   chart.items.forEach(([label],i)=>{const x=70+i*step;
    series.forEach((s,j)=>{const n=s.values[i],w=Math.max(3,step*.7/series.length),h=350*n/peak;c.fillStyle='#'+s.color;c.fillRect(x+step*.15+j*w,base-h,w-2,h);if(n){c.fillStyle='#173a63';c.fillText(String(n),x+step*.15+j*w,base-h-6);}});
-   c.fillStyle='#173a63';c.font='14px Arial';const words=label.split(' '),lines=[''];for(const word of words){const k=lines.length-1;if(c.measureText((lines[k]+' '+word).trim()).width>step-4&&lines[k])lines.push(word);else lines[k]=(lines[k]+' '+word).trim();}c.textAlign='center';lines.forEach((line,j)=>c.fillText(line,x+step/2,base+22+j*17));c.textAlign='left';
+   c.fillStyle='#173a63';c.font=chart.panel?'30px Arial':'14px Arial';const words=label.split(' '),lines=[''];for(const word of words){const k=lines.length-1;if(c.measureText((lines[k]+' '+word).trim()).width>step-4&&lines[k])lines.push(word);else lines[k]=(lines[k]+' '+word).trim();}c.textAlign='center';lines.forEach((line,j)=>c.fillText(line,x+step/2,base+22+j*(chart.panel?34:17)));c.textAlign='left';
   });
   series.forEach((s,i)=>{c.fillStyle='#'+s.color;c.fillRect(450+i*150,610,16,12);c.fillStyle='#173a63';c.font='18px Arial';c.fillText(s.name,475+i*150,623);});
  }else
