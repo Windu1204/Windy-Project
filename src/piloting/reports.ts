@@ -243,11 +243,13 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
      const cells=[p.headers.map(text=>({text,options:{bold:true,color:'FFFFFF',fill:{color:'087F8C'},align:'center' as const}})),...part.map((r,i)=>r.map((text,j)=>({text,options:{bold:r[0]==='Grand Total',fill:{color:r[0]==='Grand Total'?'DFF1F1':i%2?'F2F5F7':'FFFFFF'},align:j?'center' as const:'left' as const,color:'08275C'}})))];
      s.addTable(cells,{x:.38,y:1.6,w:12.55,h:tableH,colW:[4.55,...Array(p.headers.length-1).fill(8/(p.headers.length-1))],fontSize:12,rowH:last?.3:.42,margin:.05,border:{type:'solid',color:'DCE3E7',pt:.5},autoPage:false});
      if(last){const y=1.6+tableH+.12,overall=charts.find(c=>c.kind==='composition')!,top=charts.find(c=>c.title==='Top 5 Produk')!;
-      s.addText(overall.title,{x:.55,y,w:12,h:.22,fontSize:12,bold:true,color:'08275C',margin:0});
-      s.addChart(pptx.ChartType.doughnut,[{name:'Permohonan',labels:overall.items.map(x=>x[0]),values:overall.items.map(x=>x[1])}],{x:3.6,y:y+.22,w:3,h:1.35,showLegend:false,showValue:false,showPercent:false,chartColors:['F97316','087F8C'],holeSize:60});
-      overall.items.forEach(([label,n],i)=>s.addText(`${label}: ${n} (${(100*n/Math.max(1,model.rows.length)).toFixed(1)}%)`,{x:7.1,y:y+.5+i*.35,w:4,h:.25,fontSize:12,color:i?'087F8C':'F97316',margin:0}));
-      s.addText(top.title,{x:.55,y:y+1.6,w:12,h:.22,fontSize:12,bold:true,color:'08275C',margin:0});
-      s.addChart(pptx.ChartType.bar,[{name:'Permohonan',labels:top.items.map(x=>x[0]),values:top.items.map(x=>x[1])}],{x:.55,y:y+1.85,w:12.1,h:1.55,barDir:'bar',showLegend:false,showValue:true,chartColors:['087F8C'],catAxisLabelFontSize:9,valAxisLabelFontSize:8,valAxisMinVal:0,dataLabelPosition:'outEnd'});
+      const panelH=3.2,panelW=6.05,left=.38,right=6.88;
+      for(const x of [left,right])s.addShape(pptx.ShapeType.rect,{x,y,w:panelW,h:panelH,line:{color:'DCE3E7',width:.7},fill:{color:'FFFFFF'}});
+      s.addText(overall.title,{x:left+.16,y:y+.13,w:panelW-.32,h:.28,fontSize:12,bold:true,color:'08275C',margin:0});
+      s.addChart(pptx.ChartType.doughnut,[{name:'Permohonan',labels:overall.items.map(x=>x[0]),values:overall.items.map(x=>x[1])}],{x:left+.7,y:y+.48,w:4.65,h:1.8,showLegend:false,showValue:false,showPercent:false,chartColors:['F97316','087F8C'],holeSize:60});
+      overall.items.forEach(([label,n],i)=>s.addText(`${label}: ${n} (${(100*n/Math.max(1,model.rows.length)).toFixed(1)}%)`,{x:left+.5,y:y+2.38+i*.32,w:panelW-1,h:.25,fontSize:11,color:i?'087F8C':'F97316',margin:0,align:'center'}));
+      s.addText(top.title,{x:right+.16,y:y+.13,w:panelW-.32,h:.28,fontSize:12,bold:true,color:'08275C',margin:0});
+      s.addChart(pptx.ChartType.bar,[{name:'Permohonan',labels:top.items.map(x=>x[0]),values:top.items.map(x=>x[1])}],{x:right+.15,y:y+.48,w:panelW-.3,h:2.5,barDir:'col',showLegend:false,showValue:true,chartColors:['087F8C'],catAxisLabelFontSize:9,valAxisLabelFontSize:8,valAxisMinVal:0,dataLabelPosition:'outEnd'});
      }
     });chartSlide();continue;
    }
@@ -288,7 +290,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-  const d=await import('docx'),{Paragraph,TextRun,ImageRun,Document,Header,Footer,PageNumber,AlignmentType,Table,TableRow,TableCell,WidthType,HeadingLevel}=d;
+  const d=await import('docx'),{Paragraph,TextRun,ImageRun,Document,Header,Footer,PageNumber,AlignmentType,Table,TableRow,TableCell,WidthType,HeadingLevel,BorderStyle}=d;
 
 
 
@@ -316,11 +318,13 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-   const images=await Promise.all(reportCharts(p.title,model.rows).sort((a,b)=>p.title==='Overview Produk'?Number(a.kind==='vertical')-Number(b.kind==='vertical'):0).map(async chart=>new Paragraph({pageBreakBefore:chart.kind==='vertical'||p.title==='Overview per Segmen',children:[new ImageRun({data:await chartPng(chart),transformation:{width:580,height:chart.kind==='vertical'?314:chart.items.length>6?367:208}})],spacing:{before:160,after:160}})));
+   const summaryCharts=p.title==='Overview Produk'?reportCharts(p.title,model.rows).filter(c=>c.kind!=='vertical'):[];
+   const summaryPanel=summaryCharts.length?[new Table({width:{size:100,type:WidthType.PERCENTAGE},borders:{top:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'},bottom:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'},left:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'},right:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'},insideVertical:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'}},rows:[new TableRow({cantSplit:true,children:await Promise.all(summaryCharts.map(async chart=>new TableCell({width:{size:50,type:WidthType.PERCENTAGE},margins:{top:120,bottom:120,left:100,right:100},children:[para(chart.title,true),new Paragraph({children:[new ImageRun({data:await chartPng({...chart,title:'',panel:true,...(chart.title==='Top 5 Produk'?{kind:'vertical' as const}:{})}),transformation:{width:275,height:chart.title==='Top 5 Produk'?149:99}})]}),...(chart.kind==='composition'?chart.items.map(([label,n])=>para(`${label}: ${n} (${(100*n/Math.max(1,model.rows.length)).toFixed(1)}%)`)):[])]})))})]})]:[];
+   const images=await Promise.all(reportCharts(p.title,model.rows).filter(c=>p.title!=='Overview Produk'||c.kind==='vertical').sort((a,b)=>p.title==='Overview Produk'?Number(a.kind==='vertical')-Number(b.kind==='vertical'):0).map(async chart=>new Paragraph({pageBreakBefore:chart.kind==='vertical'||p.title==='Overview per Segmen',children:[new ImageRun({data:await chartPng(chart),transformation:{width:580,height:chart.kind==='vertical'?314:chart.items.length>6?367:208}})],spacing:{before:160,after:160}})));
 
 
 
-   return [heading,new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({tableHeader:true,children:p.headers.map(text=>new TableCell({shading:{fill:'087F8C'},children:[new Paragraph({children:[new TextRun({text,bold:true,color:'FFFFFF',size:22})]})]}))}),...p.rows.map((r,i)=>new TableRow({cantSplit:false,children:r.map((text,j)=>new TableCell({shading:{fill:i%2?'F2F5F7':'FFFFFF'},children:[new Paragraph({alignment:j>0&&(p.title==='Overview Produk'||p.title==='Overview per Segmen')?AlignmentType.CENTER:j>1&&p.title!=='Rincian Discrepancy'?AlignmentType.CENTER:AlignmentType.LEFT,children:[new TextRun({text:text==='Masih Pending'?'Pending':text,color:'08275C',size:22})]})]}))}))]}),...images,...(p.title==='Executive Summary'?[para('Overdue adalah subset pekerjaan Done yang terukur SLA; tidak ditambahkan ke total status.')]:[])];
+   return [heading,new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({tableHeader:true,children:p.headers.map(text=>new TableCell({shading:{fill:'087F8C'},children:[new Paragraph({children:[new TextRun({text,bold:true,color:'FFFFFF',size:22})]})]}))}),...p.rows.map((r,i)=>new TableRow({cantSplit:false,children:r.map((text,j)=>new TableCell({shading:{fill:i%2?'F2F5F7':'FFFFFF'},children:[new Paragraph({alignment:j>0&&(p.title==='Overview Produk'||p.title==='Overview per Segmen')?AlignmentType.CENTER:j>1&&p.title!=='Rincian Discrepancy'?AlignmentType.CENTER:AlignmentType.LEFT,children:[new TextRun({text:text==='Masih Pending'?'Pending':text,color:'08275C',size:22})]})]}))}))]}),...(summaryPanel.length?[new Paragraph({spacing:{before:100,after:100}})]:[]),...summaryPanel,...images,...(p.title==='Executive Summary'?[para('Overdue adalah subset pekerjaan Done yang terukur SLA; tidak ditambahkan ke total status.')]:[])];
 
 
 
