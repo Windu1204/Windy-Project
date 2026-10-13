@@ -33,7 +33,7 @@ export function calculateSla(p: Payload, kind: DatasetKind, rules: SlaRule[] = [
     const m = memoSemanticMatch(p, rules), ref = text(p.assignDate) || text(p.submitDate) || text(p.createDate) || text(p.slaPolicyDate);
     if (!m)
         return { ...unavailable(), real: sourceReal };
-    if (m.map !== 'Custom SLA Setting' && ref && ref.slice(0, 10) < '2025-07-14')
+    if (useSourceDuration && m.map !== 'Custom SLA Setting' && ref && ref.slice(0, 10) < '2025-07-14')
         return { ...unavailable(m.solution), target: m.target, real: sourceReal, map: m.map };
     if (sourceReal == null)
         return { target: m.target, real: null, status: 'SLA Real Unavailable', over: null, solution: m.solution, map: m.map };
