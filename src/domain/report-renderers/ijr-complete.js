@@ -1,5 +1,6 @@
 import { calculateSla } from '../sla';
-import { corporateWordDocument } from './word-style.js';
+import { createRenderer as createRegionalRenderer } from './regional.js';
+import { adaptIJRReportContext } from './ijr-report-profile';
 
 export function ijrSections(context) {
   const rows=context.rows, total=rows.length;
@@ -28,17 +29,8 @@ export function ijrSections(context) {
   return sections;
 }
 
+// IJR uses the exact Regional report layout with its own source fields and SLA.
 export async function exportIJR(context,format) {
-  const sections=ijrSections(context),title='IJR - BNIdirect',name='IJR_Monitoring_Report';
-  if(format==='docx'){
-    const d=context.docx,{Paragraph,TextRun,Table,TableRow,TableCell,WidthType,AlignmentType,Packer}=d;
-    const body=[new Paragraph(''),new Paragraph(''),new Paragraph('')];
-    for(const s of sections){body.push(new Paragraph({text:s.title,heading:d.HeadingLevel.HEADING_1,pageBreakBefore:true,keepNext:true}));if(s.note)body.push(new Paragraph({text:s.note,spacing:{after:160}}));body.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[s.headers,...s.data].map((r,i)=>new TableRow({tableHeader:i===0,cantSplit:true,children:r.map((v,j)=>new TableCell({shading:{fill:i===0?'008997':i%2?'FFFFFF':'EFF5F6'},children:[new Paragraph({alignment:j===0?AlignmentType.LEFT:AlignmentType.CENTER,children:[new TextRun({text:String(v??'—'),bold:i===0,color:i===0?'FFFFFF':'08275C',size:22})]})]}))}))}));if(s.chart){for(let start=0;start<s.data.length;start+=10){const values=s.data.slice(start,start+10),canvas=document.createElement('canvas');canvas.width=1200;canvas.height=80+values.length*70;const g=canvas.getContext('2d');g.fillStyle='#FFFFFF';g.fillRect(0,0,canvas.width,canvas.height);g.font='22px Arial';const max=Math.max(1,...s.data.map(r=>Number(r[1])));values.forEach((r,i)=>{const y=40+i*70;g.fillStyle='#08275C';g.fillText(String(r[0]),15,y+24,410);g.fillStyle='#008997';g.fillRect(450,y,Number(r[1])/max*640,32);g.fillStyle='#08275C';g.fillText(String(r[1]),460+Number(r[1])/max*640,y+24);});body.push(new Paragraph({children:[new d.ImageRun({data:canvas.toDataURL('image/png'),transformation:{width:580,height:canvas.height*580/1200}})]}));}}}
-    context.saveFile(await Packer.toBlob(corporateWordDocument(d,context,title,body)),name+'.docx');return;
-  }
-  const pptx=new context.PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Internal application';pptx.subject=title;pptx.title=title;
-  const header=(s,t)=>{if(context.brandLogo)s.addImage({data:context.brandLogo,x:.35,y:.22,w:1.1,h:.35});s.addText(t,{x:.4,y:.85,w:12.5,h:.6,fontFace:'Arial',fontSize:27,bold:true,color:'08275C'});s.addText(`${title} | Monitoring Report\n${context.presentationPeriod}`,{x:8.1,y:.2,w:4.8,h:.55,fontFace:'Arial',fontSize:10,align:'right',color:'08275C'});s.addShape(pptx.ShapeType.line,{x:.4,y:7.12,w:12.5,h:0,line:{color:'C8DBDF',width:1}});s.addText(title,{x:.4,y:7.2,w:9,h:.15,fontSize:9,color:'08275C'});};
-  const cover=pptx.addSlide();if(context.coverPhoto)cover.addImage({data:context.coverPhoto,x:0,y:0,w:13.333,h:7.5});cover.addText(title,{x:.6,y:1,w:11.5,h:.8,fontSize:38,bold:true,color:'08275C'});cover.addText(`Monitoring Report\n${context.presentationPeriod}\nPIC: ${context.person}`,{x:.6,y:2,w:11.5,h:1.5,fontSize:20,color:'08275C'});
-  for(const s of sections){const regionTable=s.title==='Overview Implementasi per Wilayah';const size=regionTable?24:s.chart?10:12;for(let start=0;start<s.data.length||start===0;start+=size){const slide=pptx.addSlide();header(slide,s.title+(s.data.length>size?` · ${Math.floor(start/size)+1}/${Math.ceil(s.data.length/size)}`:''));const data=s.data.slice(start,start+size);slide.addText(s.note,{x:.4,y:1.5,w:12.4,h:.55,fontSize:11,color:'61798C'});if(s.chart&&data.length){slide.addChart(pptx.ChartType.bar,[{name:'Permohonan',labels:data.map(r=>String(r[0])),values:data.map(r=>Number(r[1]))}],{x:.45,y:2.15,w:12.3,h:4.7,barDir:'bar',showValue:true,showLegend:false,chartColors:['008997'],catAxisLabelFontSize:12,valAxisLabelFontSize:10,valAxisMinVal:0,valAxisMaxVal:Math.max(1,...s.data.map(r=>Number(r[1])))*1.15,showTitle:false,showBorder:true,border:{color:'D8E5E8',pt:1}});}else slide.addTable([s.headers.map(text=>({text,options:{bold:true,color:'FFFFFF',fill:'008997',align:'center'}})),...data.map(r=>r.map((v,j)=>({text:String(v??'—'),options:{align:j===0?'left':'center'}})))],{x:.4,y:regionTable?2.05:2.2,w:12.5,h:4.5,fontFace:'Arial',fontSize:regionTable?12:14,align:'center',color:'08275C',border:{color:'D8E5E8',pt:.5},margin:regionTable?0:.08,rowH:regionTable?.20:.34,autoPage:false});}}
-  await pptx.writeFile({fileName:name+'.pptx'});
+  const renderer=createRegionalRenderer(adaptIJRReportContext(context));
+  await renderer[format](renderer.model());
 }
