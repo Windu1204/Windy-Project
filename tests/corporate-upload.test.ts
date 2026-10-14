@@ -80,7 +80,7 @@ describe('Corporate Non Piloting existing SLA product mapping',()=>{
   const p={product,description,projectType:'Maintenance',assignDate:'2026-08-14',doneDate:'2026-08-18'};expect(corporateService(p)).toBe(solution);expect(calculateSla(p,'corporate').solution).toBe(solution);expect(calculateSla(p,'corporate').target).not.toBeNull();
  });
  it('does not guess generic or conflicting services, or treat API as VA automatically',()=>{
-  for(const p of [{product:'Virtual Account',description:'Implementasi layanan'},{product:'Application Programming Interface (API)',description:'Whitelist IP'},{product:'Virtual Account',description:'VA Debit dan VA Kredit'}])expect(calculateSla(p,'corporate').target).toBeNull();
+  for(const p of [{product:'Virtual Account',description:'Implementasi layanan'},{product:'Application Programming Interface (API)',description:'Whitelist IP'}])expect(calculateSla(p,'corporate').target).toBeNull();
  });
  it('keeps existing SLA arithmetic and AT alias behavior unchanged',()=>{
   const p={product:'BNIdirect',projectType:'Maintenance',assignDate:'2026-08-14',doneDate:'2026-08-18'};

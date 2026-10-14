@@ -1,7 +1,9 @@
 import {type Payload, text} from '../types';
 
 const clean=(value:unknown)=>String(value??'').toLowerCase().replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
-/** Resolve only named services. A generic VA/API is never a default SLA. */
+// Request vocabulary approved for Corporate Non Piloting. Specific VA/API evidence wins.
+const bnidirectRequest=/\b(?:rekening|user|pengguna|admin|administrator|pejabat|bendahara|kpa|ppk|payroll|penggajian|gaji|limit|token|mobiletoken|hardtoken|email|e mail|telepon|telpon|telp|tlp|handphone|hand phone|nomor hp|no hp)\b|\bbaterai (?:habis|lemah)\b/;
+/** Resolve a service from the source without assigning a generic VA/API a default SLA. */
 export function corporateService(row:Payload):string|null {
  const product=clean(row.product);
  if(/^auto ?deb(?:et|it)$/.test(product))return 'BNIdirect';
@@ -13,22 +15,23 @@ export function corporateService(row:Payload):string|null {
  const named=known.find(name=>clean(name)===product);if(named)return named;
  const generic=!product||/^(virtual account|va|application programming interface(?: api)?|api|others?)$/.test(product);
  if(!generic)return null;
- const source=clean([row.formType,row.requestType,row.description,row.remarks].map(text).join(' '));
+ const source=clean([row.formType,row.requestType,row.description,row.remarks].map(text).join(' ')).replace(/\bvirtualaccount\b/g,'virtual account').replace(/\bva(debit|debet|kredit|credit)\b/g,'va $1');
+ const va=/\b(?:va|virtual account|vam)\b/.test(product+' '+source)||/\b(?:e ?collection|e ?coll|ecoll)\b/.test(source);
+ const debit=/\b(?:debit|debet)\b/.test(source),credit=/\b(?:kredit|credit)\b/.test(source);
+ // A VA request may also mention linking the account to BNIdirect. Keep its VA service.
+ if(va){
+  if(debit&&credit)return 'VA Debit/Kredit berkartu';
+  if(debit)return 'VA Debit berkartu';
+  if(credit)return 'VA Kredit berkartu';
+  if(/\b(?:e ?collection|e ?coll|ecoll|vam|portal va|va portal)\b/.test(source))return 'VA eCollection (Portal)';
+  if(/\bnon snap\b/.test(source))return 'Virtual Account Non SNAP (Integrasi)';
+  if(/\bsnap\b/.test(source))return 'Virtual Account SNAP';
+  if(/\b(?:icons|rpa|upload va)\b/.test(source))return 'Virtual Account (upload iCons/RPA)';
+  if(/\bintegrasi\b/.test(source))return 'Virtual Account Non SNAP (Integrasi)';
+  return null;
+ }
  const found=new Set<string>();
  const add=(condition:boolean,service:string)=>{if(condition)found.add(service);};
- add(/\b(?:va|virtual account) (?:debit|debet) (?:kredit|credit)\b/.test(source),'VA Debit/Kredit berkartu');
- if(!found.has('VA Debit/Kredit berkartu')){
-  add(/\b(?:va|virtual account) (?:debit|debet)\b/.test(source),'VA Debit berkartu');
-  add(/\b(?:va|virtual account) (?:kredit|credit)\b/.test(source),'VA Kredit berkartu');
- }
- add(/\b(?:e ?collection|e ?coll|ecoll|vam|portal va|va portal)\b/.test(source),'VA eCollection (Portal)');
- const va=/\b(?:va|virtual account)\b/.test(product+' '+source);
- if(va){
-  if(/\bnon snap\b/.test(source))found.add('Virtual Account Non SNAP (Integrasi)');
-  else add(/\bsnap\b/.test(source),'Virtual Account SNAP');
-  add(/\b(?:icons|rpa|upload va)\b/.test(source),'Virtual Account (upload iCons/RPA)');
-  if(!/\bsnap\b/.test(source))add(/\bintegrasi\b/.test(source),'Virtual Account Non SNAP (Integrasi)');
- }
  for(const name of ['RDN','RDL','RDF','MPN','OTR','ITR','FSCM'])add(new RegExp('\\b(?:api )?'+name.toLowerCase()+'\\b').test(source),'API '+name);
  add(/\bapi bni ?direct\b/.test(source),'API BNIdirect');
  add(/\b(?:api notification account statement|api nas)\b/.test(source),'API Notification Account Statement');
@@ -38,5 +41,17 @@ export function corporateService(row:Payload):string|null {
  // API BNIdirect and BNIdirect-GFX are more specific than plain BNIdirect.
  if(![...found].some(s=>/BNIdirect/.test(s)))add(/\bbni ?direct\b/.test(source),'BNIdirect');
  add(/\bauto ?deb(?:et|it)\b/.test(source),'BNIdirect');
- return found.size===1?[...found][0]:null;
+ if(found.size===1)return [...found][0];
+ if(found.size===0&&!/\b(?:api|application programming interface|digital services?)\b/.test(product+' '+source)&&bnidirectRequest.test(source))return 'BNIdirect';
+ return null;
+}
+
+/** Use the same existing Product field in current dashboards, reports and future uploads. */
+export function corporateProductPayload(row:Payload):Payload {
+ const product=clean(row.product);
+ if(product&&!/^(virtual account|va|application programming interface(?: api)?|api|others?)$/.test(product))return row;
+ const service=corporateService(row);
+ if(service)return {...row,product:service};
+ if(!product&&/\b(?:va|virtual account|vam)\b/i.test([row.formType,row.requestType,row.description,row.remarks].map(text).join(' ')))return {...row,product:'Virtual Account'};
+ return row;
 }

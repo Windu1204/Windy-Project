@@ -7,6 +7,7 @@ import { ChartNoAxesCombined, Building2, Network, LogOut, RefreshCw, UserRound, 
 import { type ApplicationKind, type SlaRule, type Payload, type MonitoringRecord, type Membership, datasetTitles } from './types';
 import { pilotSla } from './piloting/sla';
 import { calculateSla } from './domain/sla';
+import {corporateProductPayload} from './domain/corporate-products';
 import { jakartaToday } from './domain/work-calendar';
 import { supabase } from './lib/supabase';
 import * as repository from './lib/repository';
@@ -66,7 +67,7 @@ export default function App() { const { t, language, setLanguage } = useLanguage
         setError(t('Pembaruan data gagal. Data yang tampil belum dapat dipastikan terbaru.')+' '+e.message); }).finally(() => { if (active)
         setLoading(false); }); return () => { active = false; }; }, [kind, workspace, preview, refresh,version,user?.id]);
     const visibleRaw=useMemo(()=>viewAs?access.scopedRows(raw,kind,viewAs.profile,viewAs.directory.grants.filter(g=>g.user_id===viewAs.profile.user_id),viewAs.directory.teams,viewAs.directory.people):raw,[raw,kind,viewAs]);
-    const rows = useMemo<MonitoringRecord[]>(() => (effectiveSource==='PM'?[]:visibleRaw).map(r => ({ id: r.id, payload: r.payload, sla: kind === 'piloting' ? pilotSla(r.payload, rules) : calculateSla(r.payload, kind, rules) })), [visibleRaw, kind, rules,effectiveSource]);
+    const rows = useMemo<MonitoringRecord[]>(() => (effectiveSource==='PM'?[]:visibleRaw).map(r => {const payload=kind==='corporate'?corporateProductPayload(r.payload):r.payload;return { id: r.id, payload, sla: kind === 'piloting' ? pilotSla(payload, rules) : calculateSla(payload, kind, rules) };}), [visibleRaw, kind, rules,effectiveSource]);
     const membership = members.find(m => m.workspace_id === workspace), canEdit = !viewAs&&(preview||account?.role==='super_admin'), canDone=!viewAs&&!version&&kind==='regional'&&account?.role==='individual';
     const reload = useCallback(() => { repository.clearSessionCache(); setRefresh(n => n + 1); }, []);
     async function apply(payload: Payload[], name: string) { if (preview) {

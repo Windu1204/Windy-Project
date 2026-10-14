@@ -1,6 +1,6 @@
 import { type DatasetKind, type Payload, type SlaResult, type SlaRule, text } from '../types';
 import { memoSemanticMatch, regSlaTarget, REG_SLA_RULES } from './memo';
-import {corporateService} from './corporate-products';
+import {corporateService,corporateProductPayload} from './corporate-products';
 import { workingDays, completionDate } from './work-calendar';
 export function workdaysInclusive(a: string, b: string) { if (!/^\d{4}-\d{2}-\d{2}$/.test(a) || !/^\d{4}-\d{2}-\d{2}$/.test(b) || b < a)
     return null; const d = new Date(a + 'T00:00:00Z'), end = new Date(b + 'T00:00:00Z'); let n = 0, guard = 0; while (d <= end && guard++ < 4000) {
@@ -10,6 +10,7 @@ export function workdaysInclusive(a: string, b: string) { if (!/^\d{4}-\d{2}-\d{
 } return n; }
 const unavailable = (solution: string | null = null): SlaResult => ({ target: null, real: null, status: 'Without SLA', over: null, solution });
 export function calculateSla(p: Payload, kind: DatasetKind, rules: SlaRule[] = [], useSourceDuration = false): SlaResult {
+    if(kind==='corporate'&&!useSourceDuration)p=corporateProductPayload(p);
     if (kind === 'ijr') {
         const target = /maint/i.test(text(p['Application Type'])) ? 2 : 3;
         if (text(p['Request Date']) && text(p['Request Date']) < '2025-07-14')
