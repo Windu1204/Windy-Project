@@ -1,3 +1,4 @@
+import {requestCategoryLabel} from '../domain/request-category';
 import {DrillSlot} from './InlineDrill';
 import { type MonitoringRecord, text } from '../types';
 import { counts, status } from '../domain/analytics';
@@ -14,7 +15,7 @@ export function CorporateOverview({rows,piloting=false,onSelect,onDrill}:Props){
 export function CorporateProcess({rows,piloting=false,onDrill}:Props){
  const {t}=useLanguage(),rawStatus=(r:MonitoringRecord)=>piloting?value(r,field.status):text(r.payload.status);
  const pending=(r:MonitoringRecord)=>piloting?value(r,field.status)==='Masih Pending':status(r,'corporate')==='Pending Task';
- const get=(key:'product'|'segment'|'type',r:MonitoringRecord)=>(piloting?value(r,field[key==='segment'?'group':key==='type'?'form':'product']):text(r.payload[key==='type'?'projectType':key]))||'\u2014';
+ const get=(key:'product'|'segment'|'type',r:MonitoringRecord)=>key==='type'?requestCategoryLabel(piloting?value(r,field.form):r.payload.projectType):(piloting?value(r,field[key==='segment'?'group':'product']):text(r.payload[key]))||'Belum tersedia';
  const buckets=['Same Day','1 Hari','2 Hari','>2 Hari','Unavailable'];
  const bucket=(r:MonitoringRecord)=>{if(piloting)return duration(r);const n=r.sla.real;return n===null||!Number.isFinite(n)?'Unavailable':n===0?'Same Day':n===1?'1 Hari':n===2?'2 Hari':'>2 Hari';};
  const durations=piloting?rows.filter(r=>value(r,field.status)==='Done'):rows;

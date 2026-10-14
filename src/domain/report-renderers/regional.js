@@ -1,3 +1,5 @@
+import {exportMonitoringWord} from './word-report';
+import {reportCategory,reportDimension,reportMonth,categoryOverview} from './report-population.js';
 import {regionOverview,regionMonthlyOverview} from './region-overview';
 import { corporateWordDocument } from './word-style.js';
 import { corporateStyle, summaryCard } from './corporate-style.js';
@@ -87,14 +89,14 @@ async function exportPptx(m){
   const addPanel=(sl,x,y,w,h,title)=>{sl.addShape(pptx.ShapeType.roundRect,{x,y,w,h,rectRadius:.05,line:{color:C.line,width:.65},fill:{color:C.white}});sl.addText(title,{x:x+.15,y:y+.13,w:w-.30,h:.20,fontFace:'Arial',fontSize:10.1,bold:true,color:C.navy,margin:0});};
   const addBars=(sl,items,x,y,w,h,accent=C.blue)=>{const arr=RC.productMode==='ijr'?items:items.slice(0,5),mx=Math.max(1,...arr.map(z=>z[1]));arr.forEach((it,i)=>{const yy=y+i*(h/Math.max(1,arr.length));sl.addText(String(it[0]).slice(0,30),{x,y:yy,w:w*.38,h:.18,fontFace:'Arial',fontSize:7.2,color:C.ink,breakLine:false});sl.addShape(pptx.ShapeType.rect,{x:x+w*.42,y:yy+.01,w:w*.48,h:.16,line:{color:'E9F0F8',transparency:100},fill:{color:'E9F0F8'}});sl.addShape(pptx.ShapeType.rect,{x:x+w*.42,y:yy+.01,w:w*.48*(it[1]/mx),h:.16,line:{color:accent,transparency:100},fill:{color:accent,transparency:10}});sl.addText(String(it[1]),{x:x+w*.91,y:yy,w:w*.08,h:.18,fontFace:'Arial',fontSize:7.3,bold:true,color:C.navy,align:'right'});});};
   const dateKey=RC.dateKey;
-  const monthKey=r=>{let d=String(r[dateKey]||'').slice(0,10),dt=new Date(d);if(Number.isNaN(dt.getTime()))return '';return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')};
+  const monthKey=r=>reportMonth(r[dateKey]);
   const monthly=()=>{let mp=new Map();m.rows.forEach(r=>{let k=monthKey(r);if(!k)return;if(!mp.has(k))mp.set(k,{total:0,status:{}});let z=mp.get(k),g=reportStatusGroup(r);z.total++;z.status[g]=(z.status[g]||0)+1});return [...mp.entries()].sort((a,b)=>a[0].localeCompare(b[0])).slice(-9)};
 
   const reportHasSla=RC.productMode==='regional'||!!RC.slaKey;
-  const managementProductName=r=>{try{if(RC.productMode==='regional')return typeof regProductName==='function'?regProductName(r.product):String(r.product||'');if(RC.productMode==='corporate')return String(r.slaSolution||r.product||'Without Mapping');return productOf(r)}catch(e){return String(r[RC.productKey]||'')}};
-  const managementType=r=>{let v=String(RC.productMode==='regional'?r.type:r.projectType||'').toLowerCase();return /maint/.test(v)?'Maintenance':'New'};
+  const managementProductName=r=>{if(!String(r[RC.productKey]??'').trim()||String(r[RC.productKey])==='Belum tersedia')return 'Belum tersedia';try{if(RC.productMode==='regional')return typeof regProductName==='function'?regProductName(r.product):String(r.product||'');if(RC.productMode==='corporate')return String(r.slaSolution||r.product||'Without Mapping');return productOf(r)}catch(e){return String(r[RC.productKey]||'')}};
+  const managementType=r=>{const category=reportCategory(RC.productMode==='regional'?r.type:r.projectType);return category==='M'?'Maintenance':category==='N'?'New':'Belum diklasifikasikan';};
   const managementSla=r=>{if(RC.productMode==='regional'&&typeof regSlaOf==='function')return regSlaOf(r);return {status:String(r.slaStatus||''),real:r.slaReal,over:r.slaOverBy,solution:r.slaSolution||null}};
-  const monthLabel=k=>{let [y,mo]=String(k).split('-').map(Number);return new Date(Date.UTC(y,mo-1,1)).toLocaleDateString('id-ID',{month:'short',year:'2-digit',timeZone:'UTC'}).replace('.','')};
+  const monthLabel=k=>/^\d{4}-\d{2}$/.test(k)?new Date(k+'-01T00:00:00Z').toLocaleDateString('id-ID',{month:'short',year:'2-digit',timeZone:'UTC'}):k;
   const chunk=(a,n)=>{let z=[];for(let i=0;i<a.length;i+=n)z.push(a.slice(i,i+n));return z};
   const keyCounts=(rows,keyFn)=>{let o={};rows.forEach(r=>{let k=String(keyFn(r)||'').trim();if(!k)return;o[k]=(o[k]||0)+1});return Object.entries(o).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))};
   const pairCount=(rows,keyFn,key,month)=>{let maint=0,neu=0;rows.forEach(r=>{if(monthKey(r)!==month)return;let k=String(keyFn(r)||'').trim();if(k!==key)return;if(managementType(r)==='Maintenance')maint++;else neu++});return [maint,neu]};
@@ -102,57 +104,11 @@ async function exportPptx(m){
   // One reconciled population is used by BOTH Product and Dimension overviews.
   // A record is included only when date, product, and dimension are all valid.
   // This makes Overall Total Product = Overall Total Dimension and keeps every chart/table auditable.
-  const commonOverviewRows=()=>m.rows.filter(r=>{
-    if(!monthKey(r))return false;
-    if(RC.productMode==='regional'&&typeof validSalesDate==='function'&&!validSalesDate(r.salesDate))return false;
-    const product=String(managementProductName(r)||'').trim();
-    const dim=String(r[RC.dimensionKey]||'').trim();
-    if(!product||!dim)return false;
-    if(String(RC.dimensionLabel||'').toLowerCase()==='wilayah'&&/^w?0+$/i.test(dim))return false;
-    return true;
-  });
+  const commonOverviewRows=()=>m.rows.map(r=>({...r,[RC.productKey]:reportDimension(r[RC.productKey]),[RC.dimensionKey]:reportDimension(r[RC.dimensionKey])}));
   const addOverviewSlides=(title,keyLabel,keyFn,sectionBase)=>{
-    const isRegionalWilayah=String(keyLabel).toLowerCase()==='wilayah';
-    const overviewRows=commonOverviewRows();if(isRegionalWilayah){regionOverview(pptx,overviewRows,{region:r=>String(keyFn(r)||'').trim(),type:r=>managementType(r)==='Maintenance'?'M':'N',month:monthKey,addHeader,colors:C,monthlyComparison:true});return;}
-    const months=[...new Set(overviewRows.map(monthKey).filter(Boolean))].sort();if(!months.length)return;
-    const regionSort=(a,b)=>{const na=parseInt((String(a[0]).match(/\d+/)||['9999'])[0],10),nb=parseInt((String(b[0]).match(/\d+/)||['9999'])[0],10);return na-nb||String(a[0]).localeCompare(String(b[0]))};
-    const allCountsRaw=keyCounts(overviewRows,keyFn);
-    const allCounts=isRegionalWilayah?[...allCountsRaw].sort(regionSort):allCountsRaw;
-    const displayCounts=isRegionalWilayah?allCounts:allCounts.slice(0,8);
-    const displayNames=displayCounts.map(x=>x[0]),displaySet=new Set(displayNames),hasOthers=!isRegionalWilayah&&allCounts.length>displayNames.length;
-    const keyPages=isRegionalWilayah?chunk(displayNames,9):[displayNames];
-    const monthChunks=chunk(months,4);
-    monthChunks.forEach((ms,mi)=>keyPages.forEach((pageNames,ki)=>{
-      const partNo=mi*keyPages.length+ki+1,totalParts=monthChunks.length*keyPages.length;
-      const s=pptx.addSlide();addHeader(s,title,sectionBase+(totalParts>1?' '+partNo+'/'+totalParts:''));
-      const header=[keyLabel,...ms.flatMap(mm=>[monthLabel(mm)+' M',monthLabel(mm)+' N']),'Overall Total'];
-      const body=[];
-      pageNames.forEach(name=>{let row=[name];ms.forEach(mm=>{let [a,b]=pairCount(overviewRows,keyFn,name,mm);row.push(a,b)});const gt=overviewRows.filter(r=>String(keyFn(r)||'').trim()===name).length;row.push(gt);body.push(row)});
-      if(hasOthers&&ki===0){let row=['Others'];ms.forEach(mm=>{let [a,b]=othersPair(overviewRows,keyFn,displaySet,mm);row.push(a,b)});const gt=overviewRows.filter(r=>{const k=String(keyFn(r)||'').trim();return k&&!displaySet.has(k)}).length;row.push(gt);body.push(row)}
-      let totalRow=['Grand Total'],grand=0;ms.forEach(mm=>{let a=0,b=0;overviewRows.forEach(r=>{if(monthKey(r)!==mm)return;if(managementType(r)==='Maintenance')a++;else b++});totalRow.push(a,b);grand+=a+b});totalRow.push(overviewRows.length);body.push(totalRow);
-      const headerCells=header.map((v,i)=>({text:String(v),options:{fill:'087486',color:'FFFFFF',bold:true,align:i===0?'left':'center',valign:'mid'}}));
-      const tableRows=[headerCells,...body.map((row,ri)=>row.map((v,ci)=>({text:String(v),options:{fill:row[0]==='Grand Total'?'E5F4F6':ci===0?'F1F7FD':'FFFFFF',color:'173B68',bold:row[0]==='Grand Total'||ci===0,align:ci===0?'left':'center',valign:'mid'}})))];
-      s.addTable(tableRows,{x:.30,y:1.08,w:12.73,h:3.65,border:{type:'solid',pt:.55,color:'C9DAEB'},fontFace:'Arial',fontSize:6.5,margin:.035,rowH:.31,autoFit:false,bold:false,fillHeader:'087486',colorHeader:'FFFFFF'});
-      addPanel(s,.30,4.88,4.15,2.20,'Total Implementasi per Bulan');
-      const maintVals=[],newVals=[],labels=[];ms.forEach(mm=>{let a=0,b=0;overviewRows.forEach(r=>{if(monthKey(r)!==mm)return;if(managementType(r)==='Maintenance')a++;else b++});maintVals.push(a);newVals.push(b);labels.push(monthLabel(mm))});
-      // A compact label strip keeps Maintenance, New Project, and Total readable without overlapping the chart.
-      s.addText('Maintenance',{x:.54,y:5.17,w:.72,h:.14,fontFace:'Arial',fontSize:5.8,bold:true,color:C.teal,margin:0});
-      s.addText('New Project',{x:1.32,y:5.17,w:.72,h:.14,fontFace:'Arial',fontSize:5.8,bold:true,color:C.orange,margin:0});
-      const labelW=3.62/Math.max(1,labels.length);
-      labels.forEach((lab,i)=>{const xx=.55+i*labelW;s.addText(`M ${maintVals[i]}  |  N ${newVals[i]}\nTotal ${maintVals[i]+newVals[i]}`,{x:xx,y:5.31,w:labelW-.02,h:.30,fontFace:'Arial',fontSize:5.6,bold:true,color:C.navy,align:'center',margin:0,fit:'shrink'});});
-      try{s.addChart(pptx.ChartType.bar,[{name:'Maintenance',labels,values:maintVals},{name:'New Project',labels,values:newVals}],{x:.53,y:5.64,w:3.70,h:1.08,catAxisLabelFontSize:7,valAxisLabelFontSize:6.5,showLegend:false,showTitle:false,showValue:false,chartColors:[C.teal,C.orange],grouping:'stacked',showGridLines:true,gridLine:{color:'E6EEF7',pt:.5},catAxisLineColor:'CBD8E8',valAxisLineColor:'CBD8E8'})}catch(e){}
-      const slideRows=overviewRows.filter(r=>ms.includes(monthKey(r)));
-      const overallRows=overviewRows;
-      addPanel(s,4.62,4.88,3.18,2.20,'Komposisi Implementasi - Overall');let maint=overallRows.filter(r=>managementType(r)==='Maintenance').length,neu=overallRows.length-maint;
-      try{s.addChart(pptx.ChartType.doughnut,[{name:'Type',labels:['Maintenance','New Project'],values:[maint,neu]}],{x:5.32,y:5.30,w:1.75,h:1.55,holeSize:62,showLegend:false,showTitle:false,showValue:false,chartColors:[C.teal,C.orange],border:{color:C.white,pt:0}})}catch(e){}
-      s.addText(`${maint.toLocaleString()}\nMaintenance`,{x:4.80,y:5.48,w:.80,h:.65,fontFace:'Arial',fontSize:7,bold:true,color:C.teal,align:'center',margin:0});s.addText(`${neu.toLocaleString()}\nNew Project`,{x:6.86,y:5.48,w:.80,h:.65,fontFace:'Arial',fontSize:7,bold:true,color:C.orange,align:'center',margin:0});
-      addPanel(s,7.98,4.88,5.05,2.20,'Top 5 '+keyLabel+' - Overall');
-      // Top 5 is calculated from the complete valid All Period basis, independent of slide pagination.
-      let chartCounts=keyCounts(overallRows,keyFn);
-      if(isRegionalWilayah)chartCounts=chartCounts.filter(x=>!/^w?0+$/i.test(String(x[0]||'').trim()));
-      const arr=chartCounts.slice(0,5),mx=Math.max(1,...arr.map(z=>z[1]));arr.forEach((it,i)=>{const yy=5.34+i*(1.38/Math.max(1,arr.length));s.addText(String(it[0]).slice(0,30),{x:8.18,y:yy,w:1.72,h:.18,fontFace:'Arial',fontSize:7.2,color:C.ink,breakLine:false,margin:0});s.addShape(pptx.ShapeType.rect,{x:10.02,y:yy+.01,w:2.05,h:.16,line:{color:'E9F0F8',transparency:100},fill:{color:'E9F0F8'}});s.addShape(pptx.ShapeType.rect,{x:10.02,y:yy+.01,w:2.05*(it[1]/mx),h:.16,line:{color:C.blue2,transparency:100},fill:{color:C.blue2,transparency:10}});s.addText(String(it[1]),{x:12.14,y:yy,w:.55,h:.18,fontFace:'Arial',fontSize:7.3,bold:true,color:C.navy,align:'right',margin:0});});
-      s.addText(`Basis overview: ${overviewRows.length.toLocaleString()} record valid dengan tanggal, produk, dan ${RC.dimensionLabel.toLowerCase()} terisi. Blank/null${String(RC.dimensionLabel).toLowerCase()==='wilayah'?' serta Wilayah 0':''} tidak dihitung. Overview Produk dan ${RC.dimensionLabel} memakai populasi yang sama agar seluruh Overall Total dan chart dapat direkonsiliasi.`,{x:.36,y:7.18,w:12.55,h:.14,fontFace:'Arial',fontSize:5.9,color:C.muted,margin:0,align:'left'});
-    }));
+    const overviewRows=commonOverviewRows(),type=r=>reportCategory(RC.productMode==='regional'?r.type:r.projectType);
+    if(String(keyLabel).toLowerCase()==='wilayah'){regionOverview(pptx,overviewRows,{region:r=>reportDimension(keyFn(r)),type,month:monthKey,addHeader,colors:C,monthlyComparison:true});return;}
+    categoryOverview(pptx,overviewRows,{title,label:keyLabel,key:r=>reportDimension(keyFn(r)),type,month:monthKey,addHeader,colors:C});
   };
   const addProductDetailSlides=()=>{
     const map=new Map();m.rows.forEach(r=>{let name=String(managementProductName(r)||'').trim()||'Without Mapping';if(!map.has(name))map.set(name,[]);map.get(name).push(r)});
@@ -162,13 +118,13 @@ async function exportPptx(m){
   const addManagementOverviewSlides=()=>{if(RC.managementLayout&&!selected.includes('Wilayah'))return;if(!RC.singleProduct)addOverviewSlides('Overview Implementasi per Produk','Produk',managementProductName,'Overview Produk');addOverviewSlides('Overview Implementasi per '+RC.dimensionLabel,RC.dimensionLabel,r=>r[RC.dimensionKey],'Overview '+RC.dimensionLabel);};
   const addManagementKeyTakeaways=()=>{
     if(RC.managementLayout&&!selected.includes('Key Takeaways'))return;
-    const base=m.rows.filter(r=>{if(!monthKey(r))return false;if(RC.productMode==='regional'&&typeof validSalesDate==='function'&&!validSalesDate(r.salesDate))return false;return true});
-    const validDim=RC.productMode==='regional'?base.filter(r=>!/^w?0+$/i.test(String(r[RC.dimensionKey]||'').trim())):base;
+    const base=commonOverviewRows();
+    const validDim=base;
     if(!base.length)return;
     const prod=keyCounts(base,managementProductName)[0];
     const dim=keyCounts(validDim,r=>r[RC.dimensionKey])[0];
     const monMap={};base.forEach(r=>{let k=monthKey(r);if(!k)return;monMap[k]=(monMap[k]||0)+1});const peak=Object.entries(monMap).sort((a,b)=>b[1]-a[1])[0];
-    const maint=base.filter(r=>managementType(r)==='Maintenance').length,neu=base.length-maint;
+    const maint=base.filter(r=>managementType(r)==='Maintenance').length,neu=base.filter(r=>managementType(r)==='New').length,unclassified=base.length-maint-neu;
     let within=0,over=0;base.forEach(r=>{const z=managementSla(r);if(z.status==='Within SLA')within++;else if(z.status==='Overdue')over++});const meas=within+over,ach=meas?Math.round(within/meas*1000)/10:null;
     const s=pptx.addSlide();addHeader(s,'Key Takeaways - Overview Implementasi','Management Highlights');
     const cards=[
@@ -176,7 +132,7 @@ async function exportPptx(m){
       RC.singleProduct?['Registered / Delivered',String(base.filter(r=>/delivered/i.test(String(r.status))).length)+' permohonan','Proses telah selesai di TBS; Proses Selesai cabang ditampilkan terpisah dalam status.',C.orange]:['Top Product',prod?prod[0]:'-',prod?`${prod[1].toLocaleString()} implementasi pada basis overview.`:'Tidak ada produk yang dapat diringkas.',C.orange],
       ['Top '+RC.dimensionLabel,dim?dim[0]:'-',dim?`${dim[1].toLocaleString()} implementasi.`:'Tidak ada '+RC.dimensionLabel+' yang dapat diringkas.',C.teal],
       ['Peak Month',peak?monthLabel(peak[0]):'-',peak?`${peak[1].toLocaleString()} implementasi.`:'Tidak ada tren bulanan.',C.blue2],
-      ['Komposisi',`${maint.toLocaleString()} Maintenance`,`${neu.toLocaleString()} New Project.`,C.green],
+      ['Komposisi',`${maint.toLocaleString()} Maintenance`,`${neu.toLocaleString()} New Project.${unclassified?'\n'+unclassified.toLocaleString()+' belum diklasifikasikan.':''}`,C.green],
       ['SLA',ach==null?'N/A':ach.toFixed(1)+'%',`${over.toLocaleString()} Overdue dari ${meas.toLocaleString()} measurable.`,C.red]
     ];
     cards.forEach((c,i)=>{const x=.55+(i%2)*6.18,y=1.38+Math.floor(i/2)*1.72;
@@ -207,7 +163,7 @@ async function exportPptx(m){
     s=pptx.addSlide();addHeader(s,'Workload & Product Overview','3. Workload & Product');addPanel(s,.38,1.05,6.05,5.95,'Distribution by '+(RC.title.startsWith('IJR')?'Application Type':'Product / Category'));addPanel(s,6.65,1.05,6.29,5.95,'Top '+(RC.title.startsWith('IJR')?'Wilayah / Cabang':RC.dimensionLabel));
     const prods=m.products.slice(0,6);if(prods.length){try{s.addChart(pptx.ChartType.doughnut,[{name:'Product',labels:prods.map(x=>x[0]),values:prods.map(x=>x[1])}],{x:.7,y:2.0,w:2.7,h:2.7,holeSize:62,showLegend:false,showTitle:false,chartColors:['0D3B75',C.blue,C.orange,'82B7F2','7B61D1','4FB5C6'],border:{color:C.white,pt:0}})}catch(e){addBars(s,prods,.7,1.8,5.2,3.7,C.blue)}prods.slice(0,5).forEach((it,i)=>s.addText(`${it[0]}   ${it[1]} (${m.total?pctR(it[1],m.total):0}%)`,{x:3.45,y:2.0+i*.55,w:2.55,h:.22,fontFace:'Arial',fontSize:7.4,color:C.ink}));}addBars(s,m.dims,6.95,1.85,5.45,3.9,C.blue2);
     // 4. Status & Timeline
-    s=pptx.addSlide();addHeader(s,'Status Trend & Request Date','4. Status & Timeline');addPanel(s,.38,1.05,6.05,5.95,'Status Trend per Month');addPanel(s,6.65,1.05,6.29,5.95,'Request Date Distribution');const mons=monthly();if(mons.length){const labels=mons.map(x=>x[0].slice(5)+'/'+x[0].slice(2,4));try{const order=reportStatusOrder().filter(k=>mons.some(x=>(x[1].status[k]||0)>0)),colorMap={'Pending':C.amber,'On Progress':C.blue,'Done':C.green,'Handover':C.teal,'Retur':'7B61D1'};s.addChart(pptx.ChartType.bar,order.map(k=>({name:k,labels,values:mons.map(x=>x[1].status[k]||0)})),{x:.72,y:1.78,w:5.35,h:4.3,catAxisLabelFontSize:7,valAxisLabelFontSize:7,showLegend:true,legendFontSize:7,legendPos:'t',showTitle:false,showValue:false,chartColors:order.map(k=>colorMap[k]),showCatName:false,showValAxisTitle:false,showCatAxisTitle:false,showGridLines:true,gridLine:{color:'E6EEF7',pt:.5},catAxisLineColor:'CBD8E8',valAxisLineColor:'CBD8E8',grouping:'stacked'})}catch(e){addBars(s,mons.map(x=>[x[0],x[1].total]),.7,1.8,5.3,3.8,C.blue)}try{s.addChart(pptx.ChartType.line,[{name:'Requests',labels,values:mons.map(x=>x[1].total)}],{x:6.95,y:1.78,w:5.35,h:4.3,catAxisLabelFontSize:7,valAxisLabelFontSize:7,showLegend:false,showTitle:false,showValue:false,chartColors:[C.blue],lineSize:2,showMarker:true,markerSize:5,showGridLines:true,gridLine:{color:'E6EEF7',pt:.5},catAxisLineColor:'CBD8E8',valAxisLineColor:'CBD8E8'})}catch(e){addBars(s,mons.map(x=>[x[0],x[1].total]),6.95,1.8,5.3,3.8,C.blue)}}
+    s=pptx.addSlide();addHeader(s,'Status Trend & Request Date','4. Status & Timeline');addPanel(s,.38,1.05,6.05,5.95,'Status Trend per Month');addPanel(s,6.65,1.05,6.29,5.95,'Request Date Distribution');const mons=monthly();if(mons.length){const labels=mons.map(x=>monthLabel(x[0]));try{const order=reportStatusOrder().filter(k=>mons.some(x=>(x[1].status[k]||0)>0)),colorMap={'Pending':C.amber,'On Progress':C.blue,'Done':C.green,'Handover':C.teal,'Retur':'7B61D1'};s.addChart(pptx.ChartType.bar,order.map(k=>({name:k,labels,values:mons.map(x=>x[1].status[k]||0)})),{x:.72,y:1.78,w:5.35,h:4.3,catAxisLabelFontSize:7,valAxisLabelFontSize:7,showLegend:true,legendFontSize:7,legendPos:'t',showTitle:false,showValue:false,chartColors:order.map(k=>colorMap[k]),showCatName:false,showValAxisTitle:false,showCatAxisTitle:false,showGridLines:true,gridLine:{color:'E6EEF7',pt:.5},catAxisLineColor:'CBD8E8',valAxisLineColor:'CBD8E8',grouping:'stacked'})}catch(e){addBars(s,mons.map(x=>[x[0],x[1].total]),.7,1.8,5.3,3.8,C.blue)}try{s.addChart(pptx.ChartType.line,[{name:'Requests',labels,values:mons.map(x=>x[1].total)}],{x:6.95,y:1.78,w:5.35,h:4.3,catAxisLabelFontSize:7,valAxisLabelFontSize:7,showLegend:false,showTitle:false,showValue:false,chartColors:[C.blue],lineSize:2,showMarker:true,markerSize:5,showGridLines:true,gridLine:{color:'E6EEF7',pt:.5},catAxisLineColor:'CBD8E8',valAxisLineColor:'CBD8E8'})}catch(e){addBars(s,mons.map(x=>[x[0],x[1].total]),6.95,1.8,5.3,3.8,C.blue)}}
     // 5. Detailed Work List, paginated only when necessary.
     if(selected.includes('Detail Data')){let cols=RC.detailCols.slice(0,8),chunkSize=10,totalPages=Math.max(1,Math.ceil(m.rows.length/chunkSize));for(let pg=0;pg<totalPages;pg++){s=pptx.addSlide();addHeader(s,'Detail Work List – '+(person||'Selected Implementor'),`5. Detailed List${totalPages>1?' '+(pg+1)+'/'+totalPages:''}`);let part=m.rows.slice(pg*chunkSize,(pg+1)*chunkSize),headerRow=cols.map((c,i)=>({text:String(c[0]),options:{fill:'087486',color:'FFFFFF',bold:true,align:i===0?'left':'center',valign:'mid'}})),rows=[headerRow,...part.map(r=>cols.map(c=>String(r[c[1]]??'-').slice(0,36)))];s.addTable(rows,{x:.38,y:1.15,w:12.55,h:5.72,border:{type:'solid',pt:.5,color:'D6E4F3'},fill:C.white,color:'29456E',fontFace:'Arial',fontSize:6.8,margin:.04,rowH:.38,autoFit:false,bold:false,fillHeader:'087486',colorHeader:'FFFFFF'});s.addText(`Records ${pg*chunkSize+1}-${pg*chunkSize+part.length} of ${m.rows.length}`,{x:.42,y:7.0,w:3,h:.16,fontFace:'Arial',fontSize:6.5,color:C.muted});}}
     // 6. Key Takeaways & Next Actions — only deterministic statements derived from the selected data.
@@ -229,50 +185,6 @@ async function exportPptx(m){
   }
   const fn=`${cleanFileName(RC.title)}_Monitoring_Report_${new Date().toISOString().slice(0,10)}.pptx`;await pptx.writeFile({fileName:fn});
 }
-async function exportDocx(m){
-  if(typeof docx==='undefined') throw new Error('Word library belum tersedia. Pastikan koneksi internet aktif saat pertama kali membuka dashboard.');
-  const {Document,Packer,Paragraph,TextRun,HeadingLevel,Table,TableRow,TableCell,WidthType,AlignmentType,BorderStyle,ShadingType}=docx;const children=[];
-  children.push(new Paragraph({text:RC.title,heading:HeadingLevel.TITLE}));children.push(new Paragraph({children:[new TextRun({text:'Monitoring Report',bold:true,color:'0A5FAF',size:34})],spacing:{after:180}}));children.push(new Paragraph({text:'Periode: '+periodLabel(),spacing:{after:520}}));children.push(new Paragraph({text:'Executive Summary',heading:HeadingLevel.HEADING_1}));
-  const kpis=[['Metric','Value'],['Total Records',m.total],['Completed / Done',m.done]];if(RC.slaKey){kpis.push(['Within SLA',m.within],['Overdue',m.overdue])}else{kpis.push(['In Progress',m.inProgress],['Waiting / Pending',m.waiting])};children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:kpis.map((r,ri)=>new TableRow({tableHeader:ri===0,cantSplit:true,children:r.map(v=>new TableCell({shading:{fill:ri===0?'008997':ri%2?'FFFFFF':'F0F3F5',type:ShadingType.CLEAR},margins:{top:90,bottom:90,left:80,right:80},children:[new Paragraph({children:[new TextRun({text:String(v),color:ri===0?'FFFFFF':'08275C',bold:ri===0})]})]}))}))}));
-  if(selectedContent().includes('Proses Implementasi & SLA')){
-    const measured=m.within+m.overdue;
-    children.push(new Paragraph({text:'Proses Implementasi & SLA',heading:HeadingLevel.HEADING_1,pageBreakBefore:true}),new Paragraph({text:RC.productMode==='ijr'?'IJR: SLA menggunakan Total Day TBS. Proses Selesai dan Registered, Delivered ditampilkan terpisah.':'Regional: tanggal dokumen lengkap sampai tanggal Done. Akhir pekan, libur nasional, dan cuti bersama dikecualikan.'}));
-    const indicators=[['Indikator','Nilai'],['Within SLA',m.within],['Overdue',m.overdue],['SLA Achievement',measured?(100*m.within/measured).toFixed(1)+'%':'Belum tersedia'],['Data terukur',measured],['Belum dapat dihitung SLA',m.total-measured],...m.statuses];
-    children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:indicators.map((row,i)=>new TableRow({tableHeader:i===0,cantSplit:true,children:row.map(v=>new TableCell({shading:{fill:i===0?'008997':i%2?'FFFFFF':'F0F3F5'},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:String(v),color:i===0?'FFFFFF':'08275C',bold:i===0,size:22})]})]}))}))}));
-  }
-  children.push(new Paragraph({text:'Status Breakdown',heading:HeadingLevel.HEADING_2,spacing:{before:260}}));children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[['Status','Records','Share'],...m.statuses.slice(0,12).map(x=>[x[0],x[1],pctR(x[1],m.total)+'%'])].map((r,ri)=>new TableRow({tableHeader:ri===0,cantSplit:true,children:r.map(v=>new TableCell({shading:{fill:ri===0?'008997':ri%2?'FFFFFF':'F0F3F5',type:ShadingType.CLEAR},margins:{top:90,bottom:90,left:80,right:80},children:[new Paragraph({children:[new TextRun({text:String(v),color:ri===0?'FFFFFF':'08275C',bold:ri===0})]})]}))}))}));
-  if(!RC.singleProduct){children.push(new Paragraph({text:'Top Product / Category',heading:HeadingLevel.HEADING_2,spacing:{before:260}}));children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[['Product / Category','Records'],...m.products.slice(0,10)].map((r,ri)=>new TableRow({tableHeader:ri===0,cantSplit:true,children:r.map(v=>new TableCell({shading:{fill:ri===0?'008997':ri%2?'FFFFFF':'F0F3F5',type:ShadingType.CLEAR},margins:{top:90,bottom:90,left:80,right:80},children:[new Paragraph({children:[new TextRun({text:String(v),color:ri===0?'FFFFFF':'08275C',bold:ri===0})]})]}))}))}));}
-  if(selectedContent().includes('Wilayah')){
-    const rows=m.rows.filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(String(r.salesDate||''))&&validSalesDate(r.salesDate)&&String(r.region||'').trim()&&!/^w?0+$/i.test(String(r.region).trim())&&String(r.product||'').trim());
-    const accessors={region:r=>String(r.region).trim(),type:r=>/^maint/i.test(String(r.type||''))?'M':'N',month:r=>String(r.salesDate).slice(0,7)};
-    const overview=regionMonthlyOverview(rows,accessors,2),table=(headers,records)=>new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[headers,...records].map((row,i)=>new TableRow({tableHeader:i===0,cantSplit:true,children:row.map((value,j)=>new TableCell({shading:{fill:i===0?'008997':i%2?'FFFFFF':'F0F3F5'},margins:{top:70,bottom:70,left:80,right:80},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:String(value),size:22,bold:i===0||row[0]==='Grand Total',color:i===0?'FFFFFF':'08275C'})]})]}))}))});
-    const totals=overview.names.map(name=>{const scoped=rows.filter(r=>accessors.region(r)===name),maint=scoped.filter(r=>accessors.type(r)==='M').length;return [name,scoped.length-maint,maint,scoped.length];}),maint=rows.filter(r=>accessors.type(r)==='M').length;
-    totals.push(['Grand Total',rows.length-maint,maint,rows.length]);
-    children.push(new Paragraph({text:'Overview Implementasi per Wilayah',heading:HeadingLevel.HEADING_1,pageBreakBefore:true}),table(['Wilayah','N','M','Total'],totals),new Paragraph({text:'N = New · M = Maintenance'}));
-    overview.pages.forEach((page,index)=>{
-      const label=m=>new Date(m+'-01T00:00:00Z').toLocaleDateString('id-ID',{month:'long',year:'numeric',timeZone:'UTC'});
-      const header=[['Wilayah',1],...page.months.map(m=>[label(m),2]),['Total bulan halaman',1]];
-      const cell=(value,span=1,heading=false)=>new TableCell({columnSpan:span,shading:{fill:heading?'008997':'FFFFFF'},margins:{top:70,bottom:70,left:50,right:50},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:String(value),bold:heading,color:heading?'FFFFFF':'08275C',size:20})]})]});
-      const monthlyTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({tableHeader:true,cantSplit:true,children:header.map(([v,span])=>cell(v,span,true))}),new TableRow({tableHeader:true,cantSplit:true,children:['',...page.months.flatMap(()=>['N','M']),''].map(v=>cell(v,1,true))}),...page.rows.map(row=>new TableRow({cantSplit:true,children:row.map(v=>cell(v))}))]});
-      children.push(new Paragraph({text:'Implementasi per Wilayah per Bulan '+(index+1)+'/'+overview.pages.length,heading:HeadingLevel.HEADING_1,pageBreakBefore:true}),monthlyTable,new Paragraph({text:'N = New · M = Maintenance · Seluruh wilayah menggunakan urutan yang sama.'}));
-    });
-  }
-  if(RC.managementLayout&&selectedContent().includes('Key Takeaways')){
-    const delivered=m.rows.filter(r=>/delivered/i.test(String(r.status))).length,maintenance=m.rows.filter(r=>/maint/i.test(String(r.type))).length,measured=m.within+m.overdue;
-    children.push(new Paragraph({text:'Key Takeaways - Overview Implementasi',heading:HeadingLevel.HEADING_1,pageBreakBefore:true}));
-    [m.done+' dari '+m.total+' completed; status sumber ditampilkan terpisah.',delivered+' Registered / Delivered di TBS.',m.dims[0]?'Wilayah terbesar: '+m.dims[0][0]+' ('+m.dims[0][1]+').':'Wilayah belum tersedia.', 'Periode menggunakan Request Date pada filter aktif.',maintenance+' Maintenance dan '+(m.total-maintenance)+' New.', 'SLA Achievement: '+(measured?(100*m.within/measured).toFixed(1)+'%':'Belum tersedia')+'.'].forEach((text,i)=>children.push(new Paragraph({text:(i+1)+'. '+text})));
-  }
-  if(m.people&&m.people.length&&(!RC.managementLayout||selectedContent().includes('Beban Implementor'))){
-    const totalPages=Math.ceil(m.people.length/10);
-    for(let page=0;page<totalPages;page++){
-      children.push(new Paragraph({text:'KPI Per Person '+(page+1)+'/'+totalPages,heading:HeadingLevel.HEADING_1,pageBreakBefore:true}));
-      const records=m.people.slice(page*10,(page+1)*10),pr=[['No.','PIC / Implementor','Assigned','Completed','Active','Waiting','Overdue'],...records.map((p,i)=>[page*10+i+1,p.name,p.assigned,p.done,p.active,p.waiting,p.overdue])];
-      children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:pr.map((row,i)=>new TableRow({tableHeader:i===0,cantSplit:true,children:row.map(v=>new TableCell({shading:{fill:i===0?'008997':i%2?'FFFFFF':'F0F3F5'},margins:{top:90,bottom:90,left:80,right:80},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:String(v),color:i===0?'FFFFFF':'08275C',bold:i===0,size:22})]})]}))}))}));
-    }
-  }
-  if(selectedContent().includes('Detail Data')&&!m.allPeople){children.push(new Paragraph({text:'Operational Detail',heading:HeadingLevel.HEADING_1,spacing:{before:360}}));let cols=RC.detailCols.slice(0,7);let trs=[cols.map(c=>c[0]),...m.rows.map(r=>cols.map(c=>String(r[c[1]]??'-').slice(0,80)))];children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:trs.map((r,ri)=>new TableRow({tableHeader:ri===0,cantSplit:true,children:r.map(v=>new TableCell({shading:{fill:ri===0?'008997':ri%2?'FFFFFF':'F0F3F5',type:ShadingType.CLEAR},margins:{top:90,bottom:90,left:80,right:80},children:[new Paragraph({children:[new TextRun({text:String(v),color:ri===0?'FFFFFF':'08275C',bold:ri===0,size:22})]})]}))}))}));children.push(new Paragraph({text:`${m.rows.length} operational detail records included for selected PIC / Implementor`,spacing:{before:120}}));}
-
-  const doc=corporateWordDocument(docx,context,RC.title,children);const blob=await Packer.toBlob(doc);if(context.saveFile){context.saveFile(blob,`${cleanFileName(RC.title)}_Monitoring_Report_${new Date().toISOString().slice(0,10)}.docx`);}else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${cleanFileName(RC.title)}_Monitoring_Report_${new Date().toISOString().slice(0,10)}.docx`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
-}
+async function exportDocx(m){await exportMonitoringWord(context,RC.productMode==='ijr'?'ijr':RC.productMode,m,RC.title);}
 return {model:reportModel,pptx:exportPptx,docx:exportDocx};
 }

@@ -1,3 +1,4 @@
+import {createWordDocument} from '../domain/report-renderers/word-document';
 import { complianceMetrics } from './compliance';
 import { discrepancyPages } from './report-pagination';
 
@@ -74,9 +75,9 @@ export function pilotReportModel(source:MonitoringRecord[],person:string,selecte
 
  for(const [section,key] of [['products',field.product],['segments',field.group]])if(selected.includes(section)){
   const types:('N'|'M'|'—')[]=rows.some(r=>requestType(r)==='—')?['N','M','—']:['N','M'];
-  const table=breakdown(rows,key).map(([name,total])=>{const scoped=rows.filter(r=>(value(r,key)||'—')===name);return [name,...types.map(type=>String(scoped.filter(r=>requestType(r)===type).length)),String(total)];});
+  const table=breakdown(rows,key).map(([name,total])=>{const scoped=rows.filter(r=>(value(r,key)||'—')===name);return [name==='—'?'Belum tersedia':name,...types.map(type=>String(scoped.filter(r=>requestType(r)===type).length)),String(total)];});
   table.push(['Grand Total',...types.map(type=>String(rows.filter(r=>requestType(r)===type).length)),String(rows.length)]);
-  pages.push({title:reportSections[section],headers:[section==='products'?'Produk':'Segmen',...types.map(t=>t==='—'?'Lainnya':t),'Total'],rows:table});
+  pages.push({title:reportSections[section],headers:[section==='products'?'Produk':'Segmen',...types.map(t=>t==='—'?'Belum diklasifikasikan':t),'Total'],rows:table});
  }
 
  if(selected.includes('discrepancy')){
@@ -133,7 +134,7 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
- const dates=model.rows.map(r=>value(r,field.assigned)).filter(Boolean).sort(),period=`Periode Assign ke AT: ${filters.from||dates[0]} – ${filters.to||dates.at(-1)}`,title='Corporate - Piloting',who=person||'ALL PIC AT',file='Corporate_Piloting_'+(person||'All').replace(/[^a-z0-9_-]/gi,'_');
+ const dates=model.rows.map(r=>value(r,field.assigned)).filter(Boolean).sort(),period=`Periode Assign ke AT: ${filters.from||dates[0]||'Tanpa tanggal'} – ${filters.to||dates.at(-1)||'Tanpa tanggal'}`,title='Corporate - Piloting',who=person||'ALL PIC AT',file='Corporate_Piloting_'+(person||'All').replace(/[^a-z0-9_-]/gi,'_');
 
 
 
@@ -290,52 +291,9 @@ export async function generatePilotReport(source:MonitoringRecord[],person:strin
 
 
 
-  const d=await import('docx'),{Paragraph,TextRun,ImageRun,Document,Header,Footer,PageNumber,AlignmentType,Table,TableRow,TableCell,WidthType,HeadingLevel,BorderStyle}=d;
-
-
-
-  const bytes=(data:string)=>Uint8Array.from(atob(data.split(',')[1]),c=>c.charCodeAt(0));
-
-
-
-  const para=(text:string,bold=false)=>new Paragraph({children:text.split('\n').map((line,i)=>new TextRun({text:line,break:i?1:0,bold,color:'08275C',size:22})),spacing:{after:120}}),brand=()=>new Paragraph({children:[new ImageRun({data:bytes(logo),transformation:{width:112,height:43}})]});
-
-
-
-  const cover=[brand(),new Paragraph({text:title,heading:HeadingLevel.TITLE,spacing:{before:700,after:160}}),para('Monitoring Report'),para(period),para('PIC AT: '+who),new Paragraph({children:[new ImageRun({data:bytes(photo),transformation:{width:580,height:326}})]})];
-
-
-
-  const body=(await Promise.all(model.pages.map(async(p,index)=>{
-
-
-
-   const heading=new Paragraph({text:p.title,heading:HeadingLevel.HEADING_1,pageBreakBefore:index>0,keepNext:true});
-
-
-
-   if(p.title==='Key Takeaways')return [heading,new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[0,1,2].map(i=>new TableRow({cantSplit:true,children:[0,1].map(j=>{const r=p.rows[i*2+j];return new TableCell({margins:{top:180,bottom:240,left:180,right:180},children:[new Paragraph({children:[new TextRun({text:r[0],bold:true,color:'087F8C',size:38})],spacing:{after:120}}),para(takeawayLabels[i*2+j],true),para(r[1])]});})}))})];
-
-
-
-   const summaryCharts=p.title==='Overview Produk'?reportCharts(p.title,model.rows).filter(c=>c.kind!=='vertical'):[];
-   const summaryPanel=summaryCharts.length?[new Table({width:{size:100,type:WidthType.PERCENTAGE},borders:{top:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'},bottom:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'},left:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'},right:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'},insideVertical:{style:BorderStyle.SINGLE,size:4,color:'DCE3E7'}},rows:[new TableRow({cantSplit:true,children:await Promise.all(summaryCharts.map(async chart=>new TableCell({width:{size:50,type:WidthType.PERCENTAGE},margins:{top:120,bottom:120,left:100,right:100},children:[para(chart.title,true),new Paragraph({children:[new ImageRun({data:await chartPng({...chart,title:'',panel:true,...(chart.title==='Top 5 Produk'?{kind:'vertical' as const}:{})}),transformation:{width:275,height:chart.title==='Top 5 Produk'?149:99}})]}),...(chart.kind==='composition'?chart.items.map(([label,n])=>para(`${label}: ${n} (${(100*n/Math.max(1,model.rows.length)).toFixed(1)}%)`)):[])]})))})]})]:[];
-   const images=await Promise.all(reportCharts(p.title,model.rows).filter(c=>p.title!=='Overview Produk'||c.kind==='vertical').sort((a,b)=>p.title==='Overview Produk'?Number(a.kind==='vertical')-Number(b.kind==='vertical'):0).map(async chart=>new Paragraph({pageBreakBefore:chart.kind==='vertical'||p.title==='Overview per Segmen',children:[new ImageRun({data:await chartPng(chart),transformation:{width:580,height:chart.kind==='vertical'?314:chart.items.length>6?367:208}})],spacing:{before:160,after:160}})));
-
-
-
-   return [heading,new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({tableHeader:true,children:p.headers.map(text=>new TableCell({shading:{fill:'087F8C'},children:[new Paragraph({children:[new TextRun({text,bold:true,color:'FFFFFF',size:22})]})]}))}),...p.rows.map((r,i)=>new TableRow({cantSplit:false,children:r.map((text,j)=>new TableCell({shading:{fill:i%2?'F2F5F7':'FFFFFF'},children:[new Paragraph({alignment:j>0&&(p.title==='Overview Produk'||p.title==='Overview per Segmen')?AlignmentType.CENTER:j>1&&p.title!=='Rincian Discrepancy'?AlignmentType.CENTER:AlignmentType.LEFT,children:[new TextRun({text:text==='Masih Pending'?'Pending':text,color:'08275C',size:22})]})]}))}))]}),...(summaryPanel.length?[new Paragraph({spacing:{before:100,after:100}})]:[]),...summaryPanel,...images,...(p.title==='Executive Summary'?[para('Overdue adalah subset pekerjaan Done yang terukur SLA; tidak ditambahkan ke total status.')]:[])];
-
-
-
-  }))).flat();
-
-
-
-  const doc=new Document({styles:{default:{document:{run:{font:'Arial',size:22,color:'08275C'}}}},sections:[{properties:{page:{margin:{top:720,bottom:720,left:720,right:720}}},children:cover},{properties:{page:{margin:{top:1260,bottom:900,left:720,right:720}}},headers:{default:new Header({children:[brand(),para(title+' | Monitoring Report',true),para(period)]})},footers:{default:new Footer({children:[new Paragraph({children:[new TextRun({text:title+' | Monitoring Report   ',size:18}),new TextRun({children:[PageNumber.CURRENT],size:18})]})]})},children:body}]});
-
-
-
+  const d=await import('docx');
+  const sections=model.pages.map(p=>({title:p.title,headers:p.headers,rows:p.rows,note:p.title==='Executive Summary'?'Overdue merupakan subset pekerjaan terukur; tidak ditambahkan ke total status.':undefined}));
+  const doc=createWordDocument(d,{brandLogo:logo,presentationPeriod:period,person:person||'All Name'},title,sections);
   const result={blob:await d.Packer.toBlob(doc),name:file+'.docx'};if(download)saveBlob(result.blob,result.name);return result;
 
 

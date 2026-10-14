@@ -18,8 +18,8 @@ export function reportCharts(title:string,rows:MonitoringRecord[]):ReportChart[]
  if(title==='Kinerja SLA'){const m=slaMetrics(rows);return [chart('Kinerja SLA',[['Within SLA',m.within],['Overdue',m.overdue]]),chart('Overdue per PIC',people(rows).map((p):[string,number]=>[p.name,slaMetrics(p.rows).overdue]).slice(0,6),'F97316')];}
  if(title==='Overview Produk'||title==='Overview per Segmen'){
   const key=title==='Overview Produk'?field.product:field.group,items=breakdown(rows,key);
-  const series=(['N','M','—'] as const).map((type,i)=>({name:type,color:['F97316','087F8C','8996A4'][i],values:items.map(([label])=>rows.filter(r=>(value(r,key)||'—')===label&&requestType(r)===type).length)})).filter(s=>s.name!=='—'||s.values.some(Boolean));
-  const overall:ReportChart[]=title==='Overview Produk'?[{title:'Komposisi Overall New / Maintenance',kind:'composition',color:'087F8C',items:(['N','M'] as const).map(type=>[type==='N'?'New':'Maintenance',rows.filter(r=>requestType(r)===type).length])}]:[];
+  const series=(['N','M','—'] as const).map((type,i)=>({name:type==='—'?'Belum diklasifikasikan':type,color:['F97316','087F8C','8996A4'][i],values:items.map(([label])=>rows.filter(r=>(value(r,key)||'—')===label&&requestType(r)===type).length)})).filter(s=>s.name!=='Belum diklasifikasikan'||s.values.some(Boolean));
+  const overall:ReportChart[]=title==='Overview Produk'?[{title:'Komposisi Overall New / Maintenance',kind:'composition',color:'087F8C',items:(['N','M','—'] as const).map(type=>[type==='N'?'New':type==='M'?'Maintenance':'Belum diklasifikasikan',rows.filter(r=>requestType(r)===type).length] as [string,number]).filter(([label,n])=>label!=='Belum diklasifikasikan'||n>0)}]:[];
   return [{title,items,color:'087F8C',series,...(title==='Overview Produk'?{kind:'vertical' as const}:{})},...overall,...(title==='Overview Produk'?[chart('Top 5 Produk',items.slice(0,5))]:[])];
  }
  // Discrepancy details remain in the table; no discrepancy chart page.

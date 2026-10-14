@@ -62,7 +62,7 @@ export function reportModel(rows: MonitoringRecord[], kind: DatasetKind, person 
 export function reportContext(rows: MonitoringRecord[], kind: DatasetKind, selected: readonly string[], options: ReportOptions = {}): ReportContext {
   const model = reportModel(rows, kind, options.person), dataset = options.dataset || rows, filters = options.filters;
   const period = options.source === 'current' ? 'Current Dashboard Filter' : filters?.from || filters?.to ? `${filters.from || '...'} - ${filters.to || '...'}` : 'All Period';
-  const dates = dataset.map(row => text(row.payload[fields[kind].date])).filter(value => /^\d{4}-\d{2}-\d{2}$/.test(value) && validDate(value, kind === 'regional')).sort();
+  const dates = rows.map(row => text(row.payload[fields[kind].date])).filter(value => /^\d{4}-\d{2}-\d{2}$/.test(value) && validDate(value, false) && (kind !== 'regional' || value >= '2000-01-01')).sort();
   const formatDate = (date: string) => new Date(date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
   const labels = new Map<string, string>();
   const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');

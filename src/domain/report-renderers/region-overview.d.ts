@@ -5,7 +5,7 @@ export interface RegionAccessors {
   month: (row: Payload) => string;
 }
 export function regionMonthlyOverview(rows:Payload[],accessors:RegionAccessors,monthsPerPage?:number): {
-  names:string[];months:string[];pages:{months:string[];headers:string[];rows:(string|number)[][]}[];
+  names:string[];months:string[];types:string[];pages:{months:string[];headers:string[];rows:(string|number)[][]}[];
 };
 
-export function regionMonthHeaderRows(months: string[]): {text: string; options?: {rowspan?: number; colspan?: number}}[][];
+export function regionMonthHeaderRows(months: string[], types?: string[]): {text: string; options?: {rowspan?: number; colspan?: number}}[][];
