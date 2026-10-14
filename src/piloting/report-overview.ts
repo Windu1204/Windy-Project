@@ -1,6 +1,7 @@
+import {requestCategory} from '../domain/request-category';
 import { type MonitoringRecord } from '../types';
 import { field, value } from './model';
-export function requestType(row:MonitoringRecord):'N'|'M'|'—'{const form=value(row,field.form);return /^maintenance/i.test(form)?'M':/^baru|^new(?!.*no new)/i.test(form)?'N':'—';}
+export function requestType(row:MonitoringRecord):'N'|'M'|'—'{const category=requestCategory(value(row,field.form));return category==='U'?'—':category;}
 /** Every source row stays in one monthly bucket, including missing dates/types. */
 export function monthlyOverview(rows:MonitoringRecord[],key:string){
  const month=(r:MonitoringRecord)=>/^\d{4}-\d{2}-\d{2}$/.test(value(r,field.assigned))?value(r,field.assigned).slice(0,7):'Tanpa tanggal';
