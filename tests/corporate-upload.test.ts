@@ -9,10 +9,18 @@ import {exportedRows} from '../src/lib/exports';
 import {detailFields} from '../src/domain/display';
 import {slaIssue} from '../src/domain/sla-diagnostics';
 import {corporateService} from '../src/domain/corporate-products';
+import {statusGroup} from '../src/domain/analytics';
+import {reportStatus} from '../src/domain/report-status';
 
 async function upload(rows:unknown[][]){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'Data');return readUpload(new File([XLSX.write(wb,{type:'array',bookType:'xlsx'})],'corporate.xlsx'),'corporate');}
 const source={ 'No. Register':'JOB-A','Nama Perusahaan':'Company','Jenis Formulir':'Maintenance Autodebet','Jenis Permintaan':'Maintenance','Current Stage':'Transactions Active','Tanggal Assign':'2026-08-14 09:00:00','Tanggal Progress':'2026-08-14 10:00:00','Tanggal Done':'2026-08-18 12:00:00','Tanggal Submit':'2026-08-14 08:00:00','Kelompok':'COB','Keterangan SIL':'Work notes'};
 describe('Corporate Non Piloting complete source upload',()=>{
+ it('keeps waiting for transaction activation out of completed dashboard and report counts',()=>{
+  const payload={status:'Waiting Transactions Active'};
+  expect(statusGroup(String(payload.status))).toBe('On Progress');
+  expect(reportStatus({id:'1',payload,sla:calculateSla(payload,'corporate')},'corporate')).toBe('On Progress');
+  expect(statusGroup('Transactions Active')).toBe('Done');
+ });
  it('adapts existing fields while retaining raw values, without adding visible detail fields',()=>{
   const a=auditRows([source],'corporate');expect(a.revisions).toHaveLength(0);const p=a.rows[0];
   expect(p).toMatchObject({noreg:'JOB-A',company:'Company',formType:'Maintenance Autodebet',projectType:'Maintenance',product:'BNIdirect',status:'Transactions Active',submitDate:'2026-08-14',assignDate:'2026-08-14',progressDate:'2026-08-14',doneDate:'2026-08-18',segment:'COB',remarks:'Work notes'});

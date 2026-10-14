@@ -50,6 +50,7 @@ export function reconcileCorporateRows(rows:Payload[]){
  }
  const result:Payload[]=[];let duplicates=0;
  for(const [id,group] of groups){
+  if(group.length===1){const row=group[0];result.push({...row,_corporateIdentity:id,_corporateLatest:text(row._corporateLatest)||latest(row),_corporateConflict:row._corporateConflict??null});continue;}
   const versions=[...new Map(group.map(r=>[JSON.stringify(comparable(r)),r])).values()];
   const sorted=[...versions].sort((a,b)=>latest(a).localeCompare(latest(b))||JSON.stringify(comparable(a)).localeCompare(JSON.stringify(comparable(b))));
   const last=sorted.at(-1)!;

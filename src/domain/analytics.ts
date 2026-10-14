@@ -8,6 +8,8 @@ export const fields = {
 } as const;
 export function statusGroup(s: string) {
     const x = s.toLowerCase();
+    if (/waiting transactions/.test(x))
+        return 'On Progress';
     if (x.includes('handover'))
         return 'Handover';
     if (/retur|retured|return/.test(x))
