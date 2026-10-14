@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import {corporatePick,corporateIdentity} from './corporate-upload';
-import {corporateService} from './corporate-products';
+import {corporateService,corporateProductPayload} from './corporate-products';
 import { type Payload, type Value, type DatasetKind, text } from '../types';
 export interface RejectedRow {
     row: Payload;
@@ -111,6 +111,7 @@ function normalize_corporate(rows: Payload[]): Payload[] { return rows.map(r => 
  for(const [field,names] of Object.entries(aliases))if(!text(x[field])){const value=corporatePick(r,names);x[field]=/Date$|^targetDone$/.test(field)?dateVal(value):value;}
  if(!text(x.projectType)){const form=text(x.formType);x.projectType=/^maintenance\b/i.test(form)?'Maintenance':/\b(?:baru|new)\b/i.test(form)?'New':null;}
  if(!text(x.product)){x.product=corporateService(x);if(!x.product&&/\bvirtual account\b/i.test(text(x.formType)))x.product='Virtual Account';}
+ x=corporateProductPayload(x);
  for(const field of Object.keys(x))if(field.startsWith('_corporate'))delete x[field];
  x._corporateSource=JSON.stringify(Object.fromEntries(Object.entries(r).filter(([k])=>!k.startsWith('_source')&&!k.startsWith('_corporate'))));
  const existing=new Set(['noreg','group','company','cid','cif','sales','segment','projectType','product','formType','requestType','formStatus','validation','priority','status','percentage','discrepancy','complexity','implementor','assigner','createDate','submitDate','assignDate','progressDate','doneDate','handoverDate','targetDone','returnDate','returnNote','description','remarks','sourceOutlier','slaHO','slaReal','slaTarget','slaSolution','slaMapMethod','slaPolicyDate','dashboardUpdatedAt','dashboardNote']);
