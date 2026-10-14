@@ -4,6 +4,7 @@ import { type DatasetKind, type MonitoringRecord, type Filters, type FilterKey, 
 import { fields, options, people, status, productCategory } from '../domain/analytics';
 import { productKey, regionalProductLabels } from '../domain/display';
 import { PeriodPicker } from './PeriodPicker';
+import {clearDateSelection} from '../domain/date-filter';
 export function FilterBar({ rows, kind, value, onChange, hidePerson=false }: {
     hidePerson?:boolean;
     rows: MonitoringRecord[];
@@ -11,7 +12,7 @@ export function FilterBar({ rows, kind, value, onChange, hidePerson=false }: {
     value: Filters;
     onChange: (f: Filters) => void;
 }) { const { t } = useLanguage(); 
-    const k = fields[kind], set = (key: FilterKey, v: string) => onChange({ ...value, [key]: v, ...(key === 'category' ? { product: '' } : {}) });
+    const k = fields[kind], set = (key: FilterKey, v: string) => onChange(!v&&['period','from','to'].includes(key)?clearDateSelection(value):{ ...value, [key]: v, ...(key === 'category' ? { product: '' } : {}) });
     const select = (key: FilterKey, label: string, values: string[]) => <label key={key}>{t(label)}<select aria-label={t(label)} disabled={key === 'product' && !value.category} value={value[key]} onChange={e => set(key, e.target.value)}><option value="">{t('Semua') + ' ' + t(label)}</option>{values.map(v => <option key={v}>{v}</option>)}</select></label>;
     const labels = regionalProductLabels(rows);
     const products = [...new Set(options(rows.filter(r => productCategory(text(r.payload.product), kind) === value.category), 'product').map(name => kind === 'regional' ? labels.get(productKey(name)) || name : name))];
