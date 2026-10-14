@@ -24,9 +24,9 @@ describe('header-based complete upload audit',()=>{
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['Produk','No Register','Company','Status'],['BNIDirect','C','C','On Progress']]),'September');
   const bytes=XLSX.write(wb,{type:'array',bookType:'xlsx'});
   const audit=await readUpload(new File([bytes],'mixed.xlsx'),'corporate');
-  expect(audit.source).toBe(4);expect(audit.rows).toHaveLength(2);expect(audit.issues).toHaveLength(2);
-  expect(audit.issues.map(x=>[x.sheet,x.sourceRow])).toEqual([['August',123],['August',124]]);
-  expect(audit.issues[0].reason).toContain('kosong');expect(audit.issues[1].reason).toContain('assignDate');
+  expect(audit.source).toBe(4);expect(audit.rows).toHaveLength(3);expect(audit.issues).toHaveLength(1);
+  expect(audit.issues.map(x=>[x.sheet,x.sourceRow])).toEqual([['August',123]]);
+  expect(audit.issues[0].reason).toContain('kosong');expect(audit.rows.find(r=>r.noreg==='B')?.assignDate).toBe('2026-02-30');
  });
  it('quarantines every row in a conflicting AT identity, keeps an absent discrepancy field optional',()=>{
   const p={'No. Register':'A','Nama Perusahaan':'A','PIC AT':'AT','Kategori':'Done','Jenis Produk / Solusi':'BNIDirect','Tanggal Assign to AT':'2026-08-03'};
