@@ -1,5 +1,6 @@
 import { type DatasetKind, type Payload, type SlaResult, type SlaRule, text } from '../types';
-import { memoSemanticMatch, regSlaTarget } from './memo';
+import { memoSemanticMatch, regSlaTarget, REG_SLA_RULES } from './memo';
+import {corporateService} from './corporate-products';
 import { workingDays, completionDate } from './work-calendar';
 export function workdaysInclusive(a: string, b: string) { if (!/^\d{4}-\d{2}-\d{2}$/.test(a) || !/^\d{4}-\d{2}-\d{2}$/.test(b) || b < a)
     return null; const d = new Date(a + 'T00:00:00Z'), end = new Date(b + 'T00:00:00Z'); let n = 0, guard = 0; while (d <= end && guard++ < 4000) {
@@ -30,7 +31,21 @@ export function calculateSla(p: Payload, kind: DatasetKind, rules: SlaRule[] = [
         return { target: m.target, real, status: real == null ? 'SLA Real Unavailable' : real > m.target ? 'Overdue' : 'Within SLA', over: real == null ? null : Math.max(0, real - m.target), solution: m.solution };
     }
     const sourceReal = useSourceDuration ? (p.slaReal != null && text(p.slaReal)!=='' && Number.isFinite(Number(p.slaReal)) && Number(p.slaReal)>=0 ? Number(p.slaReal) : null) : workingDays(p.assignDate,p.doneDate);
-    const m = memoSemanticMatch(p, rules), ref = text(p.assignDate) || text(p.submitDate) || text(p.createDate) || text(p.slaPolicyDate);
+    // AT keeps its existing mapping. Non Piloting resolves only explicitly supported aliases/services.
+    const explicit = p.slaTarget != null && !!p.slaSolution;
+    const service = !useSourceDuration && !explicit ? corporateService(p) : null;
+    const generic = /^(virtual account|va|application programming interface(?:[ (]+api[ )]*)?|api)$/i.test(text(p.product));
+    let m = !useSourceDuration && !explicit && generic && !service ? null : memoSemanticMatch(service ? {product:service.replace(/^VA Debit/, 'Virtual Account Debit').replace(/^VA Kredit/, 'Virtual Account Kredit'),projectType:p.projectType,formType:p.formType,requestType:p.projectType} : p, rules);
+    if(service==='Virtual Account Non SNAP (Integrasi)'&&m)m={...m,solution:service};
+    if(service==='BNIdirect-GFX'){
+        const custom=rules.find(r=>/^(?:bnidirect|bni direct)[ -]*gfx$/i.test(r.product.trim()));
+        const existing=REG_SLA_RULES.find(r=>r[0]==='BNIdirect-GFX')!;
+        const isNew=/\bnew\b|baru/i.test([p.projectType,p.formType,p.requestType].map(text).join(' '));
+        m={target:custom?(isNew?custom.newDays:custom.maintDays):existing[isNew?1:2],solution:custom?.name||existing[0],map:'Existing SLA mapping'};
+    }
+    if(service&&!m){const existing=REG_SLA_RULES.find(r=>r[0]===service);if(existing){const isNew=/\bnew\b|baru/i.test([p.projectType,p.formType,p.requestType].map(text).join(' '));m={target:existing[isNew?1:2],solution:service,map:'Existing SLA mapping'};}}
+    if(!useSourceDuration&&p._corporateConflict)return {...unavailable(m?.solution??null),real:null};
+    const ref = text(p.assignDate) || text(p.submitDate) || text(p.createDate) || text(p.slaPolicyDate);
     if (!m)
         return { ...unavailable(), real: sourceReal };
     if (useSourceDuration && m.map !== 'Custom SLA Setting' && ref && ref.slice(0, 10) < '2025-07-14')

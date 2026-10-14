@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import {reconcileCorporateRows} from './corporate-upload';
 import {auditRows,sheetRows,type RejectedRow} from './imports';
 import {readPiloting} from '../piloting/imports';
 import {type ApplicationKind,type Payload,text} from '../types';
@@ -11,8 +12,9 @@ export async function readUpload(file:File,kind:ApplicationKind,attachments:File
  }
  if(!matches.length)throw new Error('Header sumber tidak sesuai dashboard tujuan. Periksa nama kolom dan sheet.');
  const rows=matches.flatMap(a=>a.rows),issues=matches.flatMap(a=>a.issues);
+ if(kind==='corporate'){const reconciled=reconcileCorporateRows(rows);return {...reconciled,issues,source:matches.reduce((s,a)=>s+a.source,0),file:file.name};}
  // Conflicting duplicate identities are deliberately not resolved by row order.
- const key=(r:Payload)=>JSON.stringify((kind==='ijr'?['Application Number']:kind==='corporate'?['noreg']:['company','cid','product','type','salesDate']).map(k=>text(r[k]).toLowerCase()));
+ const key=(r:Payload)=>JSON.stringify((kind==='ijr'?['Application Number']:['company','cid','product','type','salesDate']).map(k=>text(r[k]).toLowerCase()));
  const content=(r:Payload)=>JSON.stringify(Object.entries(r).filter(([k])=>!k.startsWith('_source')).sort(([a],[b])=>a.localeCompare(b)));
  const groups=new Map<string,{content:Set<string>;rows:Payload[]}>();for(const r of rows){const k=key(r),g=groups.get(k)||{content:new Set<string>(),rows:[]};g.content.add(content(r));g.rows.push(r);groups.set(k,g);}
  let duplicates=0;const accepted:Payload[]=[];

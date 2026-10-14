@@ -4,6 +4,7 @@ import { isoDate, calendarCovered, completionDate } from './work-calendar';
 
 export function slaIssue(row: MonitoringRecord, kind: ApplicationKind): { reason: string; detail: string } | null {
  const p=row.payload,s=row.sla;
+ if(kind==='corporate'&&p._corporateConflict)return {reason:'Versi pekerjaan perlu diperiksa',detail:text(p._corporateConflict)};
  if(kind==='piloting'&&value(row,field.status)==='Reject/Retur')return {reason:'Reject/Retur — tidak termasuk penilaian SLA',detail:'Pekerjaan sudah ditutup dan termasuk Project Close, tetapi dikecualikan dari pencapaian SLA.'};
  if(kind==='piloting'&&value(row,field.status)!=='Done')return {reason:'Pekerjaan belum Done',detail:'Pencapaian SLA Piloting dihitung dari pekerjaan Done. Reject/Retur dicatat terpisah.'};
  if(['Within SLA','Overdue'].includes(s.status))return null;
