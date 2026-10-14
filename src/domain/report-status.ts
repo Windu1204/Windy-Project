@@ -2,6 +2,8 @@ import { type MonitoringRecord, type DatasetKind, text } from '../types';
 import { fields } from './analytics';
 export function reportStatus(r: MonitoringRecord, kind: DatasetKind) { const s = text(r.payload[fields[kind].status]).toLowerCase(); if (/handover/.test(s))
     return 'Handover'; if (kind === 'corporate') {
+    if (/waiting transactions/.test(s))
+        return 'On Progress';
     if (/retur|return/.test(s))
         return 'Retur';
     if (/transaction|done|complete|selesai|closed/.test(s))

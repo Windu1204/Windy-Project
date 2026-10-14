@@ -39,6 +39,7 @@ function reportStatusGroup(x){
   if(/handover/.test(v))return 'Handover';
   if(RC.productMode==='corporate'){
     if(/retur|return/.test(v))return 'Retur';
+    if(/waiting transactions/.test(v))return 'On Progress';
     if(/transaction|done|complete|selesai|closed/.test(v))return 'Done';
     if(/progress|setup|initiation|waiting transactions|active/.test(v))return 'On Progress';
     return 'Pending';
