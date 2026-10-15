@@ -38,13 +38,14 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
 
   const done = (r: MonitoringRecord) => kind === 'ijr' ? /proses selesai|done|completed/i.test(text(r.payload.Status)) : kind === 'regional' ? text(r.payload.status).toLowerCase() === 'done' : status(r, kind) === 'Done';
 
-  const waiting = (r: MonitoringRecord) => (kind === 'ijr' ? /waiting|approval|pending/i : kind === 'regional' ? /pending|waiting/i : /pending|waiting|retur|return|approval|submitted|submited/i).test(text(r.payload[fields[kind].status]));
+  const waiting = (r: MonitoringRecord) => kind==='corporate'?status(r,kind)==='Pending Task':(kind === 'ijr' ? /waiting|approval|pending/i : /pending|waiting/i).test(text(r.payload[fields[kind].status]));
+  const rejected = (r:MonitoringRecord) => kind==='corporate'&&status(r,kind)==='Reject/Retur';
 
   const overdue = (r: MonitoringRecord) => r.sla.status === 'Overdue';
 
-  const category = (r: MonitoringRecord) => overdue(r) ? 'Overdue' : waiting(r) ? 'Waiting / Pending' : done(r) ? 'Completed' : 'Active / On Progress';
+  const category = (r: MonitoringRecord) => rejected(r)?'Reject/Retur':overdue(r) ? 'Overdue' : waiting(r) ? 'Waiting / Pending' : done(r) ? 'Completed' : 'Active / On Progress';
 
-  const shown = assigned.filter(r => mode === 'within' ? r.sla.status==='Within SLA' : mode === 'measured' ? ['Within SLA','Overdue'].includes(r.sla.status) : mode === 'done' ? done(r) : mode === 'active' ? !done(r) : mode === 'waiting' ? waiting(r) : mode === 'overdue' ? overdue(r) : true);
+  const shown = assigned.filter(r => mode==='rejected'?rejected(r):mode === 'within' ? r.sla.status==='Within SLA' : mode === 'measured' ? ['Within SLA','Overdue'].includes(r.sla.status) : mode === 'done' ? done(r) : mode === 'active' ? !done(r) : mode === 'waiting' ? waiting(r) : mode === 'overdue' ? overdue(r) : true);
 
   // Match the v78 workload summary, including its Number(null) treatment in Avg Process Day.
 
@@ -54,7 +55,7 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
   const validDurations = assigned.filter(done).map(r => r.sla.real).filter((n): n is number => n !== null && Number.isFinite(n) && n >= 0);
   const average = validDurations.length ? validDurations.reduce((sum,n) => sum+n,0)/validDurations.length : null;
 
-  const kpis: [string, number | string][] = [['Assigned Records', assigned.length], ['Active Work', assigned.filter(r => !done(r)).length], ['Completed', assigned.filter(done).length], ['Waiting / Pending', assigned.filter(waiting).length], ['Overdue', assigned.filter(overdue).length]];
+  const kpis: [string, number | string,string][] = [['Assigned Records', assigned.length,'all'], ['Active Work', assigned.filter(r => !done(r)).length,'active'], ['Completed', assigned.filter(done).length,'done'], ['Waiting / Pending', assigned.filter(waiting).length,'waiting'], ['Overdue', assigned.filter(overdue).length,'overdue'],...(kind==='corporate'?[['Reject/Retur',assigned.filter(rejected).length,'rejected'] as [string,number,string]]:[])];
 
   const headers = kind === 'ijr' ? ['Application', 'Applicant', 'Role', 'Status', 'Work Category', 'Flow', 'Wilayah', 'Process Day'] : kind === 'regional' ? ['Company', 'CID', 'Product', 'Status', 'Work Category', 'Wilayah', 'Email Sales', 'Dokumen Lengkap', 'Selesai Setting', 'Tanggal Done', 'SLA Status', 'SLA Real'] : ['No. Reg', 'Company', 'Product', 'Status', 'Work Category', 'SLA Status', 'SLA Real'];
 
@@ -66,7 +67,7 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
 
     if (kind === 'regional') return [p.company, p.cid, productName(text(p.product)), p.status, category(r), p.region, p.salesDate, p.docComplete, p.settingDone, p.doneDate, r.sla.status, r.sla.real == null ? '-' : r.sla.real + ' d'];
 
-    return [p.noreg, p.company, p.product, p.status, category(r), r.sla.status, r.sla.real == null ? '' : r.sla.real + ' d'];
+    return [p.noreg, p.company, p.product, status(r,kind), category(r), r.sla.status, r.sla.real == null ? '' : r.sla.real + ' d'];
 
   };
 
@@ -86,11 +87,11 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
 
     </div><div className="person-detail">{!current ? <p className="empty">{t("Pilih nama implementor untuk melihat KPI dan detail khusus orang tersebut.")}</p> : <>
 
-      <h3>{selected}</h3><div className="person-kpis">{kpis.map(([label, n],i) => <button key={label} disabled={label==='Avg Process Day'} onClick={()=>setMode(['all','active','done','waiting','overdue'][i])}><small>{t(label)}</small><b>{typeof n === 'number' ? n.toLocaleString() : n}</b></button>)}</div>
+      <h3>{selected}</h3><div className="person-kpis">{kpis.map(([label, n,filter]) => <button key={label} disabled={label==='Avg Process Day'} onClick={()=>setMode(filter)}><small>{t(label)}</small><b>{typeof n === 'number' ? n.toLocaleString() : n}</b></button>)}</div>
 
       <div className="person-metrics"><button className="secondary" onClick={()=>setMode("measured")}>{t("Measurable")}: {measured.length.toLocaleString()}</button><button className="secondary" onClick={()=>setMode("within")}>Within SLA: {within.toLocaleString()}</button>{kind==='ijr'&&<span>{t("Avg Process Day")}: <b>{days.length?(days.reduce((a,b)=>a+b,0)/days.length).toFixed(1):"—"}</b></span>}{kind==='corporate'&&<><span>{t('Rata-rata Hari Kerja')}: <b>{average===null?'—':average.toFixed(1)}</b><small>{t('Pekerjaan Done dengan durasi valid')}: {validDurations.length.toLocaleString()}</small></span><span>{t('Pencapaian SLA')}: <b>{measured.length?(within/measured.length*100).toFixed(1)+'%':'—'}</b><small>Within SLA / {t('Measurable')}</small></span></>}</div>
 
-      <div className="person-detail-toolbar"><b>{t("All Assigned Records ·")}{shown.length.toLocaleString()} {t("records")}</b><div className="person-status-filters">{[['all', 'All Status'], ['active', 'Active'], ['done', 'Completed'], ['waiting', 'Waiting / Pending'], ['overdue', 'Overdue']].map(([id, label]) => <button key={id} className={mode === id ? 'active' : ''} onClick={() => setMode(id)}>{t(label)}</button>)}</div></div>
+      <div className="person-detail-toolbar"><b>{t("All Assigned Records ·")}{shown.length.toLocaleString()} {t("records")}</b><div className="person-status-filters">{[['all', 'All Status'], ['active', 'Active'], ['done', 'Completed'], ['waiting', 'Waiting / Pending'], ['overdue', 'Overdue'],...(kind==='corporate'?[['rejected','Reject/Retur']]:[])].map(([id, label]) => <button key={id} className={mode === id ? 'active' : ''} onClick={() => setMode(id)}>{t(label)}</button>)}</div></div>
 
       <div className="table-scroll"><table><thead><tr>{headers.map(h => <th key={h}>{t(h)}</th>)}</tr></thead><tbody>{shown.slice((page-1)*10,page*10).map(r => <tr key={r.id} onClick={() => onOpen(r)}>{cells(r).map((v, i) => <td key={headers[i]}>{headers[i] === 'Work Category' ? <Badge value={text(v)}/> : text(v)}{headers[i] === 'Status' && r.payload.dashboardUpdatedAt && <small className="update-stamp">{t("Updated via Dashboard")}</small>}</td>)}{kind === 'regional' && canEdit && <td>{!done(r) ? <button className="secondary" disabled={!canEdit} onClick={e => { e.stopPropagation(); setConfirmation(r); }}>{t("Update to Done")}</button> : r.payload.dashboardUpdatedAt ? <small>{t("Updated via Dashboard")}</small> : '—'}</td>}</tr>)}</tbody></table><div className="pagination"><button className="secondary" disabled={page<=1} onClick={()=>setPage(page-1)}>{t('Sebelumnya')}</button><span>{page} / {Math.max(1,Math.ceil(shown.length/10))}</span><button className="secondary" disabled={page>=Math.ceil(shown.length/10)} onClick={()=>setPage(page+1)}>{t('Berikutnya')}</button></div>{!shown.length && <p className="empty">{t("Tidak ada record untuk status ini pada filter saat ini.")}</p>}</div>
 

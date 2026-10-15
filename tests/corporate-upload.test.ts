@@ -16,14 +16,14 @@ async function upload(rows:unknown[][]){const wb=XLSX.utils.book_new();XLSX.util
 const source={ 'No. Register':'JOB-A','Nama Perusahaan':'Company','Jenis Formulir':'Maintenance Autodebet','Jenis Permintaan':'Maintenance','Current Stage':'Transactions Active','Tanggal Assign':'2026-08-14 09:00:00','Tanggal Progress':'2026-08-14 10:00:00','Tanggal Done':'2026-08-18 12:00:00','Tanggal Submit':'2026-08-14 08:00:00','Kelompok':'COB','Keterangan SIL':'Work notes'};
 describe('Corporate Non Piloting complete source upload',()=>{
  it('keeps waiting for transaction activation out of completed dashboard and report counts',()=>{
-  const payload={status:'Waiting Transactions Active'};
+  const payload={status:'Waiting Transactions Active',progressDate:'2026-08-14'};
   expect(statusGroup(String(payload.status))).toBe('On Progress');
   expect(reportStatus({id:'1',payload,sla:calculateSla(payload,'corporate')},'corporate')).toBe('On Progress');
   expect(statusGroup('Transactions Active')).toBe('Done');
  });
  it('adapts existing fields while retaining raw values, without adding visible detail fields',()=>{
   const a=auditRows([source],'corporate');expect(a.revisions).toHaveLength(0);const p=a.rows[0];
-  expect(p).toMatchObject({noreg:'JOB-A',company:'Company',formType:'Maintenance Autodebet',projectType:'Maintenance',product:'BNIdirect',status:'Transactions Active',submitDate:'2026-08-14',assignDate:'2026-08-14',progressDate:'2026-08-14',doneDate:'2026-08-18',segment:'COB',remarks:'Work notes'});
+  expect(p).toMatchObject({noreg:'JOB-A',company:'Company',formType:'Maintenance Autodebet',projectType:'Maintenance',product:'BNIdirect',status:'Done',submitDate:'2026-08-14',assignDate:'2026-08-14',progressDate:'2026-08-14',doneDate:'2026-08-18',segment:'COB',remarks:'Work notes'});
   expect(calculateSla(p,'corporate')).toMatchObject({real:1,target:2,status:'Within SLA'});
   const fields=detailFields({id:'1',payload:p,sla:calculateSla(p,'corporate')},'corporate').map(([label])=>label);
   expect(fields).not.toContain('Current Stage');expect(fields.some(f=>f.startsWith('_corporate'))).toBe(false);expect(p.createDate).toBeNull();expect(p).not.toHaveProperty('Current Stage');expect(Object.keys(exportedRows([{id:'1',payload:p,sla:calculateSla(p,'corporate')}])[0]).some(k=>k.startsWith('_'))).toBe(false);
@@ -55,7 +55,7 @@ describe('Corporate Non Piloting complete source upload',()=>{
  });
  it('keeps competing versions without guessing Done if no date distinguishes them',async()=>{
   const a=await upload([['No Register','Company','Produk','Status'],['A','Company','BNIdirect','Done'],['A','Company','BNIdirect','On Progress']]);
-  expect(a.rows).toHaveLength(2);expect(a.rows[0]._corporateConflict).toBeTruthy();expect(a.rows[0].status).toBeNull();
+  expect(a.rows).toHaveLength(2);expect(a.rows[0]._corporateConflict).toBeNull();expect(a.rows[0].status).toBe('Pending Task');expect(JSON.parse(String(a.rows[0]._corporateVersions))).toHaveLength(2);
   expect(calculateSla(a.rows[0],'corporate').real).toBeNull();
  });
  it('keeps unregistered identity stable across status changes',()=>{
