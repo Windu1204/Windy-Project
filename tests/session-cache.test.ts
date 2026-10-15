@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SessionCache } from '../src/lib/session-cache';
-const state = vi.hoisted(() => ({ revision: 1, rows: [{ id: 'a', position: 1, payload: { status: 'In progress' } }], rules: [] as unknown[], reads: 0, fail: false, changeDuringRead: false }));
+const state = vi.hoisted(() => ({ revision: 1, rows: [{ id: 'a', position: 1, payload: { status: 'In progress' } }], rules: [] as unknown[], reads: 0, fail: false, changeDuringRead: false, batch: 'batch', cap: 1000 }));
 vi.mock('../src/lib/supabase', () => ({ supabase: { from(table: string) {
   const query: any = { select: () => query, eq: () => query, order: () => query,
-    maybeSingle: async () => state.fail ? { data: null, error: new Error('offline') } : { data: table === 'wci_events' ? { revision: state.revision } : { active_batch: 'batch', data_mode: 'reference' }, error: null },
-    range: async () => { state.reads++; if (state.changeDuringRead) { state.changeDuringRead = false; state.revision++; } return { data: state.rows.map(r => structuredClone(r)), error: null }; },
+    maybeSingle: async () => state.fail ? { data: null, error: new Error('offline') } : { data: table === 'wci_events' ? { revision: state.revision } : { active_batch: state.batch, data_mode: 'reference' }, error: null },
+    range: async (from: number, to: number) => { state.reads++; if (state.changeDuringRead) { state.changeDuringRead = false; state.revision++; } return { data: state.rows.slice(from, Math.min(to+1,from+state.cap)).map(r => structuredClone(r)), count: state.rows.length, error: null }; },
     then: (resolve: any) => Promise.resolve({ data: state.rules, error: null }).then(resolve) };
   return query;
 } } }));
 import { clearSessionCache, loadSnapshot } from '../src/lib/repository';
-beforeEach(() => { clearSessionCache(); state.revision=1; state.reads=0; state.fail=false; state.changeDuringRead=false; state.rules=[]; state.rows=[{id:'a',position:1,payload:{status:'In progress'}}]; });
+beforeEach(() => { clearSessionCache(); state.revision=1; state.batch='batch'; state.cap=1000; state.reads=0; state.fail=false; state.changeDuringRead=false; state.rules=[]; state.rows=[{id:'a',position:1,payload:{status:'In progress'}}]; });
 describe('verified dataset snapshots', () => {
  it('reuses unchanged data across dashboard visits without rereading records', async () => {
   const first=await loadSnapshot('w','regional','','owner');
@@ -36,6 +36,17 @@ describe('verified dataset snapshots', () => {
  });
  it('retries if an upload changes while paginated rows are being read', async () => {
   state.changeDuringRead=true;await loadSnapshot('w','regional','','owner');expect(state.reads).toBe(2);
+ });
+ it('loads all permitted rows even when the API caps a page below 1000', async () => {
+  state.cap=2;state.rows=Array.from({length:7},(_,i)=>({id:String(i),position:i+1,payload:{status:'Done'}}));
+  expect((await loadSnapshot('w','corporate','','new-user')).rows).toHaveLength(7);
+  expect(state.reads).toBe(4);
+ });
+ it('checks the current upload pointer even without an event revision change', async () => {
+  await loadSnapshot('w','corporate','','dh');state.batch='new-batch';
+  state.rows=[{id:'new',position:1,payload:{status:'Done'}}];
+  expect((await loadSnapshot('w','corporate','','dh')).rows[0].id).toBe('new');
+  expect(state.reads).toBe(2);
  });
  it('checks SLA rules even when no workspace revision changes', async () => {
   await loadSnapshot('w','regional','','owner');state.rules=[{product:'VA',new_days:3,maint_days:2}];
