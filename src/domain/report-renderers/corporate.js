@@ -1,3 +1,4 @@
+import {corporateStatus} from '../corporate-status';
 import {exportMonitoringWord} from './word-report';
 import {reportCategory,reportDimension,reportMonth,categoryOverview} from './report-population.js';
 import { corporateWordDocument } from './word-style.js';
@@ -32,7 +33,8 @@ function reportPeople(rows){
 }
 function statusOf(x){return x[RC.statusKey]||'Unknown'}
 function productOf(x){try{return RC.productMode==='regional'?productCategory(x[RC.productKey]):RC.productMode==='corporate'?corpProductCategory(x[RC.productKey]):x[RC.productKey]}catch(e){return x[RC.productKey]}}
-function reportStatusGroup(x){
+function reportStatusGroup(x){
+  if(RC.productMode==='corporate'){const value=corporateStatus(x);return value==='Pending Task'?'Pending':value==='Reject/Retur'?'Retur':value;}
   const raw=String(statusOf(x)||'').trim(),v=raw.toLowerCase();
   // Handover is determined ONLY by the actual status field.
   // Project/Application Type = New must never imply Handover.

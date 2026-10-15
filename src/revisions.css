@@ -85,3 +85,6 @@ body,button,input,select,textarea{font-family:'WCI Inter','Segoe UI',Arial,sans-
 .sidebar .individual-navigation{margin:12px 0;gap:6px}.sidebar .individual-navigation button{min-height:44px!important;padding:10px 12px!important;margin:0!important;font-size:13px!important;border-radius:6px!important;color:#173a63!important;background:transparent!important;border:0!important}.sidebar .individual-navigation button.active{background:#e2f3f4!important;color:#087f8c!important;border-left:3px solid #087f8c!important}
 .access-editor{border-top:1px solid #dce5ea;margin-top:20px;padding-top:4px}.access-row{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:16px;align-items:end;margin-bottom:16px}.access-row label{min-width:0}.access-remove{height:42px}.access-editor>button{margin-top:8px}
 @media(max-width:900px){.access-row{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.access-row{grid-template-columns:1fr}}
+.dash-corporate .person-work .person-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+.dash-corporate .person-work .person-kpis>button:nth-child(6){border-left-color:#c85f69}
+@media(max-width:760px){.dash-corporate .person-work .person-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}

@@ -1,5 +1,6 @@
 import { corporateProductFallback } from './product-fallback';
 import {requestDate,matchesDateSelection} from './date-filter';
+import {corporateStatus} from './corporate-status';
 import { type DatasetKind, type Payload, type MonitoringRecord, type Filters, text } from '../types';
 import { productKey } from './display';
 export const fields = {
@@ -21,7 +22,7 @@ export function statusGroup(s: string) {
         return 'On Progress';
     return 'Pending Task';
 }
-export function status(r: MonitoringRecord, kind: DatasetKind) { const s = text(r.payload[fields[kind].status]); return kind === 'corporate' ? statusGroup(s) : s; }
+export function status(r: MonitoringRecord, kind: DatasetKind) { return kind === 'corporate' ? corporateStatus(r.payload) : text(r.payload[fields[kind].status]); }
 export function isDone(r: MonitoringRecord, kind: DatasetKind) { return kind === 'ijr' ? /^(proses selesai|delivered)$/i.test(text(r.payload.Status)) : status(r, kind) === 'Done'; }
 export function isWaiting(r: MonitoringRecord, kind: DatasetKind) { return kind === 'corporate' ? status(r, kind) === 'Pending Task' : /waiting|pending|approval/i.test(text(r.payload[fields[kind].status])); }
 export function productCategory(value: string, kind: DatasetKind) {

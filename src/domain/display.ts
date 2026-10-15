@@ -1,4 +1,5 @@
 import { type MonitoringRecord, type DatasetKind, type Value, text } from '../types';
+import {corporateStatus} from './corporate-status';
 
 export const productKey = (value: Value) => text(value).toLowerCase().replace(/[^a-z0-9]+/g, '');
 /** v78 uses the most frequent spelling for Regional product variants. */
@@ -17,8 +18,8 @@ const regionalDetail: [string, string][] = [['Company','company'],['CID','cid'],
 const corporateDetail: [string, string][] = [['No Reg','noreg'],['Company','company'],['Group','group'],['CID','cid'],['CIF','cif'],['PIC Sales','sales'],['Segment','segment'],['Project Type','projectType'],['Product','product'],['Form Type','formType'],['Request Type','requestType'],['Status Onboard','status'],['Priority','priority'],['Progress','percentage'],['Complexity','complexity'],['Implementor','implementor'],['Assigner','assigner'],['SLA Policy Reference Date','slaPolicyDate'],['Create Date','createDate'],['Submit Date','submitDate'],['Assign Date','assignDate'],['Progress Date','progressDate'],['Done Date','doneDate'],['Handover Date','handoverDate'],['Target Done','targetDone'],['Return Date','returnDate'],['Return Note','returnNote'],['Description','description'],['Other Remarks','remarks']];
 export function detailFields(row: MonitoringRecord, kind: DatasetKind): [string, string][] {
   const definitions: [string, string][] = kind === 'ijr' ? ijrDetail.map(key => [key, key]) : kind === 'regional' ? regionalDetail : corporateDetail;
-  const values: [string, string][] = definitions.map(([label, key]) => [label, key === 'dashboardUpdatedAt' ? (Number.isFinite(new Date(text(row.payload[key])).getTime()) ? new Date(text(row.payload[key])).toLocaleString('id-ID') : '') : text(row.payload[key])]);
+  const values: [string, string][] = definitions.map(([label, key]) => [label, kind==='corporate'&&key==='status'?corporateStatus(row.payload):key === 'dashboardUpdatedAt' ? (Number.isFinite(new Date(text(row.payload[key])).getTime()) ? new Date(text(row.payload[key])).toLocaleString('id-ID') : '') : text(row.payload[key])]);
   if (kind === 'corporate') values.splice(17, 0, ['SLA Solution Mapping', row.sla.solution || ''], ['SLA Target', row.sla.target == null ? '' : row.sla.target + ' working days'], ['SLA Real', row.sla.real == null ? '' : row.sla.real + ' days'], ['SLA Status', row.sla.status], ['Over By', row.sla.over && row.sla.over > 0 ? row.sla.over + ' days' : ''], ['Mapping Method', row.sla.map || '']);
   if (kind === 'regional' && row.payload.dashboardUpdatedAt) values.splice(9, 0, ['Updated via', 'Dashboard']);
-  return values.filter(([label, value]) => value && value !== 'null Hari' || kind === 'regional' && /Tanggal |Informasi Handover/.test(label)).map(([label,value])=>[label,value||'—']);
+  return values.filter(([label, value]) => value && value !== 'null Hari' || kind === 'regional' && /Tanggal |Informasi Handover/.test(label) || kind==='corporate'&&['Request Type','Assign Date','Progress Date','Done Date'].includes(label)).map(([label,value])=>[label,value||'—']);
 }

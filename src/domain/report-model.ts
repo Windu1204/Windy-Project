@@ -3,6 +3,7 @@ import { type DatasetKind, type Filters, type MonitoringRecord, type Payload, ty
 import { counts, fields, productCategory } from './analytics';
 import { validDate } from './imports';
 import { reportStatus } from './report-status';
+import {corporateStatus} from './corporate-status';
 import {requestDate} from './date-filter';
 
 export const reportContents: Record<DatasetKind, readonly string[]> = {
@@ -37,7 +38,7 @@ export function selectReportPerson(rows: MonitoringRecord[], kind: DatasetKind, 
 }
 export function reportModel(rows: MonitoringRecord[], kind: DatasetKind, person = ''): ReportModel {
   const selected = person.trim().toLowerCase() === 'all name' ? '' : person.trim();
-  const payload = (row: MonitoringRecord) => ({ ...row.payload, slaStatus: row.sla.status, slaReal: row.sla.real, slaOverBy: row.sla.over, slaSolution: row.sla.solution });
+  const payload = (row: MonitoringRecord) => ({ ...row.payload, ...(kind==='corporate'?{status:corporateStatus(row.payload)}:{}), slaStatus: row.sla.status, slaReal: row.sla.real, slaOverBy: row.sla.over, slaSolution: row.sla.solution });
   const order = ['Pending', 'On Progress', 'Done', 'Handover', 'Retur'];
   const statusCounts = counts(rows, row => reportStatus(row, kind));
   const n = (status: string) => statusCounts.find(item => item[0] === status)?.[1] || 0;
