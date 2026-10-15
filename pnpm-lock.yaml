@@ -30,6 +30,9 @@ importers:
         specifier: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
         version: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
     devDependencies:
+      jszip:
+        specifier: 3.10.2
+        version: 3.10.2
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2

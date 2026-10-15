@@ -21,6 +21,7 @@
     "docx": "8.5.0"
   },
   "devDependencies": {
+    "jszip": "3.10.2",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/node": "24.10.1",
