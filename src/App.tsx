@@ -12,6 +12,7 @@ import {corporateStatusPayload} from './domain/corporate-status';
 import { jakartaToday } from './domain/work-calendar';
 import { supabase } from './lib/supabase';
 import * as repository from './lib/repository';
+import { revisionWatch } from './lib/revision-watch';
 import { Auth } from './components/Auth';
 import { PasswordSetup } from './components/PasswordSetup';
 import { AccountMenu } from './components/AccountMenu';
@@ -32,7 +33,26 @@ export default function App() { const { t, language, setLanguage } = useLanguage
     const effectiveSource=kind!=='piloting'?'AT':currentProfile?.role!=='super_admin'&&!currentGrants.some(g=>g.dataset==='piloting'&&g.source==='AT')?'PM':source;
     useEffect(()=>{if(preview||!workspace||!user)return;let active=true;access.myAccess(workspace,user.id).then(c=>{if(!active)return;setAccount(c.profile);setGrants(c.grants);setTeamPeople(c.people);if(c.profile?.role!=='super_admin')setViewAs(null);if(!c.profile?.active){setRaw([]);setError('Akun tidak aktif. Hubungi administrator.');}else if(c.profile.role==='admin')setAdminView(true);}).catch(e=>{if(active){setRaw([]);setError(e.message);}});return()=>{active=false;};},[workspace,user,preview,refresh]);
     useEffect(()=>{if(!viewAs||preview||!workspace)return;let active=true;access.adminDirectory(workspace).then(directory=>{if(active)setViewAs(previous=>{if(!previous)return null;const profile=directory.profiles.find(p=>p.user_id===previous.profile.user_id);return profile?{profile,directory}:null;});}).catch(e=>{if(active){setViewAs(null);setError(e.message);}});return()=>{active=false;};},[workspace,preview,refresh,viewAs?.profile.user_id]);
-    useEffect(()=>{if(!supabase||!workspace||preview)return;let timer:ReturnType<typeof setTimeout>;const changed=()=>{clearTimeout(timer);timer=setTimeout(()=>setRefresh(n=>n+1),150);};const channel=supabase.channel('wci-updates-'+workspace).on('postgres_changes',{event:'UPDATE',schema:'public',table:'wci_events',filter:'workspace_id=eq.'+workspace},changed).subscribe(state=>{setConnected(state==='SUBSCRIBED');if(state==='SUBSCRIBED')changed();});const poll=setInterval(changed,20000);window.addEventListener('online',changed);window.addEventListener('focus',changed);return()=>{clearTimeout(timer);clearInterval(poll);window.removeEventListener('online',changed);window.removeEventListener('focus',changed);void supabase!.removeChannel(channel);};},[workspace,preview]);
+    useEffect(() => {
+        if (!supabase || !workspace || preview || !user?.id) return;
+        const watch = revisionWatch(() => repository.workspaceRevision(workspace), () => {
+            repository.clearSessionCache();
+            setRefresh(n => n + 1);
+        }, () => setConnected(false));
+        const changed = () => { void watch.check(); };
+        changed();
+        const channel = supabase.channel('wci-updates-' + workspace + '-' + user.id)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'wci_events', filter: 'workspace_id=eq.' + workspace }, changed)
+            .subscribe(state => { setConnected(state === 'SUBSCRIBED'); if (state === 'SUBSCRIBED') changed(); });
+        const poll = setInterval(changed, 20000);
+        window.addEventListener('online', changed);
+        window.addEventListener('focus', changed);
+        return () => {
+            watch.stop(); clearInterval(poll);
+            window.removeEventListener('online', changed); window.removeEventListener('focus', changed);
+            void supabase!.removeChannel(channel);
+        };
+    }, [workspace, preview, user?.id]);
     useEffect(()=>{setVersion('');setSource('AT');},[kind,workspace]);
     useEffect(()=>setVersion(''),[dataMode]);
     useEffect(()=>{if(!preview&&currentProfile?.active&&currentProfile.role!=='admin'&&!availableKinds.includes(kind)&&availableKinds.length)setKind(availableKinds[0]);},[account,grants,viewAs,kind,preview]);
