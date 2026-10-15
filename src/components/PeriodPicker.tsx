@@ -16,6 +16,7 @@ export function PeriodPicker({ value, onChange, label = "Request Period" }: { va
   const [open, setOpen] = useState(false), [custom, setCustom] = useState(false), [from, setFrom] = useState(''), [to, setTo] = useState('');
   const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   const ref = useRef<HTMLDivElement>(null);
+  useEffect(()=>{if(!open)return;setFrom(value.from);setTo(value.to);setMonthly(Boolean(value.period));setSelectedMonth(value.period);setCustom(Boolean((value.from||value.to)&&!value.period));},[open,value.from,value.to,value.period]);
   useEffect(() => { if (!open) return; const close = (event: MouseEvent) => { if (event.target instanceof Node && !ref.current?.contains(event.target)) setOpen(false); }; document.addEventListener('mousedown', close); return () => document.removeEventListener('mousedown', close); }, [open]);
   function show() { setFrom(value.from); setTo(value.to); setMonthly(Boolean(value.period));setSelectedMonth(value.period);setCustom(Boolean((value.from || value.to) && !value.period)); if (value.from) setMonth(new Date(value.from + 'T00:00:00')); setOpen(!open); }
   function pick(date: string) { if (!from || to || date < from) { setFrom(date); setTo(''); } else setTo(date); }

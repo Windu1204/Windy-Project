@@ -1,4 +1,5 @@
 import { corporateProductFallback } from './product-fallback';
+import {requestDate,matchesDateSelection} from './date-filter';
 import { type DatasetKind, type Payload, type MonitoringRecord, type Filters, text } from '../types';
 import { productKey } from './display';
 export const fields = {
@@ -63,7 +64,7 @@ export function people(r: MonitoringRecord, kind: DatasetKind, allRoles = false)
 }
 export function filterRows(rows: MonitoringRecord[], kind: DatasetKind, f: Filters) {
     const k = fields[kind], q = f.search.toLowerCase().trim();
-    return rows.filter(r => { const p = r.payload, d = text(p[k.date]); return (!q || Object.values(p).some(v => text(v).toLowerCase().includes(q))) && (!f.period || d.startsWith(f.period)) && (!f.from || d >= f.from) && (!f.to || d <= f.to) && (!f.status || (f.status === '__waiting__' ? text(p[k.status]).startsWith('Waiting') : status(r, kind) === f.status)) && (!f.type || text(p[k.type]) === f.type) && (!f.region || text(p[k.region]) === f.region) && (!f.category || productCategory(text(p.product), kind) === f.category) && (!f.product || (kind === 'regional' ? productKey(p.product) === productKey(f.product) : text(p.product) === f.product)) && (!f.person || people(r, kind, true).some(n => n.toLowerCase().includes(f.person.toLowerCase()))) && (!f.sla || r.sla.status === f.sla) && (!f.flow || text(p['Flow Process']) === f.flow) && (!f.branch || text(p.Cabang) === f.branch); });
+    return rows.filter(r => { const p = r.payload; return (!q || Object.values(p).some(v => text(v).toLowerCase().includes(q))) && matchesDateSelection(requestDate(p,kind),f) && (!f.status || (f.status === '__waiting__' ? text(p[k.status]).startsWith('Waiting') : status(r, kind) === f.status)) && (!f.type || text(p[k.type]) === f.type) && (!f.region || text(p[k.region]) === f.region) && (!f.category || productCategory(text(p.product), kind) === f.category) && (!f.product || (kind === 'regional' ? productKey(p.product) === productKey(f.product) : text(p.product) === f.product)) && (!f.person || people(r, kind, true).some(n => n.toLowerCase().includes(f.person.toLowerCase()))) && (!f.sla || r.sla.status === f.sla) && (!f.flow || text(p['Flow Process']) === f.flow) && (!f.branch || text(p.Cabang) === f.branch); });
 }
 export function counts<T>(rows: T[], get: (r: T) => string): [
     string,
