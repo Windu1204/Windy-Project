@@ -2079,5 +2079,7 @@
   "Overdue adalah subset pekerjaan; tidak ditambahkan ke total.": [
     "Overdue adalah subset pekerjaan; tidak ditambahkan ke total.",
     "Overdue is a subset of jobs; do not add it to the total."
-  ]
+  ],
+  "Belum dipetakan — seluruh anggota": ["Belum dipetakan — seluruh anggota", "Unmapped — all members"],
+  "TL yang belum dipetakan dapat melihat seluruh anggota pada dashboard yang diizinkan. Pengguna tetap hanya melihat PIC miliknya. Setelah tim dipetakan, akses TL mengikuti anggota tim tersebut.": ["TL yang belum dipetakan dapat melihat seluruh anggota pada dashboard yang diizinkan. Pengguna tetap hanya melihat PIC miliknya. Setelah tim dipetakan, akses TL mengikuti anggota tim tersebut.", "Unmapped team leaders can view all members of the permitted dashboard. Individual users only see their own PIC. Once a team is mapped, its leader sees that team’s members."]
 }

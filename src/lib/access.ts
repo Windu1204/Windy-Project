@@ -19,6 +19,21 @@ export function scopedRows<T extends {payload:Payload}>(rows:T[],kind:Applicatio
  if(profile.role==='super_admin')return rows;
  const access=grants.filter(g=>g.dataset===kind&&g.source==='AT');if(!access.length)return [];
  if(profile.role==='department_head')return rows;
- const names=access.flatMap(g=>profile.role==='individual'?[g.pic]:teams.some(t=>t.id===g.team_id&&t.leader_id===profile.user_id)?people.filter(p=>p.team_id===g.team_id).map(p=>p.pic):[]).map(n=>n.trim().toLocaleLowerCase()).filter(Boolean);
+ if(profile.role==='team_leader'&&access.some(g=>!g.team_id||teams.some(t=>t.id===g.team_id&&t.workspace_id===profile.workspace_id&&t.dataset===kind&&t.source===g.source&&t.leader_id===profile.user_id)&&!people.some(p=>p.team_id===g.team_id&&p.pic.trim())))return rows;
+ const names=access.flatMap(g=>profile.role==='individual'?[g.pic]:teams.some(t=>t.id===g.team_id&&t.workspace_id===profile.workspace_id&&t.dataset===kind&&t.source===g.source&&t.leader_id===profile.user_id)?people.filter(p=>p.team_id===g.team_id).map(p=>p.pic):[]).map(n=>n.trim().toLocaleLowerCase()).filter(Boolean);
  return rows.filter(r=>(kind==='ijr'?['Implementor 1','Implementor 2','CS BNI Direct']:kind==='piloting'?['PIC AT']:['implementor']).some(k=>names.includes(text(r.payload[k]).toLocaleLowerCase())));
+}
+
+/** Undefined uses names in the current source; an explicit PIC/team mapping narrows it. */
+export function visiblePersonNames(kind:ApplicationKind,profile:Profile|null|undefined,grants:Grant[],people:{team_id:string;pic:string}[]):string[]|undefined {
+ const access=grants.filter(g=>g.dataset===kind&&g.source==='AT');
+ if(profile?.role==='individual') {
+  return access.map(g=>g.pic).filter(n=>n.trim());
+ }
+ if(profile?.role==='team_leader') {
+  if(access.some(g=>!g.team_id))return undefined;
+  const names=people.filter(p=>access.some(g=>g.team_id===p.team_id)).map(p=>p.pic).filter(n=>n.trim());
+  return names.length?names:undefined;
+ }
+ return undefined;
 }

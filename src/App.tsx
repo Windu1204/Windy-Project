@@ -89,7 +89,7 @@ export default function App() { const { t, language, setLanguage } = useLanguage
         setLoading(false); }); return () => { active = false; }; }, [kind, workspace, preview, refresh,version,user?.id]);
     const visibleRaw=useMemo(()=>viewAs?access.scopedRows(raw,kind,viewAs.profile,viewAs.directory.grants.filter(g=>g.user_id===viewAs.profile.user_id),viewAs.directory.teams,viewAs.directory.people):raw,[raw,kind,viewAs]);
     const rows = useMemo<MonitoringRecord[]>(() => (effectiveSource==='PM'?[]:visibleRaw).map(r => {const payload=kind==='corporate'?corporateStatusPayload(corporateProductPayload(r.payload)):r.payload;return { id: r.id, payload, sla: kind === 'piloting' ? pilotSla(payload, rules) : calculateSla(payload, kind, rules) };}), [visibleRaw, kind, rules,effectiveSource]);
-    const membership = members.find(m => m.workspace_id === workspace), canEdit = !viewAs&&(preview||account?.role==='super_admin'), canDone=!viewAs&&!version&&kind==='regional'&&account?.role==='individual';
+    const membership = members.find(m => m.workspace_id === workspace), canEdit = !viewAs&&(preview||account?.role==='super_admin'), canDone=!viewAs&&!version&&kind==='regional'&&account?.role==='individual'&&grants.some(g=>g.dataset==='regional'&&g.source==='AT'&&g.pic.trim());
     const reload = useCallback(() => { repository.clearSessionCache(); setRefresh(n => n + 1); }, []);
     async function apply(payload: Payload[], name: string) { if (preview) {
         setRaw(payload.map((p, i) => ({ id: kind + '-' + i, payload: p, position: i + 1 })));
@@ -124,7 +124,7 @@ export default function App() { const { t, language, setLanguage } = useLanguage
         setUser((await supabase!.auth.getUser()).data.user);
         setProfile(false);reload();
     } }
-    const personNames=currentProfile?.role==='individual'?currentGrants.filter(g=>g.dataset===kind&&g.source==='AT').map(g=>g.pic):currentProfile?.role==='team_leader'?(viewAs?viewAs.directory.people:teamPeople).filter(p=>currentGrants.some(g=>g.dataset===kind&&g.source==='AT'&&g.team_id===p.team_id)).map(p=>p.pic):undefined;
+    const personNames=access.visiblePersonNames(kind,currentProfile,currentGrants,viewAs?viewAs.directory.people:teamPeople);
     const dataControls=<div className="dataset-period"><label>{t('Versi Data / Minggu Upload')}<select aria-label={t('Versi Data / Minggu Upload')} value={version} onChange={e=>setVersion(e.target.value)}><option value="">{t('Terbaru')}</option>{versions.map(b=><option key={b.id} value={b.id}>{b.week_start} · {new Date(b.created_at).toLocaleString()} · {b.name}</option>)}</select></label>{kind==='piloting'&&<label>{t('Sumber')}<select aria-label={t('Sumber')} value={effectiveSource} onChange={e=>setSource(e.target.value as 'AT'|'PM')}><option value="AT" disabled={currentProfile?.role!=='super_admin'&&!currentGrants.some(g=>g.dataset==='piloting'&&g.source==='AT')}>AT</option><option value="PM" disabled={currentProfile?.role!=='super_admin'&&!currentGrants.some(g=>g.dataset==='piloting'&&g.source==='PM')}>PM</option></select></label>}</div>;
     if (authLoading)
         return <div className="loading-page">{t("Memuat workspace…")}</div>;
