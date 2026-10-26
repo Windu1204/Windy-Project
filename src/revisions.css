@@ -94,3 +94,15 @@ body,button,input,select,textarea{font-family:'WCI Inter','Segoe UI',Arial,sans-
 .region-average-table th,.region-average-table td{text-align:center;vertical-align:middle}
 .region-average-table .grand-total{font-weight:700;background:var(--panel-soft,#e5f2f3)}
 .project-work-queue table{min-width:1000px}
+
+/* Compact controls belong to the combined project list. */
+.project-queue-controls{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:16px 0 20px}
+.project-queue-controls>label{flex:0 1 320px;min-width:210px}
+.project-queue-controls select{min-height:40px}
+.project-queue-modes{display:flex;gap:8px;flex-wrap:wrap}
+.project-queue-modes .secondary{min-height:40px;gap:10px;font-size:13px}
+.project-queue-modes .selected{border-color:#008997;background:#e9f5f5;color:#007782}
+.project-queue-modes .overdue-mode.selected{border-color:#c85f69;background:#fff0f2;color:#a43845}
+.project-work-queue .table-scroll{max-height:60vh;overflow:auto}
+.project-work-queue thead th{position:sticky;top:0;z-index:1}
+@media(max-width:600px){.project-queue-controls>label{flex:1 1 100%}.project-queue-modes{width:100%}.project-queue-modes>.secondary{flex:1}}

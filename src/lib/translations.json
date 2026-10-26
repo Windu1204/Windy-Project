@@ -2102,5 +2102,12 @@
   "N = New · M = Maintenance. Total tetap mencakup pekerjaan dengan tanggal kosong. Rata-rata menggunakan durasi hari kerja yang berlaku; Grand Total dihitung dari seluruh pekerjaan yang memiliki durasi.": ["N = New · M = Maintenance. Total tetap mencakup pekerjaan dengan tanggal kosong. Rata-rata menggunakan durasi hari kerja yang berlaku; Grand Total dihitung dari seluruh pekerjaan yang memiliki durasi.", "N = New · M = Maintenance. Totals include jobs with missing dates. Averages use the existing business-day duration; Grand Total uses all jobs with available duration."],
   "Jumlah project": ["Jumlah project", "Project count"],
   "Project done": ["Project done", "Projects done"],
-  "Jumlah project dan Project done per Wilayah": ["Jumlah project dan Project done per Wilayah", "Project Count and Projects Done by Region"]
+  "Jumlah project dan Project done per Wilayah": ["Jumlah project dan Project done per Wilayah", "Project Count and Projects Done by Region"],
+  "Project Berjalan & Overdue": ["Project Berjalan & Overdue", "Ongoing & Overdue Projects"],
+  "Filter nama PIC / implementor": ["Filter nama PIC / implementor", "Filter by PIC / implementor name"],
+  "Semua PIC / implementor": ["Semua PIC / implementor", "All PICs / implementors"],
+  "Semua Berjalan": ["Semua Berjalan", "All Ongoing"],
+  "Filter pekerjaan berjalan": ["Filter pekerjaan berjalan", "Filter ongoing jobs"],
+  "Status Monitoring": ["Status Monitoring", "Monitoring Status"],
+  "Berjalan": ["Berjalan", "Ongoing"]
 }
