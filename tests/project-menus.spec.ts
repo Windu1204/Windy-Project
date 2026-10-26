@@ -20,7 +20,9 @@ for (const role of ['super_admin', 'department_head', 'team_leader', 'individual
       else if (url.pathname.endsWith('/wci_datasets')) body = { active_batch: 'reference', operational_batch: 'batch', data_mode: 'operational' };
       else if (url.pathname.endsWith('/wci_events')) body = { revision: 1 };
       else if (url.pathname.endsWith('/wci_records')) {
-        body = url.searchParams.get('dataset') === 'eq.' + kind ? ['open', 'done', 'reject'].map(state => ({ id: state, position: 1, payload: payload(state, state as 'open' | 'done' | 'reject') })) : [];
+        const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+        const other={...payload('other','open'),implementor:'Person B','Implementor 1':'Person B','PIC AT':'Person B',assignDate:today,docComplete:today,'Tanggal Assign to AT':today,_TBSDayNum:0};
+        body = url.searchParams.get('dataset') === 'eq.' + kind ? [...['open', 'done', 'reject'].map(state => ({ id: state, position: 1, payload: payload(state, state as 'open' | 'done' | 'reject') })),...(role==='individual'?[]:[{id:'other',position:4,payload:other}])] : [];
         count = (body as unknown[]).length;
       }
       await route.fulfill({ status: 200, json: body, headers: count === undefined ? {} : { 'content-range': count ? `0-${count - 1}/${count}` : '*/0' } });
@@ -34,19 +36,35 @@ for (const role of ['super_admin', 'department_head', 'team_leader', 'individual
       await page.getByRole('button',{name:titles[kind],exact:true}).click();
     }
     if (role === 'individual') {
-      await expect(page.getByRole('button', { name: 'Project Berjalan', exact: true })).toHaveCount(0);
-      await expect(page.getByRole('button', { name: 'Project Overdue', exact: true })).toHaveCount(0); return;
+      await expect(page.getByRole('button', { name: 'Project Berjalan & Overdue', exact: true })).toHaveCount(0); return;
     }
-    await page.getByRole('button', { name: 'Project Berjalan', exact: true }).click();
-    await expect(page.locator('.project-work-queue tbody tr')).toHaveCount(1);
-    await expect(page.locator('.project-work-queue')).toContainText('Company open');
-    await expect(page.locator('.project-work-queue')).not.toContainText('Company done');
-    await page.locator('.project-work-queue').getByRole('button', { name: 'Detail', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Project Berjalan', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Project Overdue', exact: true })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Project Berjalan & Overdue', exact: true }).click();
+    const queue=page.locator('.project-work-queue'),nameFilter=queue.getByLabel('Filter nama PIC / implementor',{exact:true});
+    await expect(nameFilter).toBeVisible();
+    await expect(queue.locator('tbody tr')).toHaveCount(2);
+    await expect(queue).toContainText('Company open');
+    await expect(queue).not.toContainText('Company done');
+    await nameFilter.selectOption('Person A');
+    await expect(queue.locator('tbody tr')).toHaveCount(1);
+    await expect(queue).not.toContainText('Company other');
+    await queue.getByRole('button', { name: 'Detail', exact: true }).click();
     await expect(page.locator('.detail-dialog')).toBeVisible();
     await page.getByRole('button', { name: 'Tutup detail', exact: true }).click();
-    await page.getByRole('button', { name: 'Project Overdue', exact: true }).click();
-    await expect(page.locator('.project-work-queue tbody tr')).toHaveCount(1);
-    await expect(page.locator('.project-work-queue')).toContainText('Company open');
+    await nameFilter.selectOption('Person B');
+    await expect(queue).toContainText('Company other');
+    await queue.getByRole('button',{name:/^Overdue/}).click();
+    await expect(queue.locator('tbody tr')).toHaveCount(0);
+    await nameFilter.selectOption('Person A');
+    await expect(queue.locator('tbody tr')).toHaveCount(1);
+    await expect(queue.locator('.badge.red')).toContainText('Overdue');
+    await nameFilter.selectOption('');
+    await expect(queue.locator('tbody tr')).toHaveCount(1);
+    await queue.getByRole('button',{name:/^Semua Berjalan/}).click();
+    await expect(queue.locator('tbody tr')).toHaveCount(2);
+    await expect(page.locator('.filter-panel')).toHaveCount(0);
+    if(role==='super_admin'&&kind==='regional')await queue.screenshot({path:'private/region-revision-qa/combined-projects.png'});
     if (kind === 'regional' || kind === 'ijr') {
       await page.getByRole('button', { name: 'Wilayah', exact: true }).click();
       await expect(page.locator('.region-average-table')).toHaveCount(0);

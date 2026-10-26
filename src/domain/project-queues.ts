@@ -1,5 +1,5 @@
 import { type ApplicationKind, type MonitoringRecord, text } from '../types';
-import { status } from './analytics';
+import { status, people } from './analytics';
 import { field } from '../piloting/model';
 import { isoDate, jakartaToday, workingDays } from './work-calendar';
 
@@ -19,3 +19,11 @@ export const selectProjectQueue = (rows: MonitoringRecord[], kind: ApplicationKi
   const state = projectQueueState(row, kind, today);
   return state.open && (!overdue || state.overdue);
 });
+
+export function projectPeople(row: MonitoringRecord, kind: ApplicationKind): string[] {
+  return kind === 'piloting' ? [text(row.payload[field.person])].filter(Boolean) : people(row, kind);
+}
+export function filterProjectPerson(rows: MonitoringRecord[], kind: ApplicationKind, name: string) {
+  const selected = name.trim().toLocaleLowerCase();
+  return selected ? rows.filter(row => projectPeople(row, kind).some(person => person.toLocaleLowerCase() === selected)) : rows;
+}

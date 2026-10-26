@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { regionSummary, normalizeRegion, completedRegionDays } from '../src/domain/region-summary';
 import { regionReportSections } from '../src/domain/report-renderers/region-report';
-import { projectQueueState, selectProjectQueue } from '../src/domain/project-queues';
+import { projectQueueState, selectProjectQueue, filterProjectPerson } from '../src/domain/project-queues';
 import { type MonitoringRecord, type Payload } from '../src/types';
 import { field } from '../src/piloting/model';
 const row = (payload: Payload, real: number | null = null, target: number | null = 2): MonitoringRecord => ({id:String(payload.id||'fixture'),payload,sla:{real,target,status:real===null?'SLA Real Unavailable':real>Number(target)?'Overdue':'Within SLA',over:null,solution:null}});
@@ -48,6 +48,20 @@ describe('region duration and product matrices', () => {
   });
 });
 describe('open project queues preserve completed SLA calculations', () => {
+  it('filters either IJR implementor without duplicating requests or matching partial names', () => {
+    const data=[row({id:'one','Implementor 1':'Ann','Implementor 2':'Bea'}),row({id:'two','Implementor 1':'Anna','Implementor 2':'Anna'})];
+    expect(filterProjectPerson(data,'ijr','ANN').map(r=>r.id)).toEqual(['one']);
+    expect(filterProjectPerson(data,'ijr','Bea').map(r=>r.id)).toEqual(['one']);
+    expect(filterProjectPerson(data,'ijr','Anna')).toHaveLength(1);
+    expect(filterProjectPerson(data,'ijr','')).toHaveLength(2);
+  });
+  it('uses each source PIC field without widening the supplied access scope', () => {
+    const data=[row({id:'a',implementor:'A',[field.person]:'Pilot A'}),row({id:'b',implementor:'B',[field.person]:'Pilot B'})];
+    expect(filterProjectPerson(data,'corporate','B').map(r=>r.id)).toEqual(['b']);
+    expect(filterProjectPerson(data,'regional','A').map(r=>r.id)).toEqual(['a']);
+    expect(filterProjectPerson(data,'piloting','Pilot A').map(r=>r.id)).toEqual(['a']);
+    expect(filterProjectPerson(data.slice(0,1),'regional','B')).toEqual([]);
+  });
   it('includes pending work without dates but excludes completed, rejected and cancelled work', () => {
     const data=['Pending doc','In progress','Done','Reject','Dibatalkan','Handover'].map((status,i)=>row({id:i,status}));
     expect(selectProjectQueue(data,'regional',false,'2026-09-09')).toHaveLength(2);
