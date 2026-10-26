@@ -1,6 +1,7 @@
 import {createWordDocument} from './word-document';
 import {reportCategory,reportDimension,reportMonth} from './report-population';
 import {regionMonthlyOverview} from './region-overview';
+import {regionReportSections} from './region-report';
 export async function exportMonitoringWord(context,kind,model,title){
  const rows=model.rows,fieldType=kind==='regional'?'type':'projectType',dimension=kind==='corporate'?'segment':'region',selection=context.selected,sections=[];
  const add=(title,headers,data,note='',options={})=>sections.push({title,headers,rows:data,note,...options});
@@ -14,6 +15,10 @@ export async function exportMonitoringWord(context,kind,model,title){
  const product=r=>!String(r.product??'').trim()?'Belum tersedia':kind==='corporate'?r.slaSolution||context.productName(String(r.product)):context.productName(String(r.product));
  for(const [name,key,enabled] of [['Produk',product,kind!=='ijr'&&selection.includes('Product & Sub Product')],[kind==='corporate'?'Segmen':'Wilayah',r=>reportDimension(r[dimension]),selection.includes(kind==='corporate'?'Overview per Segmen':'Wilayah')]]){
   if(!enabled)continue;
+  if(name==='Wilayah'&&(kind==='regional'||kind==='ijr')){
+   sections.push(...regionReportSections(rows,kind));
+   continue;
+  }
   const groups=[...new Set(rows.map(key))].sort();
   const data=groups.map(label=>{const scoped=rows.filter(r=>key(r)===label);return [label,...types.map(t=>scoped.filter(r=>count(r)===t).length),scoped.length];});
   data.push(['Grand Total',...types.map(t=>rows.filter(r=>count(r)===t).length),rows.length]);

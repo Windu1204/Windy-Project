@@ -13,7 +13,7 @@ export function ReportPreview({ model, kind, filters, person }: { model: ReportM
  const columns = detailColumns[kind];
  return <Panel title="Report Preview" hint="Preview ini mengikuti data source dan periode report yang dipilih.">
    <div className="report-active-filter"><span>Custom Report Filter</span>{Object.entries(filters).filter(([, value]) => value).map(([key, value]) => <span key={key}>{value}</span>)}<span>{model.allPeople ? 'All Name' : person}</span></div>
-   <div className="preview-cover"><div className="bni-logo" role="img" aria-label="BNI"/><h2>{datasetTitles[kind]}<br/>Monitoring Report</h2><p>Periode: {period}</p></div>
+   <div className="preview-cover"><h2>{datasetTitles[kind]}<br/>Monitoring Report</h2><p>Periode: {period}</p></div>
    <div className="report-preview-kpis">{kpis.map(([label, value]) => <div key={label}><small>{label}</small><b>{Number(value).toLocaleString()}</b></div>)}</div>
    <div className="report-detail-preview"><b>Preview report content</b>{model.total ? <>
      <ul className="report-people"><li>Top status: {model.statuses[0]?.[0] || '—'} ({model.statuses[0]?.[1].toLocaleString() || 0})</li><li>Top product: {model.products[0]?.[0] || '—'} ({model.products[0]?.[1].toLocaleString() || 0})</li></ul>

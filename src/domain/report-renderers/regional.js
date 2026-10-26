@@ -107,7 +107,7 @@ async function exportPptx(m){
   const commonOverviewRows=()=>m.rows.map(r=>({...r,[RC.productKey]:reportDimension(r[RC.productKey]),[RC.dimensionKey]:reportDimension(r[RC.dimensionKey])}));
   const addOverviewSlides=(title,keyLabel,keyFn,sectionBase)=>{
     const overviewRows=commonOverviewRows(),type=r=>reportCategory(RC.productMode==='regional'?r.type:r.projectType);
-    if(String(keyLabel).toLowerCase()==='wilayah'){regionOverview(pptx,overviewRows,{region:r=>reportDimension(keyFn(r)),type,month:monthKey,addHeader,colors:C,monthlyComparison:true});return;}
+    if(String(keyLabel).toLowerCase()==='wilayah'){regionOverview(pptx,overviewRows,{region:r=>reportDimension(keyFn(r)),type,month:monthKey,addHeader,colors:C,monthlyComparison:true,separateProducts:true,kind:RC.productMode});return;}
     categoryOverview(pptx,overviewRows,{title,label:keyLabel,key:r=>reportDimension(keyFn(r)),type,month:monthKey,addHeader,colors:C});
   };
   const addProductDetailSlides=()=>{
@@ -177,6 +177,7 @@ async function exportPptx(m){
     addManagementKeyTakeaways();
     if(m.people&&m.people.length&&(!RC.managementLayout||selected.includes('Beban Implementor'))){let chunk=10,total=Math.ceil(m.people.length/chunk);for(let pg=0;pg<total;pg++){s=pptx.addSlide();addHeader(s,'KPI Per Person',`3. KPI Per Person${total>1?' '+(pg+1)+'/'+total:''}`);let part=m.people.slice(pg*chunk,(pg+1)*chunk),head=['PIC / Implementor','Assigned','Completed','Active','Waiting','Overdue'];let headerRow=head.map((v,i)=>({text:String(v),options:{fill:'087486',color:'FFFFFF',bold:true,align:i===0?'left':'center',valign:'mid'}}));let rows=[headerRow,...part.map(p=>[p.name,p.assigned,p.done,p.active,p.waiting,p.overdue])];s.addTable(rows,{x:.55,y:1.25,w:12.1,h:5.75,border:{type:'solid',pt:.5,color:'DCE8F6'},fill:C.white,color:'29456E',fontFace:'Arial',fontSize:8,margin:.05,rowH:.38,autoFit:false,bold:false,fillHeader:'087486',colorHeader:'FFFFFF'});if(RC.singleProduct)s.addText('Satu permohonan dapat melibatkan beberapa implementor. Dibatalkan tidak termasuk Active; Waiting merupakan bagian dari Active.',{x:.55,y:6.85,w:12.1,h:.18,fontFace:'Arial',fontSize:9,color:C.muted,margin:0});}}
   }
+  if(!m.allPeople&&selected.includes('Wilayah'))addOverviewSlides('Overview Implementasi per Wilayah','Wilayah',r=>r[RC.dimensionKey],'Overview Wilayah');
   if(RC.managementLayout&&!m.allPeople&&selected.includes('Detail Data')){
     for(let page=0;page<Math.ceil(m.rows.length/10);page++){
       const s=pptx.addSlide();addHeader(s,'Detail Work List – '+person,`Detail Data ${page+1}/${Math.ceil(m.rows.length/10)}`);

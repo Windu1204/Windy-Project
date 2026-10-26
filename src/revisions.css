@@ -88,3 +88,9 @@ body,button,input,select,textarea{font-family:'WCI Inter','Segoe UI',Arial,sans-
 .dash-corporate .person-work .person-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
 .dash-corporate .person-work .person-kpis>button:nth-child(6){border-left-color:#c85f69}
 @media(max-width:760px){.dash-corporate .person-work .person-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Region averages share the existing table styling and stay scrollable on narrow screens. */
+.region-average-table table{min-width:690px}
+.region-average-table th,.region-average-table td{text-align:center;vertical-align:middle}
+.region-average-table .grand-total{font-weight:700;background:var(--panel-soft,#e5f2f3)}
+.project-work-queue table{min-width:1000px}
