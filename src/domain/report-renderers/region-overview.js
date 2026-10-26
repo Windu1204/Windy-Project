@@ -1,3 +1,20 @@
+import {regionSummary,displayAverageDays} from '../region-summary';
+
+export function regionProductOverview(pptx,rows,{kind='regional',addHeader,colors:C}) {
+  const summary=regionSummary(rows,kind);
+  for(const matrix of summary.matrices){
+    if(matrix.category==='U'&&!matrix.grandTotal.total)continue;
+    const label=matrix.category==='N'?'New':matrix.category==='M'?'Maintenance':'Belum diklasifikasikan';
+    const slide=pptx.addSlide();addHeader(slide,'Implementasi per Wilayah · '+label,'Overview Wilayah '+label);
+    const body=[...matrix.rows,matrix.grandTotal];
+    const headers=['Wilayah',...matrix.products,matrix.category==='U'?'Total U':'Total '+label,'Average Days '+matrix.category];
+    const table=[headers,...body.map(row=>[row.name,...row.counts,row.total,displayAverageDays(row.average.days)])];
+    const productWidth=(12.2-3.95)/Math.max(1,matrix.products.length);
+    slide.addTable(table,{regionOverviewLayout:true,x:.55,y:1.42,w:12.2,h:5.12,colW:[1.25,...matrix.products.map(()=>productWidth),1.3,1.4],fontFace:'Arial',fontSize:matrix.products.length>7?10:11,rowH:[.60,...body.map(()=>(5.12-.60)/body.length)],margin:.015,border:{type:'solid',pt:.5,color:'DCE3E7'},autoPage:false});
+    slide.addText('Average Days: pekerjaan selesai dengan durasi tersedia. — = belum tersedia. Grand Total memakai seluruh pekerjaan dengan durasi.'+(matrix.category==='U'?' U = Belum diklasifikasikan.':''),{x:.55,y:6.76,w:12.2,h:.25,fontFace:'Arial',fontSize:9,color:C.muted,align:'center',margin:0});
+  }
+}
+
 // Keep every region visible on each balanced month continuation.
 export function regionMonthlyOverview(rows, {region, type, month}, monthsPerPage = 3) {
   const names = [...new Set(rows.map(region))].sort((a,b) => {
@@ -38,19 +55,22 @@ export function regionMonthHeaderRows(months,types=['N','M']) {
 }
 
 // One total overview, balanced monthly matrices, then equal supporting panels.
-export function regionOverview(pptx,rows,{region,type,month,addHeader,colors:C,monthlyComparison=false}) {
+export function regionOverview(pptx,rows,{region,type,month,addHeader,colors:C,monthlyComparison=false,separateProducts=false,kind='regional'}) {
   if(!rows.length)return;
   const bucket=r=>month(r)||'Tanpa tanggal',category=r=>['N','M'].includes(type(r))?type(r):'U';
   const comparison=regionMonthlyOverview(rows,{region,type,month});
   const types=comparison.types;
   const stats=comparison.names.map(name=>{const scoped=rows.filter(r=>region(r)===name);return [name,...types.map(t=>scoped.filter(r=>category(r)===t).length),scoped.length];});
   const maintenance=rows.filter(r=>type(r)==='M').length;
+  if(separateProducts)regionProductOverview(pptx,rows,{kind,addHeader,colors:C});
+  else {
   const slide=pptx.addSlide();addHeader(slide,'Overview Implementasi per Wilayah','Overview Wilayah');
   const table=[['Wilayah',...types.map(t=>t==='U'?'Belum diklasifikasikan':t),'Total'],...stats,['Grand Total',...types.map(t=>rows.filter(r=>category(r)===t).length),rows.length]];
   const height=Math.min(5.0,table.length*.27);
   slide.addTable(table,{regionOverviewLayout:true,x:1.65,y:1.55,w:10.0,h:height,colW:[2.8,...types.map(()=>7.2/(types.length+1)),7.2/(types.length+1)],fontFace:'Arial',fontSize:12,rowH:Math.min(.27,5/table.length),margin:.015,border:{type:'solid',pt:.5,color:'DCE3E7'},autoPage:false});
   slide.addText('N = New · M = Maintenance',{x:1.65,y:Math.min(6.85,1.72+height),w:10,h:.18,fontFace:'Arial',fontSize:9,color:C.muted,align:'center',margin:0});
-  if(monthlyComparison)comparison.pages.forEach((page,index)=>{
+  }
+  if(monthlyComparison&&!separateProducts)comparison.pages.forEach((page,index)=>{
     const s=pptx.addSlide();addHeader(s,'Implementasi per Wilayah per Bulan',`Perbandingan Bulanan ${index+1}/${comparison.pages.length}`);
     const table=[...regionMonthHeaderRows(page.months,types),...page.rows];
     s.addTable(table,{regionOverviewLayout:true,regionOverviewHeaderRows:2,x:.55,y:1.35,w:12.2,h:5.1,colW:[1.65,...Array(page.months.length*types.length).fill(9/(page.months.length*types.length)),1.55],fontFace:'Arial',fontSize:11,rowH:Math.min(.27,4.9/table.length),margin:.015,border:{type:'solid',pt:.5,color:'DCE3E7'},autoPage:false});
