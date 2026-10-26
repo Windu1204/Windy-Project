@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import JSZip from 'jszip';
 test.skip(process.env.WCI_CACHE_MOCK !== '1', 'Requires the isolated fake Supabase server');
-for (const role of ['department_head', 'team_leader', 'individual']) for (const kind of ['ijr', 'regional', 'corporate', 'piloting']) {
+for (const role of ['super_admin', 'department_head', 'team_leader', 'individual']) for (const kind of ['ijr', 'regional', 'corporate', 'piloting']) {
   test(`${role} ${kind}: scoped project menus, details and logo removal`, async ({ page }) => {
     const user = { id: 'fixture-owner', aud: 'authenticated', role: 'authenticated', email: 'fixture@example.invalid', app_metadata: {}, user_metadata: {} };
     const token = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })) + '.' + btoa(JSON.stringify({ sub: user.id, exp: 4102444800, role: 'authenticated' })) + '.signature';
@@ -29,6 +29,10 @@ for (const role of ['department_head', 'team_leader', 'individual']) for (const 
     await page.getByLabel('Email', { exact: true }).fill(user.email); await page.getByLabel('Password', { exact: true }).fill('fixture-password');
     await page.getByRole('button', { name: 'Login', exact: true }).click(); await expect(page.locator('.app-shell')).toBeVisible();
     await expect(page.locator('.bni-logo')).toHaveCount(0);
+    if(role==='super_admin'&&kind!=='ijr'){
+      const titles:Record<string,string>={regional:'Regional - Non BNIDirect',corporate:'Corporate - Non Piloting',piloting:'Corporate - Piloting'};
+      await page.getByRole('button',{name:titles[kind],exact:true}).click();
+    }
     if (role === 'individual') {
       await expect(page.getByRole('button', { name: 'Project Berjalan', exact: true })).toHaveCount(0);
       await expect(page.getByRole('button', { name: 'Project Overdue', exact: true })).toHaveCount(0); return;
@@ -45,9 +49,12 @@ for (const role of ['department_head', 'team_leader', 'individual']) for (const 
     await expect(page.locator('.project-work-queue')).toContainText('Company open');
     if (kind === 'regional' || kind === 'ijr') {
       await page.getByRole('button', { name: 'Wilayah', exact: true }).click();
-      await expect(page.locator('.region-average-table tbody tr')).toHaveCount(19);
-      await expect(page.locator('.region-average-table thead')).toContainText('Average Days N');
-      await expect(page.locator('.region-average-table tbody tr').first()).toContainText('1.0');
+      await expect(page.locator('.region-average-table')).toHaveCount(0);
+      await expect(page.getByRole('heading',{name:'Jumlah project dan Project done per Wilayah',exact:true})).toBeVisible();
+      await expect(page.locator('.region-activity-legend')).toContainText('Jumlah project');
+      await expect(page.locator('.region-activity-legend')).toContainText('Project done');
+      await page.locator('.region-activity-bar.completed').first().click();
+      await expect(page.locator('.region-detail')).toContainText('Company done');
       if (role === 'department_head') await page.screenshot({ path: `private/region-revision-qa/${kind}-dashboard.png`, fullPage: true });
     }
   });
