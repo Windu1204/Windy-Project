@@ -2438,5 +2438,29 @@
   "Hubungkan akun agar pengguna melihat KPI pribadinya. Pemetaan TL membatasi KPI anggota ke pemimpin yang ditentukan.": [
     "Hubungkan akun agar pengguna melihat KPI pribadinya. Pemetaan TL membatasi KPI anggota ke pemimpin yang ditentukan.",
     "Link an account for personal KPI access. An explicit Team Leader mapping limits access to that leader."
+  ],
+  "Tampilan KPI": [
+    "Tampilan KPI",
+    "KPI view"
+  ],
+  "Tahunan": [
+    "Tahunan",
+    "Annual"
+  ],
+  "KPI Tahunan": [
+    "KPI Tahunan",
+    "Annual KPI"
+  ],
+  "Buka bulan": [
+    "Buka bulan",
+    "Open month"
+  ],
+  "Target dan realisasi Januari–Desember ditampilkan per bulan. Persentase, rata-rata, dan nilai kumulatif tidak dijumlahkan. Pilih bulan untuk membuka rincian atau pengisian bulanan.": [
+    "Target dan realisasi Januari–Desember ditampilkan per bulan. Persentase, rata-rata, dan nilai kumulatif tidak dijumlahkan. Pilih bulan untuk membuka rincian atau pengisian bulanan.",
+    "View January–December targets and actuals by month. Percentages, averages and cumulative values are not summed. Select a month to view details or edit monthly values."
+  ],
+  "Geser tabel ke samping untuk melihat bulan berikutnya.": [
+    "Geser tabel ke samping untuk melihat bulan berikutnya.",
+    "Scroll horizontally to view the following months."
   ]
 }

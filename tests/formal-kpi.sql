@@ -32,10 +32,13 @@ begin
  update public.wci_kpi_people set leader_id=u[2] where id=hidden;
  if jsonb_array_length(public.wci_kpi_read(w,'2026-01-01')->'people')<>1 then raise exception 'TL saw another leader''s KPI';end if;
  perform set_config('request.jwt.claim.sub',u[4]::text,true);
- snapshot:=public.wci_kpi_read(w,'2026-01-01');
+ snapshot:=public.wci_kpi_read_year(w,2026);
  if jsonb_array_length(snapshot->'people')<>1 or snapshot->'people'->0->>'id'<>subject::text or (snapshot->'values'->0->>'actual')::numeric<>96 then raise exception 'Individual scope/realtime read wrong';end if;
- blocked:=false;begin perform public.wci_kpi_read(w,'2026-01-01',u[5]);exception when others then blocked:=true;end;
+ blocked:=false;begin perform public.wci_kpi_read_year(w,2026,u[5]);exception when others then blocked:=true;end;
  if not blocked then raise exception 'Individual impersonation allowed';end if;
+ blocked:=false;begin perform public.wci_kpi_read_year(w,2025);exception when others then blocked:=true;end;
+ if not blocked then raise exception 'Pre-2026 year allowed';end if;
+ if jsonb_array_length(public.wci_kpi_read_year(w,2027)->'values')<>0 then raise exception 'Annual view leaked another year';end if;
  blocked:=false;begin perform public.wci_kpi_save(w,subject,'2026-02-01','[]');exception when others then blocked:=true;end;
  if not blocked then raise exception 'Individual write allowed';end if;
  blocked:=false;begin perform public.wci_kpi_save_person(w,jsonb_build_object('id',subject,'name','Hijacked','template_code','qa'));exception when others then blocked:=true;end;
