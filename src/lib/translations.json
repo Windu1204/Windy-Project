@@ -1,5 +1,8 @@
 {
-  "Request Type": ["Jenis Permintaan", "Request Type"],
+  "Request Type": [
+    "Jenis Permintaan",
+    "Request Type"
+  ],
   "Ringkasan": [
     "Ringkasan",
     "Overview"
@@ -2080,34 +2083,360 @@
     "Overdue adalah subset pekerjaan; tidak ditambahkan ke total.",
     "Overdue is a subset of jobs; do not add it to the total."
   ],
-  "Belum dipetakan — seluruh anggota": ["Belum dipetakan — seluruh anggota", "Unmapped — all members"],
-  "TL yang belum dipetakan dapat melihat seluruh anggota pada dashboard yang diizinkan. Pengguna tetap hanya melihat PIC miliknya. Setelah tim dipetakan, akses TL mengikuti anggota tim tersebut.": ["TL yang belum dipetakan dapat melihat seluruh anggota pada dashboard yang diizinkan. Pengguna tetap hanya melihat PIC miliknya. Setelah tim dipetakan, akses TL mengikuti anggota tim tersebut.", "Unmapped team leaders can view all members of the permitted dashboard. Individual users only see their own PIC. Once a team is mapped, its leader sees that team’s members."],
-  "Project Berjalan": ["Project Berjalan", "Ongoing Projects"],
-  "Project Overdue": ["Project Overdue", "Overdue Projects"],
-  "Rata-rata Durasi per Wilayah": ["Rata-rata Durasi per Wilayah", "Average Duration by Region"],
-  "Average Days N": ["Average Days N", "Average Days N"],
-  "Average Days M": ["Average Days M", "Average Days M"],
-  "pekerjaan sesuai filter dan hak akses": ["pekerjaan sesuai filter dan hak akses", "jobs matching filters and access"],
-  "Pekerjaan yang masih terbuka dan durasi berjalannya telah melewati target SLA.": ["Pekerjaan yang masih terbuka dan durasi berjalannya telah melewati target SLA.", "Open jobs whose elapsed working time exceeds the SLA target."],
-  "Pekerjaan yang masih terbuka, termasuk pekerjaan menunggu dan dalam proses. Pekerjaan selesai, reject/retur, dibatalkan, dan handover tidak termasuk.": ["Pekerjaan yang masih terbuka, termasuk pekerjaan menunggu dan dalam proses. Pekerjaan selesai, reject/retur, dibatalkan, dan handover tidak termasuk.", "Open jobs include waiting and in-progress work. Completed, rejected/returned, cancelled and handover jobs are excluded."],
-  "Durasi atau target yang belum tersedia ditandai — dan tidak dianggap overdue. Pekerjaan tanpa durasi tetap muncul pada Project Berjalan.": ["Durasi atau target yang belum tersedia ditandai — dan tidak dianggap overdue. Pekerjaan tanpa durasi tetap muncul pada Project Berjalan.", "Missing durations or targets are marked — and are not classified as overdue. Jobs without duration remain in Ongoing Projects."],
-  "Tidak ada pekerjaan pada kategori dan filter ini.": ["Tidak ada pekerjaan pada kategori dan filter ini.", "No jobs match this category and filter."],
-  "Durasi Berjalan": ["Durasi Berjalan", "Elapsed Working Time"],
-  "Nomor Permohonan": ["Nomor Permohonan", "Application Number"],
-  "Perusahaan / Pemohon": ["Perusahaan / Pemohon", "Company / Applicant"],
-  "pekerjaan": ["pekerjaan", "jobs"],
-  "hari kerja": ["hari kerja", "working days"],
-  "pekerjaan selesai dengan durasi tersedia": ["pekerjaan selesai dengan durasi tersedia", "completed jobs with available duration"],
-  "Average Days N dan M berasal dari pekerjaan selesai dengan durasi tersedia. Tanda — berarti belum ada durasi yang dapat dirata-ratakan.": ["Average Days N dan M berasal dari pekerjaan selesai dengan durasi tersedia. Tanda — berarti belum ada durasi yang dapat dirata-ratakan.", "Average Days N and M use completed jobs with available duration. — means no duration is available for averaging."],
-  "N = New · M = Maintenance. Total tetap mencakup pekerjaan dengan tanggal kosong. Rata-rata menggunakan durasi hari kerja yang berlaku; Grand Total dihitung dari seluruh pekerjaan yang memiliki durasi.": ["N = New · M = Maintenance. Total tetap mencakup pekerjaan dengan tanggal kosong. Rata-rata menggunakan durasi hari kerja yang berlaku; Grand Total dihitung dari seluruh pekerjaan yang memiliki durasi.", "N = New · M = Maintenance. Totals include jobs with missing dates. Averages use the existing business-day duration; Grand Total uses all jobs with available duration."],
-  "Jumlah project": ["Jumlah project", "Project count"],
-  "Project done": ["Project done", "Projects done"],
-  "Jumlah project dan Project done per Wilayah": ["Jumlah project dan Project done per Wilayah", "Project Count and Projects Done by Region"],
-  "Project Berjalan & Overdue": ["Project Berjalan & Overdue", "Ongoing & Overdue Projects"],
-  "Filter nama PIC / implementor": ["Filter nama PIC / implementor", "Filter by PIC / implementor name"],
-  "Semua PIC / implementor": ["Semua PIC / implementor", "All PICs / implementors"],
-  "Semua Berjalan": ["Semua Berjalan", "All Ongoing"],
-  "Filter pekerjaan berjalan": ["Filter pekerjaan berjalan", "Filter ongoing jobs"],
-  "Status Monitoring": ["Status Monitoring", "Monitoring Status"],
-  "Berjalan": ["Berjalan", "Ongoing"]
+  "Belum dipetakan — seluruh anggota": [
+    "Belum dipetakan — seluruh anggota",
+    "Unmapped — all members"
+  ],
+  "TL yang belum dipetakan dapat melihat seluruh anggota pada dashboard yang diizinkan. Pengguna tetap hanya melihat PIC miliknya. Setelah tim dipetakan, akses TL mengikuti anggota tim tersebut.": [
+    "TL yang belum dipetakan dapat melihat seluruh anggota pada dashboard yang diizinkan. Pengguna tetap hanya melihat PIC miliknya. Setelah tim dipetakan, akses TL mengikuti anggota tim tersebut.",
+    "Unmapped team leaders can view all members of the permitted dashboard. Individual users only see their own PIC. Once a team is mapped, its leader sees that team’s members."
+  ],
+  "Project Berjalan": [
+    "Project Berjalan",
+    "Ongoing Projects"
+  ],
+  "Project Overdue": [
+    "Project Overdue",
+    "Overdue Projects"
+  ],
+  "Rata-rata Durasi per Wilayah": [
+    "Rata-rata Durasi per Wilayah",
+    "Average Duration by Region"
+  ],
+  "Average Days N": [
+    "Average Days N",
+    "Average Days N"
+  ],
+  "Average Days M": [
+    "Average Days M",
+    "Average Days M"
+  ],
+  "pekerjaan sesuai filter dan hak akses": [
+    "pekerjaan sesuai filter dan hak akses",
+    "jobs matching filters and access"
+  ],
+  "Pekerjaan yang masih terbuka dan durasi berjalannya telah melewati target SLA.": [
+    "Pekerjaan yang masih terbuka dan durasi berjalannya telah melewati target SLA.",
+    "Open jobs whose elapsed working time exceeds the SLA target."
+  ],
+  "Pekerjaan yang masih terbuka, termasuk pekerjaan menunggu dan dalam proses. Pekerjaan selesai, reject/retur, dibatalkan, dan handover tidak termasuk.": [
+    "Pekerjaan yang masih terbuka, termasuk pekerjaan menunggu dan dalam proses. Pekerjaan selesai, reject/retur, dibatalkan, dan handover tidak termasuk.",
+    "Open jobs include waiting and in-progress work. Completed, rejected/returned, cancelled and handover jobs are excluded."
+  ],
+  "Durasi atau target yang belum tersedia ditandai — dan tidak dianggap overdue. Pekerjaan tanpa durasi tetap muncul pada Project Berjalan.": [
+    "Durasi atau target yang belum tersedia ditandai — dan tidak dianggap overdue. Pekerjaan tanpa durasi tetap muncul pada Project Berjalan.",
+    "Missing durations or targets are marked — and are not classified as overdue. Jobs without duration remain in Ongoing Projects."
+  ],
+  "Tidak ada pekerjaan pada kategori dan filter ini.": [
+    "Tidak ada pekerjaan pada kategori dan filter ini.",
+    "No jobs match this category and filter."
+  ],
+  "Durasi Berjalan": [
+    "Durasi Berjalan",
+    "Elapsed Working Time"
+  ],
+  "Nomor Permohonan": [
+    "Nomor Permohonan",
+    "Application Number"
+  ],
+  "Perusahaan / Pemohon": [
+    "Perusahaan / Pemohon",
+    "Company / Applicant"
+  ],
+  "pekerjaan": [
+    "pekerjaan",
+    "jobs"
+  ],
+  "hari kerja": [
+    "hari kerja",
+    "working days"
+  ],
+  "pekerjaan selesai dengan durasi tersedia": [
+    "pekerjaan selesai dengan durasi tersedia",
+    "completed jobs with available duration"
+  ],
+  "Average Days N dan M berasal dari pekerjaan selesai dengan durasi tersedia. Tanda — berarti belum ada durasi yang dapat dirata-ratakan.": [
+    "Average Days N dan M berasal dari pekerjaan selesai dengan durasi tersedia. Tanda — berarti belum ada durasi yang dapat dirata-ratakan.",
+    "Average Days N and M use completed jobs with available duration. — means no duration is available for averaging."
+  ],
+  "N = New · M = Maintenance. Total tetap mencakup pekerjaan dengan tanggal kosong. Rata-rata menggunakan durasi hari kerja yang berlaku; Grand Total dihitung dari seluruh pekerjaan yang memiliki durasi.": [
+    "N = New · M = Maintenance. Total tetap mencakup pekerjaan dengan tanggal kosong. Rata-rata menggunakan durasi hari kerja yang berlaku; Grand Total dihitung dari seluruh pekerjaan yang memiliki durasi.",
+    "N = New · M = Maintenance. Totals include jobs with missing dates. Averages use the existing business-day duration; Grand Total uses all jobs with available duration."
+  ],
+  "Jumlah project": [
+    "Jumlah project",
+    "Project count"
+  ],
+  "Project done": [
+    "Project done",
+    "Projects done"
+  ],
+  "Jumlah project dan Project done per Wilayah": [
+    "Jumlah project dan Project done per Wilayah",
+    "Project Count and Projects Done by Region"
+  ],
+  "Project Berjalan & Overdue": [
+    "Project Berjalan & Overdue",
+    "Ongoing & Overdue Projects"
+  ],
+  "Filter nama PIC / implementor": [
+    "Filter nama PIC / implementor",
+    "Filter by PIC / implementor name"
+  ],
+  "Semua PIC / implementor": [
+    "Semua PIC / implementor",
+    "All PICs / implementors"
+  ],
+  "Semua Berjalan": [
+    "Semua Berjalan",
+    "All Ongoing"
+  ],
+  "Filter pekerjaan berjalan": [
+    "Filter pekerjaan berjalan",
+    "Filter ongoing jobs"
+  ],
+  "Status Monitoring": [
+    "Status Monitoring",
+    "Monitoring Status"
+  ],
+  "Berjalan": [
+    "Berjalan",
+    "Ongoing"
+  ],
+  "TARGET & REALISASI": [
+    "TARGET & REALISASI",
+    "TARGETS & ACTUALS"
+  ],
+  "Pengelolaan KPI": [
+    "Pengelolaan KPI",
+    "KPI Management"
+  ],
+  "KPI Saya": [
+    "KPI Saya",
+    "My KPI"
+  ],
+  "KPI Tim": [
+    "KPI Tim",
+    "Team KPI"
+  ],
+  "Kelola target, realisasi, dan pemetaan pegawai per periode.": [
+    "Kelola target, realisasi, dan pemetaan pegawai per periode.",
+    "Manage targets, actuals and employee mapping by period."
+  ],
+  "Pantau target dan realisasi sesuai kelompok dan hak akses Anda.": [
+    "Pantau target dan realisasi sesuai kelompok dan hak akses Anda.",
+    "View targets and actuals within your access."
+  ],
+  "Tahun KPI": [
+    "Tahun KPI",
+    "KPI year"
+  ],
+  "Bulan KPI": [
+    "Bulan KPI",
+    "KPI month"
+  ],
+  "Kelompok KPI": [
+    "Kelompok KPI",
+    "KPI group"
+  ],
+  "Semua kelompok": [
+    "Semua kelompok",
+    "All groups"
+  ],
+  "Nama pegawai KPI": [
+    "Nama pegawai KPI",
+    "KPI employee"
+  ],
+  "Semua anggota": [
+    "Semua anggota",
+    "All members"
+  ],
+  "Data KPI belum dapat dimuat.": [
+    "Data KPI belum dapat dimuat.",
+    "KPI data could not be loaded."
+  ],
+  "Memperbarui KPI…": [
+    "Memperbarui KPI…",
+    "Updating KPI…"
+  ],
+  "Memuat KPI…": [
+    "Memuat KPI…",
+    "Loading KPI…"
+  ],
+  "KPI belum tersedia untuk akun ini": [
+    "KPI belum tersedia untuk akun ini",
+    "KPI is not available for this account"
+  ],
+  "Hubungi Admin untuk pemetaan akun, PIC, atau tim KPI Anda.": [
+    "Hubungi Admin untuk pemetaan akun, PIC, atau tim KPI Anda.",
+    "Contact an Admin to map your account, PIC or KPI team."
+  ],
+  "Tambahkan pegawai dan pilih template KPI.": [
+    "Tambahkan pegawai dan pilih template KPI.",
+    "Add an employee and select a KPI template."
+  ],
+  "Tambah pegawai KPI": [
+    "Tambah pegawai KPI",
+    "Add KPI employee"
+  ],
+  "Pemetaan pegawai": [
+    "Pemetaan pegawai",
+    "Employee mapping"
+  ],
+  "Anggota terlihat": [
+    "Anggota terlihat",
+    "Visible members"
+  ],
+  "Periode penilaian": [
+    "Periode penilaian",
+    "Assessment period"
+  ],
+  "Realisasi terisi": [
+    "Realisasi terisi",
+    "Actuals entered"
+  ],
+  "KPI per Anggota": [
+    "KPI per Anggota",
+    "KPI by Employee"
+  ],
+  "Pilih nama untuk melihat indikator, target, dan realisasi.": [
+    "Pilih nama untuk melihat indikator, target, dan realisasi.",
+    "Select an employee to view indicators, targets and actuals."
+  ],
+  "Nama pegawai": [
+    "Nama pegawai",
+    "Employee name"
+  ],
+  "Kelolaan": [
+    "Kelolaan",
+    "Portfolio"
+  ],
+  "Target terisi": [
+    "Target terisi",
+    "Targets entered"
+  ],
+  "Lihat KPI": [
+    "Lihat KPI",
+    "View KPI"
+  ],
+  "Total bobot indikator": [
+    "Total bobot indikator",
+    "Total indicator weight"
+  ],
+  "bobot": [
+    "bobot",
+    "weight"
+  ],
+  "Indikator KPI": [
+    "Indikator KPI",
+    "KPI indicator"
+  ],
+  "Bobot": [
+    "Bobot",
+    "Weight"
+  ],
+  "Satuan": [
+    "Satuan",
+    "Unit"
+  ],
+  "Realisasi": [
+    "Realisasi",
+    "Actual"
+  ],
+  "Capaian / Status": [
+    "Capaian / Status",
+    "Achievement / Status"
+  ],
+  "Belum diinput": [
+    "Belum diinput",
+    "Not entered"
+  ],
+  "Target belum diisi": [
+    "Target belum diisi",
+    "Target not set"
+  ],
+  "Menunggu aturan skor": [
+    "Menunggu aturan skor",
+    "Scoring rules pending"
+  ],
+  "Target tercapai": [
+    "Target tercapai",
+    "Target achieved"
+  ],
+  "Belum tercapai": [
+    "Belum tercapai",
+    "Below target"
+  ],
+  "Target dan realisasi berhasil disimpan.": [
+    "Target dan realisasi berhasil disimpan.",
+    "Targets and actuals saved."
+  ],
+  "Simpan target & realisasi": [
+    "Simpan target & realisasi",
+    "Save targets & actuals"
+  ],
+  "Batalkan perubahan": [
+    "Batalkan perubahan",
+    "Discard changes"
+  ],
+  "Muat ulang KPI": [
+    "Muat ulang KPI",
+    "Reload KPI"
+  ],
+  "indikator diubah, belum disimpan": [
+    "indikator diubah, belum disimpan",
+    "indicators changed, not saved"
+  ],
+  "Pemetaan pegawai KPI": [
+    "Pemetaan pegawai KPI",
+    "KPI employee mapping"
+  ],
+  "Template KPI": [
+    "Template KPI",
+    "KPI template"
+  ],
+  "Akun pegawai": [
+    "Akun pegawai",
+    "Employee account"
+  ],
+  "Belum dihubungkan": [
+    "Belum dihubungkan",
+    "Not linked"
+  ],
+  "Team Leader KPI": [
+    "Team Leader KPI",
+    "KPI Team Leader"
+  ],
+  "Mengikuti pemetaan tim dashboard": [
+    "Mengikuti pemetaan tim dashboard",
+    "Use dashboard team mapping"
+  ],
+  "Nama PIC di data (satu per baris)": [
+    "Nama PIC di data (satu per baris)",
+    "PIC names in source data (one per line)"
+  ],
+  "Simpan pemetaan KPI": [
+    "Simpan pemetaan KPI",
+    "Save KPI mapping"
+  ],
+  "Keterangan atau dasar realisasi (opsional)": [
+    "Keterangan atau dasar realisasi (opsional)",
+    "Actuals explanation or basis (optional)"
+  ],
+  "Capaian membandingkan realisasi dengan target. Nilai akhir berbobot dan Special Scoring belum dihitung karena aturan skornya belum ditetapkan.": [
+    "Capaian membandingkan realisasi dengan target. Nilai akhir berbobot dan Special Scoring belum dihitung karena aturan skornya belum ditetapkan.",
+    "Achievement compares actuals with targets. Final weighted scores and Special Scoring await agreed scoring rules."
+  ],
+  "Bulan tanpa target tetap dapat diisi. Persentase ditulis 95 untuk 95%. Target dapat berupa ≥95%. Gunakan realisasi dengan basis periode yang sama dengan target; angka tidak dijumlahkan otomatis antarbulan.": [
+    "Bulan tanpa target tetap dapat diisi. Persentase ditulis 95 untuk 95%. Target dapat berupa ≥95%. Gunakan realisasi dengan basis periode yang sama dengan target; angka tidak dijumlahkan otomatis antarbulan.",
+    "Months without targets can be filled. Enter 95 for 95%; targets may use ≥95%. Actuals and targets must use the same period basis; months are not automatically summed."
+  ],
+  "Ada pembaruan KPI. Isian Anda dipertahankan; muat ulang sebelum menyimpan agar tidak menimpa perubahan Admin lain.": [
+    "Ada pembaruan KPI. Isian Anda dipertahankan; muat ulang sebelum menyimpan agar tidak menimpa perubahan Admin lain.",
+    "KPI data changed. Your draft is preserved; reload before saving to avoid overwriting another Admin’s changes."
+  ],
+  "Hubungkan akun agar pengguna melihat KPI pribadinya. Pemetaan TL membatasi KPI anggota ke pemimpin yang ditentukan.": [
+    "Hubungkan akun agar pengguna melihat KPI pribadinya. Pemetaan TL membatasi KPI anggota ke pemimpin yang ditentukan.",
+    "Link an account for personal KPI access. An explicit Team Leader mapping limits access to that leader."
+  ]
 }

@@ -32,7 +32,7 @@ for (const role of ['super_admin', 'department_head', 'team_leader', 'individual
     await page.getByRole('button', { name: 'Login', exact: true }).click(); await expect(page.locator('.app-shell')).toBeVisible();
     await expect(page.locator('.bni-logo')).toHaveCount(0);
     if(role==='super_admin'&&kind!=='ijr'){
-      const titles:Record<string,string>={regional:'Regional - Non BNIDirect',corporate:'Corporate - Non Piloting',piloting:'Corporate - Piloting'};
+      const titles:Record<string,string>={regional:'Regional Head Office',corporate:'Corporate - Non Piloting',piloting:'Corporate - Piloting'};
       await page.getByRole('button',{name:titles[kind],exact:true}).click();
     }
     if (role === 'individual') {
