@@ -53,10 +53,11 @@ for(const role of ['admin','super_admin','department_head','team_leader','indivi
  values['2026-06-01'][0].actual=99;
  for(const mode of ['Bulanan','Tahunan']){
   await page.getByRole('button',{name:mode,exact:true}).click();
-  for(const format of ['Word','Excel']){
+  for(const format of ['Word','Excel','PPT']){
    const ready=page.waitForEvent('download');await page.getByRole('button',{name:'Unduh '+format+' KPI',exact:true}).click();const download=await ready;
-   const path=`private/kpi-report-qa/${role}-${mode}.${format==='Word'?'docx':'xlsx'}`;await download.saveAs(path);const bytes=await readFile(path);
+   const path=`private/kpi-report-qa/${role}-${mode}.${format==='Word'?'docx':format==='PPT'?'pptx':'xlsx'}`;await download.saveAs(path);const bytes=await readFile(path);
    if(format==='Word'){const zip=await JSZip.loadAsync(bytes);const xml=await zip.file('word/document.xml')!.async('string');expect(xml).toContain('Person A');expect(xml).not.toContain('Person B');expect(xml).toContain('99%');expect(xml).not.toContain('w:drawing');if(mode==='Tahunan'){expect(xml).toContain('Semester 1');expect(xml).toContain('Semester 2');}}
+   else if(format==='PPT'){const zip=await JSZip.loadAsync(bytes);const xml=(await Promise.all(Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).map(n=>zip.file(n)!.async('string')))).join('');expect(xml).toContain('Person A');expect(xml).not.toContain('Person B');expect(xml).toContain('99%');if(mode==='Tahunan'){expect(xml).toContain('Semester 1');expect(xml).toContain('Semester 2');}}
    else{const wb=XLSX.read(bytes,{type:'buffer'});expect(wb.SheetNames.length).toBeGreaterThan(1);const text=wb.SheetNames.map(name=>XLSX.utils.sheet_to_csv(wb.Sheets[name])).join('\n');expect(text).toContain('Person A');expect(text).not.toContain('Person B');expect(text).toContain('99');expect(wb.Sheets[wb.SheetNames[1]].A1.v).toBe('Person A');}
   }
  }
