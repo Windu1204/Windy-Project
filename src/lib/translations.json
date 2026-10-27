@@ -2462,5 +2462,29 @@
   "Geser tabel ke samping untuk melihat bulan berikutnya.": [
     "Geser tabel ke samping untuk melihat bulan berikutnya.",
     "Scroll horizontally to view the following months."
+  ],
+  "Unduh Report KPI": [
+    "Unduh Report KPI",
+    "Download KPI Report"
+  ],
+  "Seluruh anggota sesuai filter dan akses": [
+    "Seluruh anggota sesuai filter dan akses",
+    "All members within filters and access"
+  ],
+  "Unduh Word KPI": [
+    "Unduh Word KPI",
+    "Download KPI Word"
+  ],
+  "Unduh Excel KPI": [
+    "Unduh Excel KPI",
+    "Download KPI Excel"
+  ],
+  "Menyiapkan report KPI dari data tersimpan terbaru…": [
+    "Menyiapkan report KPI dari data tersimpan terbaru…",
+    "Preparing KPI report from the latest saved data…"
+  ],
+  "Simpan atau batalkan perubahan sebelum mengunduh report.": [
+    "Simpan atau batalkan perubahan sebelum mengunduh report.",
+    "Save or discard changes before downloading the report."
   ]
 }
