@@ -9,6 +9,15 @@ const logo='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAA
 const context={brandLogo:logo,presentationPeriod:'Agustus 2026',person:'All Name'};
 
 describe('shared Word report layout',()=>{
+ it('separates empty Regional work types and hides missing-region rows without changing totals',async()=>{
+  let blob:Blob|undefined;
+  const source=[{product:'API OGP',region:'W01',type:'New',status:'Done',docComplete:'2026-09-07',doneDate:'2026-09-09',salesDate:'2026-09-01'},{product:'API OGP',region:'W01',type:'New',status:'Done',salesDate:'2026-09-01'},{product:'API OGP',region:'',type:'',salesDate:'2026-09-01'}];
+  const rows=source.map((payload,i)=>({id:String(i),payload,sla:calculateSla(payload,'regional')}));
+  const ctx={...reportContext(rows,'regional',['Product & Sub Product','Wilayah']),...context,docx,saveFile:(value:Blob)=>{blob=value;}};
+  await exportMonitoringWord(ctx,'regional',reportModel(rows,'regional'),'Regional Head Office');
+  const zip=await JSZip.loadAsync(await blob!.arrayBuffer()),body=await zip.file('word/document.xml')!.async('string');
+  expect(body).toContain('Jenis pekerjaan belum diisi');expect(body).not.toContain('Belum diklasifikasikan');expect(body).not.toContain('>Belum tersedia<');expect(body).toContain('>2.0<');
+ });
  it('allocates more space to long descriptions than count columns and keeps the table inside the page',()=>{
   const widths=wordColumnWidths({title:'Overview',headers:['Produk','N','M','Total'],rows:[['Virtual Account eCollection Portal dengan deskripsi panjang',1,2,3]]});
   expect(widths[0]).toBeGreaterThan(widths[1]*3);
