@@ -4,26 +4,26 @@ export function regionProductOverview(pptx,rows,{kind='regional',addHeader,color
   const summary=regionSummary(rows,kind);
   for(const matrix of summary.matrices){
     if(matrix.category==='U'&&!matrix.grandTotal.total)continue;
-    const label=matrix.category==='N'?'New':matrix.category==='M'?'Maintenance':'Belum diklasifikasikan';
+    const label=matrix.category==='N'?'New':matrix.category==='M'?'Maintenance':kind==='regional'?'Jenis pekerjaan belum diisi':'Belum diklasifikasikan';
     const slide=pptx.addSlide();addHeader(slide,'Implementasi per Wilayah · '+label,'Overview Wilayah '+label);
-    const body=[...matrix.rows,matrix.grandTotal];
+    const body=[...matrix.rows.filter(row=>kind!=='regional'||row.name!=='Belum tersedia'),matrix.grandTotal];
     const headers=['Wilayah',...matrix.products,matrix.category==='U'?'Total U':'Total '+label,'Average Days '+matrix.category];
     const table=[headers,...body.map(row=>[row.name,...row.counts,row.total,displayAverageDays(row.average.days)])];
     const productWidth=(12.2-3.95)/Math.max(1,matrix.products.length);
     slide.addTable(table,{regionOverviewLayout:true,x:.55,y:1.42,w:12.2,h:5.12,colW:[1.25,...matrix.products.map(()=>productWidth),1.3,1.4],fontFace:'Arial',fontSize:matrix.products.length>7?10:11,rowH:[.60,...body.map(()=>(5.12-.60)/body.length)],margin:.015,border:{type:'solid',pt:.5,color:'DCE3E7'},autoPage:false});
-    slide.addText('Average Days: pekerjaan selesai dengan durasi tersedia. — = belum tersedia. Grand Total memakai seluruh pekerjaan dengan durasi.'+(matrix.category==='U'?' U = Belum diklasifikasikan.':''),{x:.55,y:6.76,w:12.2,h:.25,fontFace:'Arial',fontSize:9,color:C.muted,align:'center',margin:0});
+    slide.addText('Total mencakup semua data, termasuk durasi tidak lengkap. Average Days hanya memakai pekerjaan selesai dengan durasi valid; — = belum dapat dihitung.'+(matrix.category==='U'?' U = Jenis pekerjaan belum diisi.':''),{x:.55,y:6.76,w:12.2,h:.25,fontFace:'Arial',fontSize:9,color:C.muted,align:'center',margin:0});
   }
 }
 
 // Keep every region visible on each balanced month continuation.
-export function regionMonthlyOverview(rows, {region, type, month}, monthsPerPage = 3) {
-  const names = [...new Set(rows.map(region))].sort((a,b) => {
+export function regionMonthlyOverview(rows, {region, type, month, hideMissingRegion=false, separateUnclassified=false}, monthsPerPage = 3) {
+  const names = [...new Set(rows.map(region))].filter(name=>!hideMissingRegion||name!=='Belum tersedia').sort((a,b) => {
     const number = s => Number((s.match(/\d+/) || ['9999'])[0]);
     return number(a)-number(b) || a.localeCompare(b);
   });
   const bucket=r=>month(r)||'Tanpa tanggal';
   const category=r=>['N','M'].includes(type(r))?type(r):'U';
-  const types=rows.some(r=>category(r)==='U')?['N','M','U']:['N','M'];
+  const types=!separateUnclassified&&rows.some(r=>category(r)==='U')?['N','M','U']:['N','M'];
   const months = [...new Set(rows.map(bucket))].sort();
   const pageCount = Math.ceil(months.length / Math.max(1, monthsPerPage));
   const base = pageCount ? Math.floor(months.length/pageCount) : 0;
@@ -58,7 +58,7 @@ export function regionMonthHeaderRows(months,types=['N','M']) {
 export function regionOverview(pptx,rows,{region,type,month,addHeader,colors:C,monthlyComparison=false,separateProducts=false,kind='regional'}) {
   if(!rows.length)return;
   const bucket=r=>month(r)||'Tanpa tanggal',category=r=>['N','M'].includes(type(r))?type(r):'U';
-  const comparison=regionMonthlyOverview(rows,{region,type,month});
+  const comparison=regionMonthlyOverview(rows,{region,type,month,hideMissingRegion:kind==='regional'});
   const types=comparison.types;
   const stats=comparison.names.map(name=>{const scoped=rows.filter(r=>region(r)===name);return [name,...types.map(t=>scoped.filter(r=>category(r)===t).length),scoped.length];});
   const maintenance=rows.filter(r=>type(r)==='M').length;

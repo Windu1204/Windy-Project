@@ -108,7 +108,7 @@ async function exportPptx(m){
   const addOverviewSlides=(title,keyLabel,keyFn,sectionBase)=>{
     const overviewRows=commonOverviewRows(),type=r=>reportCategory(RC.productMode==='regional'?r.type:r.projectType);
     if(String(keyLabel).toLowerCase()==='wilayah'){regionOverview(pptx,overviewRows,{region:r=>reportDimension(keyFn(r)),type,month:monthKey,addHeader,colors:C,monthlyComparison:true,separateProducts:true,kind:RC.productMode});return;}
-    categoryOverview(pptx,overviewRows,{title,label:keyLabel,key:r=>reportDimension(keyFn(r)),type,month:monthKey,addHeader,colors:C});
+    categoryOverview(pptx,overviewRows,{title,label:keyLabel,key:r=>reportDimension(keyFn(r)),type,month:monthKey,addHeader,colors:C,separateUnclassified:RC.productMode==='regional'});
   };
   const addProductDetailSlides=()=>{
     const map=new Map();m.rows.forEach(r=>{let name=String(managementProductName(r)||'').trim()||'Without Mapping';if(!map.has(name))map.set(name,[]);map.get(name).push(r)});
