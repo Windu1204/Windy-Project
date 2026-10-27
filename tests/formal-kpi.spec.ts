@@ -28,7 +28,7 @@ for(const role of ['admin','super_admin','department_head','team_leader','indivi
  const editable=role==='admin'||role==='super_admin';
  if(editable){if(role==='super_admin')await page.getByRole('button',{name:'Admin',exact:true}).click();await page.getByRole('button',{name:'Pengelolaan KPI',exact:true}).click();}
  else await page.getByRole('button',{name:'KPI',exact:true}).click();
- await expect(page.locator('.formal-kpi')).toBeVisible();await page.getByLabel('Tahun KPI',{exact:true}).selectOption('2026');await page.getByLabel('Bulan KPI',{exact:true}).selectOption('06');
+ await expect(page.locator('.formal-kpi')).toBeVisible();if(role==='individual'){await expect(page.locator('.kpi-intro p')).toHaveCount(0);await expect(page.getByLabel('Kelompok KPI',{exact:true})).toHaveCount(0);}else{await expect(page.locator('.kpi-intro p')).toBeVisible();await expect(page.getByLabel('Kelompok KPI',{exact:true})).toBeVisible();}await page.getByLabel('Tahun KPI',{exact:true}).selectOption('2026');await page.getByLabel('Bulan KPI',{exact:true}).selectOption('06');
  if(role!=='individual')await page.getByLabel('Nama pegawai KPI',{exact:true}).selectOption('person-a');
  await expect(page.getByRole('heading',{name:'Person A',exact:true})).toBeVisible();
  if(role==='individual'){await expect(page.locator('.formal-kpi')).not.toContainText('Person B');await expect(page.getByLabel('Nama pegawai KPI')).toHaveCount(0);}
