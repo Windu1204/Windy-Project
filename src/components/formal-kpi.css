@@ -23,3 +23,5 @@
 @media(max-width:1000px){.kpi-toolbar.annual{grid-template-columns:1fr 1fr}.kpi-toolbar.annual>label:last-child{grid-column:1/-1}.kpi-annual-table th:first-child{width:190px}.kpi-annual-table{min-width:1820px}}
 
 .kpi-toolbar.personal{grid-template-columns:repeat(2,minmax(100px,200px));justify-content:start}.kpi-toolbar.personal.annual{grid-template-columns:minmax(100px,200px)}
+
+.kpi-export{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.kpi-export h3{margin:0 0 8px;font-size:17px}.kpi-export small{color:var(--muted,#647b98)}.kpi-export>p{flex-basis:100%;margin:0}.kpi-export .button-row{margin:0}.kpi-export button{min-height:44px}

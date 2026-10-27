@@ -1,3 +1,6 @@
+import JSZip from 'jszip';
+import * as XLSX from 'xlsx';
+import {readFile,mkdir} from 'node:fs/promises';
 import {test,expect} from '@playwright/test';
 const indicator={key:'sla',perspective:'Internal Business Process',section:'Project Delivery',label:'SLA Adherence',weight:1,unit:'%',nature:'Higher is Better',details:['New & Maintenance']};
 for(const role of ['admin','super_admin','department_head','team_leader','individual'])test(`formal KPI ${role}: role menu, target history, empty month and realtime`,async({page})=>{
@@ -38,10 +41,28 @@ for(const role of ['admin','super_admin','department_head','team_leader','indivi
  await page.getByRole('button',{name:'Tahunan',exact:true}).click();await expect(page.getByRole('heading',{name:'KPI Tahunan · 2026',exact:true})).toBeVisible();await expect(page.getByLabel('Bulan KPI',{exact:true})).toHaveCount(0);await expect(page.locator('.kpi-annual-table thead th')).toHaveCount(13);
  values['2026-06-01'][0].actual=98;revision++;await page.evaluate(()=>window.dispatchEvent(new Event('online')));await expect(page.locator('.kpi-annual-table tbody td').nth(5)).toContainText('98%');
  await page.getByLabel('Tahun KPI',{exact:true}).selectOption('2027');await expect(page.getByRole('heading',{name:'KPI Tahunan · 2027',exact:true})).toBeVisible();await expect(page.locator('.kpi-annual-table tbody')).not.toContainText('98%');await page.getByLabel('Tahun KPI',{exact:true}).selectOption('2026');await expect(page.locator('.kpi-annual-table tbody td').nth(5)).toContainText('98%');await page.getByRole('button',{name:'Buka bulan Juni',exact:true}).click();await expect(page.getByLabel('Bulan KPI',{exact:true})).toHaveValue('06');
+ if(role==='team_leader'){const nav=page.locator('#sidebar-sections nav');const labels=await nav.getByRole('button').allTextContents();expect(labels.indexOf('KPI')).toBe(labels.indexOf('Kinerja & Beban Kerja')+1);await expect(page.getByRole('button',{name:'KPI',exact:true})).toHaveCount(1);await nav.getByRole('button',{name:'Kinerja & Beban Kerja',exact:true}).click();await expect(page.locator('.formal-kpi')).toHaveCount(0);await page.getByRole('button',{name:'KPI',exact:true}).click();await page.getByLabel('Bulan KPI',{exact:true}).selectOption('06');await page.getByLabel('Nama pegawai KPI',{exact:true}).selectOption('person-a');}
  if(role==='individual'){const nav=page.locator('#sidebar-sections nav');await expect(nav.getByRole('button')).toHaveText(['Ringkasan','Kinerja Saya','KPI','Data']);await expect(page.getByRole('button',{name:'KPI',exact:true})).toHaveCount(1);await nav.getByRole('button',{name:'Kinerja Saya',exact:true}).click();await expect(page.locator('.formal-kpi')).toHaveCount(0);await expect(page.locator('#sidebar-sections button[aria-current="page"]')).toHaveText('Kinerja Saya');await page.getByRole('button',{name:'KPI',exact:true}).click();await page.getByLabel('Bulan KPI',{exact:true}).selectOption('06');}
  if(role==='admin'){
   await page.getByLabel('Bulan KPI',{exact:true}).selectOption('02');await page.getByLabel('Realisasi SLA Adherence',{exact:true}).fill('0');await page.getByRole('button',{name:'Simpan target & realisasi',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Target dan realisasi berhasil disimpan.'})).toBeVisible();await expect(page.getByLabel('Target SLA Adherence',{exact:true})).toHaveValue('');await expect(page.locator('.kpi-score-table')).toContainText('Target belum diisi');
   await page.getByRole('button',{name:'Pemetaan pegawai',exact:true}).click();await page.getByLabel('Akun pegawai',{exact:true}).selectOption(user.id);await page.getByRole('button',{name:'Simpan pemetaan KPI',exact:true}).click();await expect(page.getByRole('heading',{name:'Pemetaan pegawai KPI',exact:true})).toHaveCount(0);
+ }
+ await page.getByLabel('Bulan KPI',{exact:true}).selectOption('06');
+ await mkdir('private/kpi-report-qa',{recursive:true});
+ // Export must re-read the server, even when the displayed value is older.
+ values['2026-06-01'][0].actual=99;
+ for(const mode of ['Bulanan','Tahunan']){
+  await page.getByRole('button',{name:mode,exact:true}).click();
+  for(const format of ['Word','Excel']){
+   const ready=page.waitForEvent('download');await page.getByRole('button',{name:'Unduh '+format+' KPI',exact:true}).click();const download=await ready;
+   const path=`private/kpi-report-qa/${role}-${mode}.${format==='Word'?'docx':'xlsx'}`;await download.saveAs(path);const bytes=await readFile(path);
+   if(format==='Word'){const zip=await JSZip.loadAsync(bytes);const xml=await zip.file('word/document.xml')!.async('string');expect(xml).toContain('Person A');expect(xml).not.toContain('Person B');expect(xml).toContain('99%');expect(xml).not.toContain('w:drawing');if(mode==='Tahunan'){expect(xml).toContain('Semester 1');expect(xml).toContain('Semester 2');}}
+   else{const wb=XLSX.read(bytes,{type:'buffer'});expect(wb.SheetNames.length).toBeGreaterThan(1);const text=wb.SheetNames.map(name=>XLSX.utils.sheet_to_csv(wb.Sheets[name])).join('\n');expect(text).toContain('Person A');expect(text).not.toContain('Person B');expect(text).toContain('99');expect(wb.Sheets[wb.SheetNames[1]].A1.v).toBe('Person A');}
+  }
+ }
+ await page.getByRole('button',{name:'Bulanan',exact:true}).click();
+ if(role==='department_head'){
+  await page.getByLabel('Nama pegawai KPI',{exact:true}).selectOption('');const ready=page.waitForEvent('download');await page.getByRole('button',{name:'Unduh Word KPI',exact:true}).click();const file=await ready;await file.saveAs('private/kpi-report-qa/multi-person.docx');const zip=await JSZip.loadAsync(await readFile('private/kpi-report-qa/multi-person.docx'));const xml=await zip.file('word/document.xml')!.async('string');expect(xml).toContain('Person B');expect(xml.match(/<w:sectPr>/g)?.length).toBe(3);await page.getByLabel('Nama pegawai KPI',{exact:true}).selectOption('person-a');
  }
  await page.locator('.kpi-perspective').first().scrollIntoViewIfNeeded();await page.screenshot({path:`private/kpi-${role}.png`,fullPage:false});
  if(role==='individual'){await page.setViewportSize({width:390,height:844});await expect(page.locator('.kpi-toolbar')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);await page.screenshot({path:'private/kpi-mobile.png',fullPage:true});}

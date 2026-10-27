@@ -1,6 +1,8 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
-import { Target, Users, ClipboardCheck, ChevronRight, Save, Plus } from 'lucide-react';
+import { Fragment, useEffect, useMemo, useState, useRef } from 'react';
+import { Target, Users, ClipboardCheck, ChevronRight, Save, Plus, FileText, FileSpreadsheet } from 'lucide-react';
 import { emptyKpi, kpiGroups, kpiNumber, kpiTarget, kpiProgress, formatKpi, type KpiIndicator, type KpiPerson, type KpiSnapshot, type KpiValue, type KpiTemplate } from '../domain/formal-kpi';
+import { kpiReport, kpiReportName } from '../domain/kpi-report';
+import { saveBlob } from '../lib/exports';
 import { loadKpi, saveKpi, saveKpiPerson, type KpiChange } from '../lib/formal-kpi';
 import { type Profile } from '../lib/access';
 import { jakartaToday } from '../domain/work-calendar';
@@ -11,9 +13,11 @@ const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus'
 export default function FormalKpi({workspace,revision,profile,asUser,editor=false,profiles=[],preview=false}:{workspace:string;revision:number;profile:Profile;asUser?:string;editor?:boolean;profiles?:Profile[];preview?:boolean}) {
  const {t}=useLanguage();const today=jakartaToday();
  const [mode,setMode]=useState<'month'|'year'>('month'),[year,setYear]=useState(today.slice(0,4)),[month,setMonth]=useState(today.slice(5,7)),[group,setGroup]=useState(''),[person,setPerson]=useState('');
- const [data,setData]=useState<KpiSnapshot>(emptyKpi),[error,setError]=useState(''),[loading,setLoading]=useState(true),[refresh,setRefresh]=useState(0),[mapping,setMapping]=useState<Partial<KpiPerson>|null>(null),[editing,setEditing]=useState(false);
+ const [data,setData]=useState<KpiSnapshot>(emptyKpi),[error,setError]=useState(''),[loading,setLoading]=useState(true),[refresh,setRefresh]=useState(0),[mapping,setMapping]=useState<Partial<KpiPerson>|null>(null),[editing,setEditing]=useState(false),[exporting,setExporting]=useState(false),[exportError,setExportError]=useState('');
+ const alive=useRef(true);useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
  const period=year+'-'+month,scope=[workspace,asUser||profile.user_id,mode,mode==='year'?year:period].join('|');
  const [loaded,setLoaded]=useState('');
+ useEffect(()=>setExportError(''),[period,mode,person,group]);
  useEffect(()=>{let active=true;setError('');if(preview){setData(emptyKpi);setLoaded(scope);setLoading(false);return;}
   setLoading(true);loadKpi(workspace,period,asUser,mode==='year').then(result=>{if(active){setData(result);setLoaded(scope);}}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};
  },[workspace,period,mode,asUser,profile.user_id,revision,refresh,preview]);
@@ -29,8 +33,21 @@ export default function FormalKpi({workspace,revision,profile,asUser,editor=fals
  useEffect(()=>{if(mapping)document.querySelector('.kpi-mapping')?.scrollIntoView({block:'center'});},[mapping]);
  const canEdit=editor&&!asUser&&['admin','super_admin'].includes(profile.role)&&!preview;
  function reload(){setRefresh(n=>n+1);}
+ async function download(format:'word'|'excel') {
+  setExporting(true);setExportError('');
+  try {
+   const fresh=await loadKpi(workspace,period,asUser,mode==='year');
+   if(!alive.current)return;
+   const report=kpiReport(fresh,period,mode==='year',selected?.id,selectedGroup||undefined);
+   const blob=format==='word'?await (await import('../lib/kpi-report-word')).kpiWord(report):await (await import('../lib/kpi-report-excel')).kpiExcel(report);
+   if(alive.current)saveBlob(blob,kpiReportName(report,format==='word'?'docx':'xlsx'));
+  }catch(e){if(alive.current)setExportError(e instanceof Error?e.message:String(e));}
+  finally{if(alive.current)setExporting(false);}
+ }
+
  return <div className="dashboard-content formal-kpi"><section className="panel kpi-intro"><div><span className="kpi-kicker">{t('TARGET & REALISASI')}</span><h2>{t(canEdit?'Pengelolaan KPI':single?'KPI Saya':'KPI Tim')}</h2>{!single&&<p>{t(canEdit?'Kelola target, realisasi, dan pemetaan pegawai per periode.':'Pantau target dan realisasi sesuai kelompok dan hak akses Anda.')}</p>}</div><span className="kpi-intro-icon" aria-hidden="true"><Target size={28}/></span></section>
-  <div className="kpi-period-modes" role="group" aria-label={t('Tampilan KPI')}>{(['month','year'] as const).map(value=><button key={value} disabled={editing} className={'secondary'+(mode===value?' selected':'')} aria-pressed={mode===value} onClick={()=>setMode(value)}>{t(value==='month'?'Bulanan':'Tahunan')}</button>)}</div><section className={'panel kpi-toolbar'+(mode==='year'?' annual':'')+(single?' personal':'')}><label>{t('Tahun KPI')}<select aria-label={t('Tahun KPI')} disabled={editing} value={year} onChange={e=>setYear(e.target.value)}>{Array.from({length:75},(_,i)=>String(2026+i)).map(y=><option key={y}>{y}</option>)}</select></label>{mode==='month'&&<label>{t('Bulan KPI')}<select aria-label={t('Bulan KPI')} disabled={editing} value={month} onChange={e=>setMonth(e.target.value)}>{months.map((m,i)=><option key={m} value={String(i+1).padStart(2,'0')}>{t(m)}</option>)}</select></label>}{!single&&<label>{t('Kelompok KPI')}<select aria-label={t('Kelompok KPI')} disabled={editing} value={selectedGroup} onChange={e=>{setGroup(e.target.value);setPerson('');}}><option value="">{t('Semua kelompok')}</option>{groups.map(([code,label])=><option key={code} value={code}>{label}</option>)}</select></label>}{(!single||people.length>1)&&<label>{t('Nama pegawai KPI')}<select aria-label={t('Nama pegawai KPI')} disabled={editing} value={selected?.id||''} onChange={e=>setPerson(e.target.value)}>{!single&&<option value="">{t('Semua anggota')}</option>}{people.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}</section>
+  <div className="kpi-period-modes" role="group" aria-label={t('Tampilan KPI')}>{(['month','year'] as const).map(value=><button key={value} disabled={editing||exporting} className={'secondary'+(mode===value?' selected':'')} aria-pressed={mode===value} onClick={()=>setMode(value)}>{t(value==='month'?'Bulanan':'Tahunan')}</button>)}</div><section className={'panel kpi-toolbar'+(mode==='year'?' annual':'')+(single?' personal':'')}><label>{t('Tahun KPI')}<select aria-label={t('Tahun KPI')} disabled={editing||exporting} value={year} onChange={e=>setYear(e.target.value)}>{Array.from({length:75},(_,i)=>String(2026+i)).map(y=><option key={y}>{y}</option>)}</select></label>{mode==='month'&&<label>{t('Bulan KPI')}<select aria-label={t('Bulan KPI')} disabled={editing||exporting} value={month} onChange={e=>setMonth(e.target.value)}>{months.map((m,i)=><option key={m} value={String(i+1).padStart(2,'0')}>{t(m)}</option>)}</select></label>}{!single&&<label>{t('Kelompok KPI')}<select aria-label={t('Kelompok KPI')} disabled={editing||exporting} value={selectedGroup} onChange={e=>{setGroup(e.target.value);setPerson('');}}><option value="">{t('Semua kelompok')}</option>{groups.map(([code,label])=><option key={code} value={code}>{label}</option>)}</select></label>}{(!single||people.length>1)&&<label>{t('Nama pegawai KPI')}<select aria-label={t('Nama pegawai KPI')} disabled={editing||exporting} value={selected?.id||''} onChange={e=>setPerson(e.target.value)}>{!single&&<option value="">{t('Semua anggota')}</option>}{people.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}</section>
+  <section className="panel kpi-export"><div><h3>{t('Unduh Report KPI')}</h3><small>{t(mode==='year'?'Tahunan':'Bulanan')} · {selected?.name||t('Seluruh anggota sesuai filter dan akses')}</small></div><div className="button-row"><button className="secondary" disabled={loading||exporting||editing||!people.length||preview||!!error} onClick={()=>download('word')}><FileText size={17}/>{t('Unduh Word KPI')}</button><button className="secondary" disabled={loading||exporting||editing||!people.length||preview||!!error} onClick={()=>download('excel')}><FileSpreadsheet size={17}/>{t('Unduh Excel KPI')}</button></div>{exporting&&<p role="status">{t('Menyiapkan report KPI dari data tersimpan terbaru…')}</p>}{editing&&<small>{t('Simpan atau batalkan perubahan sebelum mengunduh report.')}</small>}{exportError&&<p className="error" role="alert">{exportError}</p>}</section>
   {error&&<p role="alert" className="error">{t('Data KPI belum dapat dimuat.')} {error} <button className="secondary" onClick={reload}>{t('Coba lagi')}</button></p>}
   {loading&&<p className="muted" role="status">{t('Memperbarui KPI…')}</p>}
   {!loading&&!error&&!visible.people.length&&<section className="panel empty"><h3>{t('KPI belum tersedia untuk akun ini')}</h3><p>{t(canEdit?'Tambahkan pegawai dan pilih template KPI.':'Hubungi Admin untuk pemetaan akun, PIC, atau tim KPI Anda.')}</p>{canEdit&&visible.templates.length>0&&<button className="primary" onClick={()=>setMapping({name:'',template_code:visible.templates[0].code,aliases:[]})}><Plus size={16}/>{t('Tambah pegawai KPI')}</button>}</section>}
