@@ -1,7 +1,7 @@
 import { kpiGroups, kpiProgress, formatKpi, type KpiSnapshot, type KpiPerson, type KpiTemplate, type KpiValue } from './formal-kpi';
 export const kpiMonths=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 export interface KpiReportPerson { person:KpiPerson; template:KpiTemplate; values:KpiValue[] }
-export interface KpiReport { period:string; annual:boolean; label:string; generated:string; people:KpiReportPerson[] }
+export interface KpiReport { period:string; annual:boolean; label:string; generated:string; people:KpiReportPerson[]; allMembers?:boolean }
 /** Scope a fresh server-authorized snapshot, never unsaved form values. */
 export function kpiReport(snapshot:KpiSnapshot,period:string,annual:boolean,personId?:string,group?:string):KpiReport {
  const templates=new Map(snapshot.templates.map(t=>[t.code,t]));
@@ -9,7 +9,7 @@ export function kpiReport(snapshot:KpiSnapshot,period:string,annual:boolean,pers
   const template=templates.get(person.template_code);return template?[{person,template,values:snapshot.values.filter(v=>v.person_id===person.id&&(annual?v.period.slice(0,4)===period.slice(0,4):v.period.slice(0,7)===period))}]:[];
  });
  if(!people.length)throw new Error('Tidak ada KPI sesuai pilihan dan hak akses saat ini.');
- return {period,annual,label:annual?'Tahun '+period.slice(0,4):kpiMonths[Number(period.slice(5,7))-1]+' '+period.slice(0,4),generated:new Date().toLocaleString('id-ID',{timeZone:'Asia/Jakarta'}),people};
+ return {period,annual,allMembers:!personId,label:annual?'Tahun '+period.slice(0,4):kpiMonths[Number(period.slice(5,7))-1]+' '+period.slice(0,4),generated:new Date().toLocaleString('id-ID',{timeZone:'Asia/Jakarta'}),people};
 }
 export function kpiReportRows(entry:KpiReportPerson,period:string) {
  return entry.template.indicators.map(i=>{

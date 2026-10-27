@@ -1,4 +1,5 @@
 import {type KpiReport, kpiMonths, kpiGroups, kpiReportRows} from '../domain/kpi-report';
+import {kpiSummary} from '../domain/kpi-ppt-summary';
 import {formatKpi,kpiProgress} from '../domain/formal-kpi';
 
 /** Editable KPI slides. All values come from the same scoped saved report snapshot. */
@@ -30,18 +31,48 @@ export async function kpiPpt(report:KpiReport):Promise<Blob> {
   const formatted=[headers,...rows].map((row,ri)=>row.map((text,ci)=>({text,options:{fill:{color:ri===0?teal:ri%2?'FFFFFF':'F1F5F7'},color:ri===0?'FFFFFF':navy,bold:ri===0,align:'center' as const,valign:'middle' as const,fontSize:ri===0?13:detail?(report.annual?14:15):12.5,margin:.07}})));
   s.addTable(formatted,{x:.45,y,w:12.4,h:heights.reduce((a,b)=>a+b,0),colW:widths,rowH:heights,border:{type:'solid',pt:.5,color:line},fontFace:'Arial',autoPage:false,margin:.07,verbose:false});
  }
- const coverSlide=slide('');
- coverSlide.addShape(ppt.ShapeType.rect,{x:7.65,y:.72,w:5.68,h:6.15,line:{color:soft,transparency:100},fill:{color:soft}});
- coverSlide.addImage({data:cover,x:7.77,y:1.15,w:5.35,h:5.35});
- coverSlide.addText('KPI Monitoring\nReport',{x:.58,y:1.85,w:6.8,h:1.3,fontSize:35,bold:true,color:navy,margin:0,breakLine:false});
- coverSlide.addShape(ppt.ShapeType.line,{x:.58,y:3.42,w:.8,h:0,line:{color:orange,width:3}});
- coverSlide.addText((report.annual?'Tahunan':'Bulanan')+' · '+report.label,{x:.58,y:3.75,w:6.65,h:.5,fontSize:21,color:teal,bold:true,margin:0});
- coverSlide.addText(report.people.length===1?report.people[0].person.name:report.people.length+' pegawai sesuai pilihan dan hak akses',{x:.58,y:4.55,w:6.65,h:.9,fontSize:22,color:navy,margin:0});
- coverSlide.addText(report.people.length===1?kpiGroups[report.people[0].template.group_code]:'Ringkasan dan rincian KPI anggota',{x:.58,y:5.58,w:6.6,h:.5,fontSize:15,color:gray,margin:0});
- coverSlide.addText('Dibuat '+report.generated+' WIB',{x:.58,y:6.45,w:6.5,h:.25,fontSize:10,color:gray,margin:0});
- if(report.people.length>1)for(let offset=0;offset<report.people.length;offset+=8){
-  const part=report.people.slice(offset,offset+8),s=slide('Ringkasan KPI Anggota',`${offset+1}–${offset+part.length} dari ${report.people.length} pegawai · Sesuai filter dan hak akses`);
-  table(s,['Nama pegawai','Kelompok KPI','Indikator','Target terisi','Realisasi terisi'],part.map(e=>{const total=e.template.indicators.length*(report.annual?12:1);return [e.person.name,kpiGroups[e.template.group_code],String(e.template.indicators.length),e.values.filter(v=>v.target).length+' / '+total,e.values.filter(v=>v.actual!==null).length+' / '+total];}),[3.3,4.2,1.3,1.8,1.8],[.48,...part.map(()=>.46)]);
+ const compact=report.allMembers??report.people.length>1;
+ const coverSlide=ppt.addSlide();number++;
+ coverSlide.background={color:'FFFFFF'};
+ // Same full-width cover master and asset as the operational monitoring reports.
+ coverSlide.addImage({data:cover,x:0,y:0,w:13.333,h:7.12});
+ coverSlide.addImage({data:logo,x:.38,y:.14,w:1.12,h:.43});
+ coverSlide.addText('KPI Monitoring',{x:.74,y:2.22,w:7.5,h:.55,fontSize:32,bold:true,color:navy,margin:0});
+ coverSlide.addText('Monitoring Report',{x:.74,y:2.95,w:7.5,h:.5,fontSize:25,color:navy,margin:0});
+ coverSlide.addText(compact?'Ringkasan Seluruh Anggota':'Rincian KPI Perorangan',{x:.74,y:3.52,w:7.4,h:.35,fontSize:18,color:navy,margin:0});
+ coverSlide.addShape(ppt.ShapeType.line,{x:.74,y:4.08,w:.7,h:0,line:{color:orange,width:2}});
+ coverSlide.addText((report.annual?'Tahunan':'Bulanan')+' · '+report.label+'\n'+(compact?report.people.length+' pegawai sesuai filter dan hak akses':report.people[0].person.name),{x:.74,y:4.4,w:7.4,h:1,fontSize:16,color:navy,margin:0});
+ coverSlide.addText('Dibuat '+report.generated+' WIB',{x:.74,y:6.55,w:7.4,h:.25,fontSize:10,color:gray,margin:0});
+ coverSlide.addShape(ppt.ShapeType.line,{x:.38,y:7.12,w:12.57,h:0,line:{color:line,width:.6}});
+ coverSlide.addText('WCI Monitoring | Report KPI',{x:.38,y:7.2,w:11.8,h:.16,fontSize:8,color:navy,margin:0});
+ coverSlide.addText('1',{x:12.45,y:7.2,w:.5,h:.16,fontSize:8,color:navy,align:'right',margin:0});
+ if(compact){
+  const count=kpiSummary(report.people,report),s=slide('Ringkasan KPI Tim',report.label+' · '+report.people.length+' pegawai · Sesuai filter dan hak akses');
+  table(s,['Cakupan','Jumlah'],[['Pegawai',String(report.people.length)],['Indikator'+(report.annual?' × 12 bulan':''),String(count.total)],['Target terisi',String(count.targets)],['Realisasi terisi',String(count.actuals)],['Tercapai',String(count.met)],['Belum tercapai',String(count.below)],['Belum dapat dinilai',String(count.unassessed)]],[8.4,4],[.5,...Array(7).fill(.51)]);
+  s.addText('Jumlah menunjukkan indikator-periode, bukan nilai KPI akhir. Target/realisasi kosong dan Special Scoring mengikuti aturan yang tersedia.',{x:.45,y:6.68,w:12.4,h:.3,fontSize:10,color:gray,margin:0});
+  // One row per member, rather than a complete detailed deck for each member.
+  for(const group of [...new Set(report.people.map(e=>e.template.group_code))]){
+   const members=report.people.filter(e=>e.template.group_code===group);
+   for(let offset=0;offset<members.length;offset+=6){
+    const part=members.slice(offset,offset+6),s=slide('Rekap KPI Anggota',kpiGroups[group]+' · '+(offset+1)+'–'+(offset+part.length)+' dari '+members.length+' pegawai');
+    table(s,['Pegawai / NPP','Indikator'+(report.annual?' × bulan':''),'Target terisi','Realisasi terisi','Tercapai','Belum tercapai','Belum dinilai'],part.map(e=>{const n=kpiSummary([e],report);return [e.person.name+'\n'+(e.person.npp||'—'),String(n.total),String(n.targets),String(n.actuals),String(n.met),String(n.below),String(n.unassessed)];}),[3.5,1.4,1.5,1.5,1.3,1.6,1.6],[.62,...part.map(()=>.60)],2.15);
+    s.addText('Rekap per indikator'+(report.annual?' per bulan':'')+'. Detail target, realisasi dan catatan tiap orang tersedia pada unduhan perorangan.',{x:.45,y:6.78,w:12.4,h:.2,fontSize:10,color:gray,margin:0});
+   }
+   for(const code of [...new Set(members.map(e=>e.template.code))]){
+    const entries=members.filter(e=>e.template.code===code),template=entries[0].template;
+    for(let offset=0;offset<template.indicators.length;offset+=6){
+     const part=template.indicators.slice(offset,offset+6),s=slide('Rekap per Indikator',kpiGroups[group]+' · '+template.title+' · '+entries.length+' pegawai');
+     table(s,['Indikator KPI','Bobot','Target terisi','Realisasi terisi','Tercapai','Belum tercapai','Belum dinilai'],part.map(i=>{const n=kpiSummary(entries,report,i.key);return [i.label,(i.weight*100).toLocaleString('id-ID')+'%',n.targets+' / '+n.total,n.actuals+' / '+n.total,String(n.met),String(n.below),String(n.unassessed)];}),[4.1,.8,1.55,1.55,1.3,1.55,1.55],[.65,...part.map(()=>.62)],2.15);
+     s.addText('Bobot mengikuti template. Jumlah capaian tidak dijadikan skor gabungan. '+(report.annual?'Rekap mencakup Januari–Desember.':''),{x:.45,y:6.78,w:12.4,h:.2,fontSize:10,color:gray,margin:0});
+    }
+   }
+  }
+  if(report.annual)for(let half=0;half<2;half++){
+   const groups=[...new Set(report.people.map(e=>e.template.group_code))],s=slide('Tren Bulanan - Semester '+(half+1),'Rekap kelompok - Tercapai / belum tercapai / belum dapat dinilai');
+   table(s,['Kelompok KPI',...kpiMonths.slice(half*6,half*6+6)],groups.map(group=>[kpiGroups[group],...Array.from({length:6},(_,j)=>{const n=kpiSummary(report.people.filter(e=>e.template.group_code===group),{annual:false,period:report.period.slice(0,4)+'-'+String(half*6+j+1).padStart(2,'0')});return n.met+' / '+n.below+' / '+n.unassessed;})]),[3.4,...Array(6).fill(1.5)],[.6,...groups.map(()=>.70)],2.15);
+   s.addText('Tiap sel: jumlah indikator tercapai / belum tercapai / belum dapat dinilai. Rincian bulanan per orang tersedia pada unduhan perorangan.',{x:.45,y:6.78,w:12.4,h:.2,fontSize:10,color:gray,margin:0});
+  }
+  return await ppt.write({outputType:'blob',compression:true}) as Blob;
  }
  function chunks<T>(items:T[],height:(item:T)=>number,budget=4.45) {
   const parts:T[][]=[];let current:T[]=[],used=.48;
