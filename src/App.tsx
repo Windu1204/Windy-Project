@@ -101,10 +101,10 @@ export default function App() { const { t, language, setLanguage } = useLanguage
         setRaw(original);
         return;
     } await repository.restoreRows(workspace, kind); reload(); }
-    async function done(r: MonitoringRecord, note: string) { if (preview) {
+    async function done(r: MonitoringRecord, note: string, update?:import('./domain/regional-progress').RegionalUpdate) { if (preview) {
         setRaw(a => a.map(x => x.id === r.id ? { ...x, payload: { ...x.payload, status: 'Done', doneDate: jakartaToday(), dashboardNote: note, dashboardUpdatedAt: new Date().toISOString() } } : x));
         return;
-    } await repository.markDone(workspace, r.id, r.payload, note); reload(); }
+    } await repository.markDone(workspace, r.id, r.payload, note,update); reload(); }
     async function saveRule(r: SlaRule) { if (preview) {
         setRules(a => [...a.filter(x => x.product !== r.product), r]);
         return;

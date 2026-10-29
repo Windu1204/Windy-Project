@@ -2490,5 +2490,13 @@
   "Simpan atau batalkan perubahan sebelum mengunduh report.": [
     "Simpan atau batalkan perubahan sebelum mengunduh report.",
     "Save or discard changes before downloading the report."
-  ]
+  ],
+  "Company ID": ["Company ID", "Company ID"],
+  "Lengkapi Company ID": ["Lengkapi Company ID", "Complete Company ID"],
+  "Konfirmasi Handover": ["Konfirmasi Handover", "Confirm handover"],
+  "Handover tersimpan.": ["Handover tersimpan.", "Handover saved."],
+  "Company ID wajib diisi untuk pengajuan New": ["Company ID wajib diisi untuk pengajuan New", "Company ID is required for New requests"],
+  "Pekerjaan sudah Done. Handover tidak mengubah tanggal Done atau durasi SLA.": ["Pekerjaan sudah Done. Handover tidak mengubah tanggal Done atau durasi SLA.", "The job is Done. Handover keeps the Done date and SLA duration unchanged."],
+  "Lihat rincian pekerjaan": ["Lihat rincian pekerjaan", "View work details"],
+  "Tanggal Handover": ["Tanggal Handover", "Handover date"]
 }

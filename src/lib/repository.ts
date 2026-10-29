@@ -71,8 +71,9 @@ export async function replaceRows(workspace: string, kind: ApplicationKind, rows
     throw error; }
 export async function restoreRows(workspace: string, kind: ApplicationKind) { const { error } = await client().rpc('wci_restore_original', { p_workspace: workspace, p_kind: kind }); if (error)
     throw error; }
-export async function markDone(workspace: string, id: string, _payload: Payload, note: string) { const { error } = await client().rpc('wci_mark_done',{p_workspace:workspace,p_id:id,p_note:note}); if (error)
-    throw error; }
+export async function markDone(workspace:string,id:string,_payload:Payload,note:string,update?:import('../domain/regional-progress').RegionalUpdate){
+ const {error}=await client().rpc('wci_regional_progress',{p_workspace:workspace,p_id:id,p_action:update?.action||'done',p_company_id:update?.companyId?.trim()||null,p_note:note});if(error)throw error;
+}
 export async function saveRule(workspace: string, r: SlaRule,kind:ApplicationKind) { const { error } = await client().from('wci_sla_rules').upsert({ workspace_id: workspace,dataset:kind, product: r.product, name: r.name, aliases: r.aliases, new_days: r.newDays, maint_days: r.maintDays }, { onConflict: 'workspace_id,dataset,product' }); if (error)
     throw error; }
 export async function deleteRule(workspace: string, product: string,kind:ApplicationKind) { const { error } = await client().from('wci_sla_rules').delete().eq('workspace_id', workspace).eq('product', product).eq('dataset',kind); if (error)

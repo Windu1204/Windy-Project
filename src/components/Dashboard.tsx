@@ -35,7 +35,7 @@ interface Props {
     canDone?: boolean;
     onApply: (r: Payload[], name: string) => Promise<void>;
     onRestore: () => Promise<void>;
-    onDone: (r: MonitoringRecord, note: string) => Promise<void>;
+    onDone: (r: MonitoringRecord, note: string,update?:import('../domain/regional-progress').RegionalUpdate) => Promise<void>;
     onSaveRule: (r: SlaRule) => Promise<void>;
     onDeleteRule: (product: string) => Promise<void>;
 }
@@ -46,6 +46,7 @@ export default function Dashboard(p: Props) { const { t } = useLanguage();
     } | null>(null), [drill, setDrill] = useState<{field: string; value: string; label: string} | null>(null);
     const [regionSelection,setRegionSelection]=useState<{region:string;completed:boolean}|null>(null);
     const [processDetail,setProcessDetail]=useState<{label:string;rows:MonitoringRecord[]}|null>(null);
+    const activeDetail=kind==='regional'&&detail?rows.find(r=>r.id===detail.id)||null:detail;
     const productLabels = useMemo(() => regionalProductLabels(rows), [rows]);
     const productName = (value: string) => kind === 'regional' ? productLabels.get(productKey(value)) || value : kind==='corporate'?corporateProductFallback(value):value;
     const filtered = useMemo(() => filterRows(rows, kind, filters), [rows, kind, filters]), k = fields[kind];
@@ -92,5 +93,5 @@ export default function Dashboard(p: Props) { const { t } = useLanguage();
 
 
  </>}
-</Suspense><DrillSlot anchor=""/>{detail && <Detail productName={productName} record={detail} kind={kind} canEdit={false} onClose={() => setDetail(null)} onDone={p.onDone}/>}</div></InlineDrill>;
+</Suspense><DrillSlot anchor=""/>{activeDetail && <Detail productName={productName} record={activeDetail} kind={kind} canEdit={false} onClose={() => setDetail(null)} onDone={p.onDone}/>}</div></InlineDrill>;
 }
