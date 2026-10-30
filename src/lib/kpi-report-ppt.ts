@@ -92,7 +92,7 @@ export async function kpiPpt(report:KpiReport):Promise<Blob> {
   summary.addText(`${met} tercapai   ·   ${below} belum tercapai   ·   ${unassessed} belum dapat dinilai`,{x:.45,y:4.31,w:12.4,h:.25,fontSize:11,color:gray,margin:0});
   const perspectives=[...new Set(template.indicators.map(i=>i.perspective))];
   table(summary,['Perspektif','Bobot','Indikator','Target terisi','Realisasi terisi'],perspectives.map(p=>{const items=template.indicators.filter(i=>i.perspective===p),keys=new Set(items.map(i=>i.key)),vs=values.filter(v=>keys.has(v.indicator_key));return [p,(items.reduce((s,i)=>s+i.weight,0)*100).toLocaleString('id-ID',{maximumFractionDigits:2})+'%',String(items.length),String(vs.filter(v=>v.target).length),String(vs.filter(v=>v.actual!==null).length)];}),[4.8,1.3,1.6,2.35,2.35],[.40,...perspectives.map(()=>.36)],4.83);
-  summary.addText('Capaian dihitung per indikator. Nilai akhir berbobot dan Special Scoring belum dihitung.',{x:.45,y:6.82,w:12.4,h:.15,fontSize:9,color:gray,margin:0});
+  summary.addText('Capaian ditampilkan per indikator. Nilai gabungan dan ranking tersedia di menu KPI.',{x:.45,y:6.82,w:12.4,h:.15,fontSize:9,color:gray,margin:0});
   if(!report.annual){
    const rows=kpiReportRows(entry,report.period);
    for(const perspective of perspectives){

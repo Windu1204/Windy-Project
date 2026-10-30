@@ -2498,5 +2498,69 @@
   "Company ID wajib diisi untuk pengajuan New": ["Company ID wajib diisi untuk pengajuan New", "Company ID is required for New requests"],
   "Pekerjaan sudah Done. Handover tidak mengubah tanggal Done atau durasi SLA.": ["Pekerjaan sudah Done. Handover tidak mengubah tanggal Done atau durasi SLA.", "The job is Done. Handover keeps the Done date and SLA duration unchanged."],
   "Lihat rincian pekerjaan": ["Lihat rincian pekerjaan", "View work details"],
-  "Tanggal Handover": ["Tanggal Handover", "Handover date"]
+  "Tanggal Handover": ["Tanggal Handover", "Handover date"],
+  "Ranking KPI": [
+    "Ranking KPI",
+    "KPI Ranking"
+  ],
+  "Urutan capaian berbobot pegawai sesuai kelompok dan hak akses.": [
+    "Urutan capaian berbobot pegawai sesuai kelompok dan hak akses.",
+    "Weighted employee achievement within the selected group and access scope."
+  ],
+  "pegawai dapat dinilai": [
+    "pegawai dapat dinilai",
+    "employees assessed"
+  ],
+  "Peringkat": [
+    "Peringkat",
+    "Rank"
+  ],
+  "Nilai KPI berbobot": [
+    "Nilai KPI berbobot",
+    "Weighted KPI score"
+  ],
+  "Bulan dinilai": [
+    "Bulan dinilai",
+    "Months assessed"
+  ],
+  "Indikator dinilai": [
+    "Indikator dinilai",
+    "Indicators assessed"
+  ],
+  "Status penilaian": [
+    "Status penilaian",
+    "Assessment status"
+  ],
+  "Periksa bobot indikator": [
+    "Periksa bobot indikator",
+    "Check indicator weights"
+  ],
+  "Data belum lengkap": [
+    "Data belum lengkap",
+    "Incomplete data"
+  ],
+  "Rata-rata bulan lengkap": [
+    "Rata-rata bulan lengkap",
+    "Average of complete months"
+  ],
+  "Nilai sama mendapat peringkat sama.": [
+    "Nilai sama mendapat peringkat sama.",
+    "Equal scores receive the same rank."
+  ],
+  "Nilai tahunan adalah rata-rata bulan yang lengkap; bulan yang belum lengkap tidak dihitung sebagai nol.": [
+    "Nilai tahunan adalah rata-rata bulan yang lengkap; bulan yang belum lengkap tidak dihitung sebagai nol.",
+    "Annual scores average complete months; incomplete months are not counted as zero."
+  ],
+  "bulan dinilai": [
+    "bulan dinilai",
+    "months assessed"
+  ],
+  "Nilai KPI = jumlah (capaian × bobot) seluruh indikator. Special Scoring diisi sebagai capaian akhir (%). Capaian boleh melebihi 100%. Precise is Better: 100% bila target terpenuhi, 0% bila tidak. Data belum lengkap tidak diberi peringkat.": [
+    "Nilai KPI = jumlah (capaian × bobot) seluruh indikator. Special Scoring diisi sebagai capaian akhir (%). Capaian boleh melebihi 100%. Precise is Better: 100% bila target terpenuhi, 0% bila tidak. Data belum lengkap tidak diberi peringkat.",
+    "KPI score = sum of achievement × weight across all indicators. Admin enters Special Scoring as final achievement (%). Achievement may exceed 100%. Precise is Better scores 100% when the target is met and 0% otherwise. Incomplete data receives no rank."
+  ],
+  "Special Scoring: masukkan capaian akhir dalam persen pada Realisasi, misalnya 80 untuk 80%; nilai ini langsung dikalikan bobot.": [
+    "Special Scoring: masukkan capaian akhir dalam persen pada Realisasi, misalnya 80 untuk 80%; nilai ini langsung dikalikan bobot.",
+    "Special Scoring: enter final achievement as a percentage in Actuals, e.g. 80 for 80%; this value is multiplied directly by its weight."
+  ]
 }

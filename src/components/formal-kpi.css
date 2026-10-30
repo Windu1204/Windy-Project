@@ -25,3 +25,5 @@
 .kpi-toolbar.personal{grid-template-columns:repeat(2,minmax(100px,200px));justify-content:start}.kpi-toolbar.personal.annual{grid-template-columns:minmax(100px,200px)}
 
 .kpi-export{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.kpi-export h3{margin:0 0 8px;font-size:17px}.kpi-export small{color:var(--muted,#647b98)}.kpi-export>p{flex-basis:100%;margin:0}.kpi-export .button-row{margin:0}.kpi-export button{min-height:44px}
+
+.kpi-ranking table{min-width:850px}.kpi-ranking td{vertical-align:middle}.kpi-ranking td small{display:block;margin-top:6px;color:var(--muted,#647b98)}.kpi-rank{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:36px;font-weight:700}.kpi-rank.top{color:var(--kpi-accent);background:var(--kpi-soft);border-radius:8px}.kpi-ranked-score{font-weight:700;white-space:nowrap}.kpi-ranking-note{font-size:12px;line-height:1.7;color:var(--muted,#647b98);margin:16px 0 0}.kpi-person-score{font-size:15px!important;color:var(--kpi-accent)!important}
