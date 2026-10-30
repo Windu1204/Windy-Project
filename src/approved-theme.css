@@ -43,3 +43,6 @@
 .sla-diagnostic-cell{min-width:300px;max-width:360px;white-space:normal;overflow-wrap:break-word;line-height:1.6}
 
 .task-done-dialog input{width:100%;margin-top:8px}.task-done-dialog details{margin-bottom:16px}.task-done-dialog summary{cursor:pointer;color:var(--teal,#008596);margin-bottom:12px}.task-done-dialog label+label{margin-top:14px}
+
+.my-tasks .person-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:760px){.my-tasks .person-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}

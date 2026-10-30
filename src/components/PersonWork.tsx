@@ -45,7 +45,7 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
 
   const category = (r: MonitoringRecord) => rejected(r)?'Reject/Retur':overdue(r) ? 'Overdue' : waiting(r) ? 'Waiting / Pending' : done(r) ? 'Completed' : 'Active / On Progress';
 
-  const shown = assigned.filter(r => mode==='rejected'?rejected(r):mode === 'within' ? r.sla.status==='Within SLA' : mode === 'measured' ? ['Within SLA','Overdue'].includes(r.sla.status) : mode === 'done' ? done(r) : mode === 'active' ? !done(r) : mode === 'waiting' ? waiting(r) : mode === 'overdue' ? overdue(r) : true);
+  const shown = assigned.filter(r => mode==='handover'?status(r,kind)==='Handover':mode==='rejected'?rejected(r):mode === 'within' ? r.sla.status==='Within SLA' : mode === 'measured' ? ['Within SLA','Overdue'].includes(r.sla.status) : mode === 'done' ? done(r) : mode === 'active' ? !done(r) : mode === 'waiting' ? waiting(r) : mode === 'overdue' ? overdue(r) : true);
 
   // Match the v78 workload summary, including its Number(null) treatment in Avg Process Day.
 
@@ -55,7 +55,7 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
   const validDurations = assigned.filter(done).map(r => r.sla.real).filter((n): n is number => n !== null && Number.isFinite(n) && n >= 0);
   const average = validDurations.length ? validDurations.reduce((sum,n) => sum+n,0)/validDurations.length : null;
 
-  const kpis: [string, number | string,string][] = [['Assigned Records', assigned.length,'all'], ['Active Work', assigned.filter(r => !done(r)).length,'active'], ['Completed', assigned.filter(done).length,'done'], ['Waiting / Pending', assigned.filter(waiting).length,'waiting'], ['Overdue', assigned.filter(overdue).length,'overdue'],...(kind==='corporate'?[['Reject/Retur',assigned.filter(rejected).length,'rejected'] as [string,number,string]]:[])];
+  const kpis: [string, number | string,string][] = [['Assigned Records', assigned.length,'all'], ['Active Work', assigned.filter(r => !done(r)).length,'active'], ['Completed', assigned.filter(done).length,'done'], ['Waiting / Pending', assigned.filter(waiting).length,'waiting'], ['Overdue', assigned.filter(overdue).length,'overdue'],...(kind==='regional'?[['Handover',assigned.filter(r=>status(r,kind)==='Handover').length,'handover'] as [string,number,string]]:[]),...(kind==='corporate'?[['Reject/Retur',assigned.filter(rejected).length,'rejected'] as [string,number,string]]:[])];
 
   const headers = kind === 'ijr' ? ['Application', 'Applicant', 'Role', 'Status', 'Work Category', 'Flow', 'Wilayah', 'Process Day'] : kind === 'regional' ? ['Company', 'CID', 'Product', 'Status', 'Work Category', 'Wilayah', 'Email Sales', 'Dokumen Lengkap', 'Selesai Setting', 'Tanggal Done', 'SLA Status', 'SLA Real'] : ['No. Reg', 'Company', 'Product', 'Status', 'Work Category', 'SLA Status', 'SLA Real'];
 
@@ -65,7 +65,7 @@ export default function PersonWork({ individual=false, personNames, rows, kind, 
 
     if (kind === 'ijr') return [p['Application Number'], p['Applicant Name'], ['Implementor 1', 'Implementor 2'].filter(key => text(p[key]) === selected).join(' + '), p.Status, category(r), p['Flow Process'], p.Wilayah, p['Total Day']];
 
-    if (kind === 'regional') return [p.company, p.cid, productName(text(p.product)), p.status, category(r), p.region, p.salesDate, p.docComplete, p.settingDone, p.doneDate, r.sla.status, r.sla.real == null ? '-' : r.sla.real + ' d'];
+    if (kind === 'regional') return [p.company, p.cid, productName(text(p.product)), status(r,kind), category(r), p.region, p.salesDate, p.docComplete, p.settingDone, p.doneDate, r.sla.status, r.sla.real == null ? '-' : r.sla.real + ' d'];
 
     return [p.noreg, p.company, p.product, status(r,kind), category(r), r.sla.status, r.sla.real == null ? '' : r.sla.real + ' d'];
 

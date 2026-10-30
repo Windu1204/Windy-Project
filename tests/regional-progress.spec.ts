@@ -1,6 +1,7 @@
 import {test,expect,type WebSocketRoute,type Page} from '@playwright/test';
 import {mkdir} from 'node:fs/promises';
 test('Regional user New/maintenance workflow refreshes every authorized role via realtime',async({browser})=>{
+ test.setTimeout(120000);
  test.skip(process.env.WCI_CACHE_MOCK!=='1','Isolated Supabase fixture required');
  const rows=[{id:'new',position:1,payload:{company:'New A',cid:'source-1',type:'New',status:'In progress',product:'API OGP',implementor:'Person A',region:'W01',salesDate:'2026-10-01',docComplete:'2026-10-01'}},{id:'maint',position:2,payload:{company:'Maintenance A',cid:'source-2',type:'Maintenance',status:'In progress',product:'API OGP',implementor:'Person A',region:'W01',salesDate:'2026-10-01',docComplete:'2026-10-01'}},{id:'other',position:3,payload:{company:'Other B',cid:'source-3',type:'New',status:'Pending',product:'API OGP',implementor:'Person B',region:'W02',salesDate:'2026-10-01'}}] as {id:string;position:number;payload:Record<string,string>}[];
  let revision=1,calls=0;const sockets=new Map<string,{socket:WebSocketRoute;joinRef:string|null;v2:boolean;topic:string}>();
@@ -45,6 +46,22 @@ test('Regional user New/maintenance workflow refreshes every authorized role via
  for(const role of ['super_admin','department_head','team_leader'])await expect(pages.get(role)!.locator('.records tbody tr').filter({hasText:'New A'})).toContainText('Handover');
  await maintenance.getByRole('button',{name:'Tandai Done',exact:true}).click();await expect(user.getByLabel('Company ID',{exact:true})).toHaveCount(0);await user.getByRole('button',{name:'Konfirmasi Done',exact:true}).click();await expect(maintenance).toContainText('Done');await expect(maintenance.getByRole('button',{name:'Handover',exact:true})).toHaveCount(0);
  for(const role of ['super_admin','department_head','team_leader'])await expect(pages.get(role)!.locator('.records tbody tr').filter({hasText:'Maintenance A'})).toContainText('Done');
- expect(calls).toBe(3);await user.locator('.my-tasks').screenshot({path:'private/regional-workflow-qa/completed.png'});
+ expect(calls).toBe(3);
+ await user.locator('.person-kpis').getByRole('button',{name:'Handover'}).click();
+ await expect(user.locator('.my-tasks tbody tr')).toHaveCount(1);
+ await expect(user.locator('.my-tasks tbody')).toContainText('New A');
+ await expect(user.locator('.my-tasks tbody')).not.toContainText('Maintenance A');
+ for(const role of ['super_admin','department_head','team_leader','individual']){
+  const page=pages.get(role)!;
+  await page.getByRole('button',{name:'Ringkasan',exact:true}).click();
+  const card=page.locator('.kpis .kpi').filter({has:page.locator('small',{hasText:/^Handover$/})});
+  await expect(card.locator('strong')).toHaveText('1');await card.click();
+  await expect(page.locator('.inline-drill-detail .records tbody tr')).toHaveCount(1);
+  await expect(page.locator('.inline-drill-detail .records tbody')).toContainText('New A');
+  await page.getByLabel('Status',{exact:true}).selectOption('Handover');
+  await expect(page.locator('.kpis .kpi').first().locator('strong')).toHaveText('1');
+ }
+ await user.getByRole('button',{name:'My Task',exact:true}).click();
+ await user.locator('.my-tasks').screenshot({path:'private/regional-workflow-qa/completed.png'});
  }finally{for(const context of contexts)await context.close();}
 });
