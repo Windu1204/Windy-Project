@@ -26,10 +26,10 @@ export function kpiTarget(value:string,unit:string) {
   return {value:n,operator:match[1]||'=',percent:unit==='%'||!!match[3]};
 }
 export function kpiProgress(indicator:KpiIndicator,target:string,actual:number|null) {
-  if(actual===null)return {label:'Belum diinput',tone:'neutral',ratio:null};
+  if(actual===null||!Number.isFinite(actual))return {label:'Belum diinput',tone:'neutral',ratio:null};
+  if(indicator.unit==='Special Scoring')return actual<0?{label:'Capaian tidak valid',tone:'neutral',ratio:null}:{label:actual>=100?'Target tercapai':'Belum tercapai',tone:actual>=100?'green':'amber',ratio:actual};
   const parsed=kpiTarget(target,indicator.unit);
   if(!parsed)return {label:'Target belum diisi',tone:'neutral',ratio:null};
-  if(indicator.unit==='Special Scoring')return {label:'Menunggu aturan skor',tone:'neutral',ratio:null};
   const delta=actual-parsed.value, tolerance=1e-8;
   let met:boolean;
   if(['>=','≥'].includes(parsed.operator))met=delta>=-tolerance;
@@ -38,9 +38,9 @@ export function kpiProgress(indicator:KpiIndicator,target:string,actual:number|n
   else if(parsed.operator==='<')met=delta<-tolerance;
   else if(indicator.nature==='Precise is Better')met=Math.abs(delta)<tolerance;
   else met=delta>=-tolerance;
-  const ratio=indicator.nature==='Higher is Better'&&parsed.value>0&&!['<=','≤','<'].includes(parsed.operator)?actual/parsed.value*100:null;
+  const ratio=indicator.nature==='Precise is Better'?(met?100:0):indicator.nature==='Higher is Better'&&parsed.value>0&&!['<=','≤','<'].includes(parsed.operator)?actual/parsed.value*100:null;
   return {label:met?'Target tercapai':'Belum tercapai',tone:met?'green':'amber',ratio};
 }
 export function formatKpi(value:number|null,unit:string,locale='id-ID') {
-  return value===null?'—':value.toLocaleString(locale,{maximumFractionDigits:4})+(unit==='%'?'%':'');
+  return value===null?'—':value.toLocaleString(locale,{maximumFractionDigits:4})+(unit==='%'||unit==='Special Scoring'?'%':'');
 }

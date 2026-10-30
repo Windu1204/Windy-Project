@@ -11,9 +11,9 @@ describe('formal KPI target and actual semantics',()=>{
   expect(kpiProgress(percent,'≥95%',95).label).toBe('Target tercapai');expect(kpiProgress(percent,'≥95%',94.99).label).toBe('Belum tercapai');
   expect(kpiProgress(percent,'>95%',95).label).toBe('Belum tercapai');expect(kpiProgress(percent,'≤5%',5).label).toBe('Target tercapai');
  });
- it('does not invent a special score, a ratio with zero denominator, or missing targets',()=>{
-  expect(kpiProgress({...percent,unit:'Special Scoring'},'3',3).ratio).toBeNull();
-  expect(kpiProgress({...percent,unit:'Special Scoring'},'3',3).label).toBe('Menunggu aturan skor');
+ it('uses Admin-entered special achievement and preserves unavailable ordinary ratios',()=>{
+  expect(kpiProgress({...percent,unit:'Special Scoring'},'',80).ratio).toBe(80);
+  expect(kpiProgress({...percent,unit:'Special Scoring'},'3',100).label).toBe('Target tercapai');
   expect(kpiProgress(percent,'0',0).ratio).toBeNull();expect(kpiProgress(percent,'',3).label).toBe('Target belum diisi');
  });
  it('honors precise targets and explicit inequality and displays percent values consistently',()=>{
