@@ -27,7 +27,6 @@ do $$declare w uuid:=(select id from wci_test_ids where name='workspace');a uuid
  begin perform public.wci_mark_done(w,a,'');raise exception 'LEGACY_BYPASS';exception when others then if sqlerrm='LEGACY_BYPASS' then raise;end if;end;
  begin perform public.wci_regional_progress(w,(select id from wci_test_ids where name='record-3'),'done','other','');raise exception 'CROSS_PERSON';exception when others then if sqlerrm='CROSS_PERSON' then raise;end if;end;
  perform public.wci_regional_progress(w,(select id from wci_test_ids where name='record-4'),'done','SOURCE-DONE','');
- perform public.wci_regional_progress(w,(select id from wci_test_ids where name='record-4'),'handover',null,'');
  if (select payload->>'doneDate' from public.wci_records where id=(select id from wci_test_ids where name='record-4'))<>'2026-08-03' then raise exception 'Source Done date changed';end if;
  perform public.wci_regional_progress(w,a,'done','  COMPANY-001  ','Completed');
  if (select payload->>'companyId' from public.wci_records where id=a)<>'COMPANY-001' then raise exception 'Company ID missing';end if;
@@ -35,13 +34,9 @@ do $$declare w uuid:=(select id from wci_test_ids where name='workspace');a uuid
  perform public.wci_regional_progress(w,m,'done',null,'');
  if (select payload->>'status' from public.wci_records where id=m)<>'Done' or (select payload->>'companyId' from public.wci_records where id=m) is not null then raise exception 'Maintenance should complete without Company ID';end if;
  begin perform public.wci_regional_progress(w,m,'handover',null,'');raise exception 'MAINT_HANDOVER';exception when others then if sqlerrm='MAINT_HANDOVER' then raise;end if;end;
- perform public.wci_regional_progress(w,a,'handover',null,'');
- if (select payload->>'doneDate' from public.wci_records where id=a) is distinct from d or (select payload->>'status' from public.wci_records where id=a)<>'Done' then raise exception 'Handover changed Done date/status';end if;
- select payload->>'dashboardHandoverAt' into stamp from public.wci_records where id=a;
- if stamp is null then raise exception 'Handover missing';end if;
- select revision into rev from public.wci_events where workspace_id=w;
- perform public.wci_regional_progress(w,a,'handover',null,'');
- if (select payload->>'dashboardHandoverAt' from public.wci_records where id=a) is distinct from stamp or (select revision from public.wci_events where workspace_id=w)<>rev then raise exception 'Repeat handover changed state';end if;
+ begin perform public.wci_regional_progress(w,a,'handover',null,'');raise exception 'LEGACY_HANDOVER_BYPASS';exception when others then if sqlerrm='LEGACY_HANDOVER_BYPASS' then raise;end if;end;
+ if (select payload->>'doneDate' from public.wci_records where id=a) is distinct from d then raise exception 'Done date changed';end if;
+ -- Full checklist/evidence Handover is exercised in activities.sql.
 end $$;
 select set_config('request.jwt.claim.sub',(select id::text from wci_test_ids where name='leader'),true);
 do $$begin
@@ -52,7 +47,7 @@ do $$declare w uuid:=(select id from wci_test_ids where name='workspace');source
  select jsonb_agg(payload-'companyId'-'handover'-'dashboardHandoverAt'-'dashboardUpdatedAt'-'doneDate') into source from public.wci_records where workspace_id=w;
  perform public.wci_upload_review(w,'regional',source);
  perform public.wci_replace_dataset(w,'regional',source,'Reupload fixture');
- if not exists(select 1 from public.wci_records r join public.wci_datasets d on d.workspace_id=r.workspace_id and d.kind='regional' and d.active_batch=r.batch_id where r.workspace_id=w and r.payload->>'companyId'='COMPANY-001' and r.payload->>'handover'='Handover' and r.payload->>'status'='Done') then raise exception 'Reupload lost completion metadata';end if;
+ if not exists(select 1 from public.wci_records r join public.wci_datasets d on d.workspace_id=r.workspace_id and d.kind='regional' and d.active_batch=r.batch_id where r.workspace_id=w and r.payload->>'companyId'='COMPANY-001' and r.payload->>'status'='Done') then raise exception 'Reupload lost completion metadata';end if;
 end $$;
 select set_config('request.jwt.claim.sub',(select id::text from wci_test_ids where name='person'),true);
 do $$begin
