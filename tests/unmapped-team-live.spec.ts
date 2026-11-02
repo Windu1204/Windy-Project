@@ -2,6 +2,7 @@ import {test,expect,type WebSocketRoute} from '@playwright/test';
 
 test.skip(process.env.WCI_CACHE_MOCK!=='1','Requires an isolated fake Supabase dev server');
 for(const role of ['team_leader','individual'])for(const kind of ['ijr','regional','corporate','piloting'])test(`${role} ${kind}: realtime updates members while preserving personal and mapped team scope`,async({page})=>{
+ await page.setViewportSize({width:1440,height:1080});
  let revision=1,batch='first',mapped=role==='individual',requestedBatch='';
  let members=['Person A','Person B'];
  const sockets=new Map<string,{socket:WebSocketRoute;joinRef:string|null;v2:boolean}>();
@@ -38,6 +39,8 @@ for(const role of ['team_leader','individual'])for(const kind of ['ijr','regiona
  });
  await page.goto('/');await page.getByLabel('Email',{exact:true}).fill(user.email);await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Login',exact:true}).click();
  await expect(page.locator('.app-shell')).toBeVisible();
+ const titleBand=page.locator('.panel > .panel-head,.panel > .table-heading').first();await expect(titleBand).toBeVisible();expect(await titleBand.evaluate(e=>getComputedStyle(e).borderLeftWidth)).toBe('4px');expect(await titleBand.evaluate(e=>getComputedStyle(e).backgroundImage)).not.toBe('none');
+ await page.getByRole('button',{name:'Data',exact:true}).click();await page.locator('.records tbody .text-button').first().click();const modal=page.locator('dialog.detail-dialog');await expect(modal).toBeVisible();expect(await modal.locator('.dialog-head').evaluate(e=>getComputedStyle(e).borderLeftWidth)).toBe('4px');await page.getByRole('button',{name:'Tutup detail',exact:true}).click();
  await page.getByRole('button',{name:role==='individual'?'Kinerja Saya':'Kinerja & Beban Kerja',exact:true}).click();
  await expect(page.locator('.person-row')).toHaveCount(role==='individual'?1:2);
  await expect.poll(()=>sockets.size).toBeGreaterThan(0);

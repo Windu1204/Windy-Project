@@ -16,19 +16,21 @@ update public.wci_datasets d set active_batch=b.id from public.wci_batches b whe
 insert into public.wci_records(workspace_id,dataset,batch_id,position,payload,job_key)
 select b.workspace_id,b.dataset,b.id,n,p,wci_private.job_identity(b.dataset,p) from public.wci_batches b cross join generate_series(1,3) n cross join lateral (select case when b.dataset='regional' then jsonb_build_object('company','Fixture '||n,'cid',n,'product','VA','type',case n when 2 then 'Maintenance' else 'New' end,'salesDate','2026-11-01','status',case n when 3 then 'Pending' else 'Done' end,'doneDate','2026-11-01','companyId','COMPANY','implementor','Person A') else jsonb_build_object('Application Number','APP-'||n,'Applicant Name','Fixture '||n,'Application Type',case n when 2 then 'Maintenance' else 'New Request' end,'Status',case n when 3 then 'Dalam Proses' else 'Proses Selesai' end,'Implementor 1','Person A') end p) x where b.workspace_id=(select id from activity_ids where name='w');
 insert into activity_ids(name,id) select dataset||position,id from public.wci_records where workspace_id=(select id from activity_ids where name='w');
-insert into storage.objects(bucket_id,name,metadata) select 'wci-activity-files',w.id||'/'||k||'/'||u.id||'/'||a.id||'/proof.pdf','{"mimetype":"application/pdf","size":20}'::jsonb from activity_ids w cross join activity_ids u cross join (values('h-reg','regional'),('h-ijr','ijr'),('training','ijr')) v(n,k) join activity_ids a on a.name=v.n where w.name='w' and u.name='a';
+insert into storage.objects(bucket_id,name,metadata) select 'wci-activity-files',w.id||'/'||k||'/'||u.id||'/'||a.id||'/proof.pdf','{"mimetype":"application/pdf","size":20}'::jsonb from activity_ids w cross join activity_ids u cross join (values('h-reg','regional'),('h-ijr','ijr'),('training','ijr'),('call','ijr')) v(n,k) join activity_ids a on a.name=v.n where w.name='w' and u.name='a';
 set local role authenticated;
 select set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='a'),true);
 do $$declare w uuid:=(select id from activity_ids where name='w');a uuid:=(select id from activity_ids where name='a');v public.wci_activities;f jsonb;stamp timestamptz;begin
- v:=public.wci_activity_save(w,'regional',(select id from activity_ids where name='cal-a'),'calendar','{"implementor":"Person A","date":"2026-11-04","time":"10:00","place":"Teams","remarks":"Fixture"}','[]');stamp:=v.updated_at;
+ v:=public.wci_activity_save(w,'regional',(select id from activity_ids where name='cal-a'),'calendar','{"implementor":"Person A","date":"2026-11-04","time":"10:00","start":"10:00","end":"11:00","place":"Teams","remarks":"Fixture"}','[]');stamp:=v.updated_at;
  if v.owner_id<>a then raise exception 'owner not server-controlled';end if;
  begin perform public.wci_activity_save(w,'regional',v.id,'calendar',v.payload,'[]',null);raise exception 'BUG stale update';exception when others then if sqlerrm='BUG stale update' then raise;end if;end;
- v:=public.wci_activity_save(w,'regional',v.id,'calendar',v.payload||'{"time":"11:00"}','[]',stamp);
- begin perform public.wci_activity_save(w,'regional',gen_random_uuid(),'calendar','{"implementor":"Person B","date":"2026-11-04","time":"10:00","place":"Teams"}','[]');raise exception 'BUG impersonation';exception when others then if sqlerrm='BUG impersonation' then raise;end if;end;
+ v:=public.wci_activity_save(w,'regional',v.id,'calendar',v.payload||'{"time":"11:00","start":"11:00","end":"12:00"}','[]',stamp);
+ begin perform public.wci_activity_save(w,'regional',gen_random_uuid(),'calendar','{"implementor":"Person B","date":"2026-11-04","time":"10:00","start":"10:00","end":"11:00","place":"Teams"}','[]');raise exception 'BUG impersonation';exception when others then if sqlerrm='BUG impersonation' then raise;end if;end;
  begin perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='training'),'training','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[],"customers":[]}','[]');raise exception 'BUG proof optional';exception when others then if sqlerrm='BUG proof optional' then raise;end if;end;
  f:=jsonb_build_array(jsonb_build_object('path',w||'/ijr/'||a||'/'||(select id from activity_ids where name='training')||'/proof.pdf','name','proof.pdf'));
  perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='training'),'training','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[{"name":"Person A","attended":true}],"customers":[{"name":"Sari","attended":true},{"name":"Sari","attended":false}]}',f);
- perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='call'),'call','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[],"customers":[],"title":"Call fixture","company":"Example","start":"10:00","end":"11:00","mode":"Online","place":"Teams","discussion":"Discussion","feedback":"Feedback","potential":"Potential","followup":"Follow up"}','[]');
+ f:=jsonb_build_array(jsonb_build_object('path',w||'/ijr/'||a||'/'||(select id from activity_ids where name='call')||'/proof.pdf','name','proof.pdf'));
+ begin perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='call'),'call','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[],"customers":[],"title":"Call fixture","company":"Example","start":"10:00","end":"11:00","mode":"Online","place":"Teams","discussion":"Discussion","feedback":"Feedback","potential":"Potential","followup":"Follow up"}','[]');raise exception 'BUG optional Call Report attachment';exception when others then if sqlerrm='BUG optional Call Report attachment' then raise;end if;end;
+ perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='call'),'call','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[],"customers":[],"title":"Call fixture","company":"Example","start":"10:00","end":"11:00","mode":"Online","place":"Teams","discussion":"Discussion","feedback":"Feedback","potential":"Potential","followup":"Follow up"}',f);
  f:=jsonb_build_array(jsonb_build_object('path',w||'/regional/'||a||'/'||(select id from activity_ids where name='h-reg')||'/proof.pdf','name','proof.pdf'));
  begin perform public.wci_activity_save(w,'regional',(select id from activity_ids where name='h-reg'),'handover','{"implementor":"Person A","measure":"item","quantity":"5","informed":false}',f,null,(select id from activity_ids where name='regional1'));raise exception 'BUG checklist';exception when others then if sqlerrm='BUG checklist' then raise;end if;end;
  v:=public.wci_activity_save(w,'regional',(select id from activity_ids where name='h-reg'),'handover','{"implementor":"Person A","measure":"item","quantity":"5","informed":true}',f,null,(select id from activity_ids where name='regional1'));
@@ -48,14 +50,14 @@ do $$declare w uuid:=(select id from activity_ids where name='w');begin
  if exists(select 1 from public.wci_activity_read(w,'regional')) then raise exception 'other user reads private activities';end if;
  if exists(select 1 from storage.objects where bucket_id='wci-activity-files' and name like w::text||'/ijr/%') then raise exception 'storage RLS exposes other user files';end if;
  if wci_private.activity_file_access(w||'/ijr/'||(select id from activity_ids where name='a')||'/'||(select id from activity_ids where name='h-ijr')||'/proof.pdf') then raise exception 'other user downloads proof';end if;
- begin perform public.wci_activity_save(w,'regional',(select id from activity_ids where name='cal-a'),'calendar','{"implementor":"Person B","date":"2026-11-04","time":"10:00","place":"Teams"}','[]');raise exception 'BUG other write';exception when others then if sqlerrm='BUG other write' then raise;end if;end;
- perform public.wci_activity_save(w,'regional',(select id from activity_ids where name='cal-b'),'calendar','{"implementor":"Person B","date":"2026-11-04","time":"10:00","place":"Teams"}','[]');
+ begin perform public.wci_activity_save(w,'regional',(select id from activity_ids where name='cal-a'),'calendar','{"implementor":"Person B","date":"2026-11-04","time":"10:00","start":"10:00","end":"11:00","place":"Teams"}','[]');raise exception 'BUG other write';exception when others then if sqlerrm='BUG other write' then raise;end if;end;
+ perform public.wci_activity_save(w,'regional',(select id from activity_ids where name='cal-b'),'calendar','{"implementor":"Person B","date":"2026-11-04","time":"10:00","start":"10:00","end":"11:00","place":"Teams"}','[]');
  begin perform public.wci_activity_read(w,'regional',(select id from activity_ids where name='a'));raise exception 'BUG view-as';exception when others then if sqlerrm='BUG view-as' then raise;end if;end;
 end $$;
 select set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='tl'),true);
 do $$declare w uuid:=(select id from activity_ids where name='w');begin
  if (select count(*) from public.wci_activity_read(w,'regional'))<>3 then raise exception 'unmapped TL scope mismatch';end if;
- begin perform public.wci_activity_save(w,'regional',gen_random_uuid(),'calendar','{"implementor":"Person A","date":"2026-11-04","time":"10:00","place":"Teams"}','[]');raise exception 'BUG TL write';exception when others then if sqlerrm='BUG TL write' then raise;end if;end;
+ begin perform public.wci_activity_save(w,'regional',gen_random_uuid(),'calendar','{"implementor":"Person A","date":"2026-11-04","time":"10:00","start":"10:00","end":"11:00","place":"Teams"}','[]');raise exception 'BUG TL write';exception when others then if sqlerrm='BUG TL write' then raise;end if;end;
 end $$;
 reset role;
 insert into public.wci_teams(id,workspace_id,dataset,name,leader_id) select t.id,w.id,'regional','Fixture team',l.id from activity_ids t cross join activity_ids w cross join activity_ids l where t.name='team' and w.name='w' and l.name='tl';
@@ -74,5 +76,18 @@ do $$declare w uuid:=(select id from activity_ids where name='w');source jsonb;b
  perform public.wci_replace_dataset(w,'regional',source,'Reupload activity fixture');
  if not exists(select 1 from public.wci_activities a join public.wci_records r on r.workspace_id=a.workspace_id and r.dataset=a.dataset and r.job_key=a.job_key join public.wci_datasets d on d.workspace_id=r.workspace_id and d.kind=r.dataset and d.active_batch=r.batch_id where a.workspace_id=w and a.kind='handover' and a.dataset='regional') then raise exception 'handover identity lost on upload';end if;
  if has_function_privilege('anon','public.wci_activity_save(uuid,text,uuid,text,jsonb,jsonb,timestamptz,uuid)','execute') then raise exception 'anonymous mutation exposed';end if;
+end $$;
+reset role;
+insert into public.wci_activities(id,workspace_id,dataset,kind,owner_id,pic,payload)
+select gen_random_uuid(),w.id,'regional','calendar',a.id,'Person A','{"implementor":"Person A","date":"2026-11-03","time":"08:00","place":"Zoom","remarks":"Legacy calendar fixture"}'::jsonb from activity_ids w cross join activity_ids a where w.name='w' and a.name='a';
+set local role authenticated;
+select set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='a'),true);
+do $$declare old public.wci_activities;updated public.wci_activities;begin
+ select * into old from public.wci_activities where workspace_id=(select id from activity_ids where name='w') and payload->>'remarks'='Legacy calendar fixture';
+ if old.payload ? 'end' then raise exception 'legacy end was invented';end if;
+ begin perform public.wci_activity_save(old.workspace_id,'regional',old.id,'calendar',old.payload,'[]',old.updated_at);raise exception 'BUG missing end allowed';exception when others then if sqlerrm='BUG missing end allowed' then raise;end if;end;
+ begin perform public.wci_activity_save(old.workspace_id,'regional',old.id,'calendar',old.payload||'{"end":"07:00"}','[]',old.updated_at);raise exception 'BUG negative time range';exception when others then if sqlerrm='BUG negative time range' then raise;end if;end;
+ updated:=public.wci_activity_save(old.workspace_id,'regional',old.id,'calendar',old.payload||'{"end":"09:00"}','[]',old.updated_at);
+ if updated.id<>old.id or updated.payload->>'start'<>'08:00' or updated.payload->>'time'<>'08:00' or updated.payload->>'end'<>'09:00' then raise exception 'legacy edit corrupted source';end if;
 end $$;
 rollback;
