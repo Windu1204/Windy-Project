@@ -1,0 +1,16 @@
+/* Shared heading treatment; preserves existing theme, controls and data layouts. */
+.theme-root{--heading-accent:var(--accent,#008596);--heading-fill-start:var(--theme-mid,#e3f5f2);--heading-fill-end:var(--theme-light,#f3fbfa)}
+.app-shell :is(.panel>.panel-head,.panel>.table-heading,.panel>h3,.panel>h4,.person-detail>h3,.kpi-section-title,.kpi-intro>div>h2,.kpi-person>div>h3,.kpi-export>div>h3,.pilot-toolbar>h3),.app-shell dialog>.dialog-head,.app-shell dialog>h3{
+ box-sizing:border-box;min-width:0;padding:14px 18px;border:1px solid color-mix(in srgb,var(--heading-accent) 30%,#e6edf1);border-left:4px solid var(--heading-accent);border-radius:8px;background:linear-gradient(105deg,var(--heading-fill-start),var(--heading-fill-end));color:#173451;overflow-wrap:anywhere;line-height:1.45
+}
+.app-shell :is(.panel>.panel-head,.panel>.table-heading,.panel>h3,.panel>h4,.person-detail>h3){margin:0 0 18px}
+.app-shell .records{--heading-fill-start:var(--theme-mid,#e8f2fb);--heading-fill-end:var(--theme-light,#f5fafc)}
+.app-shell :is(.panel-head,.table-heading) :is(h2,h3,h4){margin-top:0;margin-bottom:4px;color:#173451}
+.app-shell :is(.panel-head,.table-heading) :is(p,small){line-height:1.5}
+.app-shell dialog>.dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px}
+.app-shell dialog>.dialog-head>div{min-width:0}.app-shell dialog>.dialog-head>.icon-button{flex-shrink:0}
+.app-shell dialog>.dialog-head :is(h2,h3){margin:0 0 8px;line-height:1.35;color:#173451}
+.app-shell dialog>.dialog-head p{margin:0;line-height:1.5}
+.app-shell .activity-participants>h4,.app-shell .activity-section-field>span,.app-shell .activity-upload-title{display:block;box-sizing:border-box;padding:9px 12px;border-left:3px solid var(--heading-accent);border-radius:5px;background:var(--heading-fill-start);color:#173451;font-weight:600;line-height:1.5}
+.app-shell .activity-section-field>span,.app-shell .activity-upload-title{background:color-mix(in srgb,var(--heading-fill-start) 65%,#edf4fc)}
+@media(max-width:700px){.app-shell :is(.panel>.panel-head,.panel>.table-heading,.panel>h3,.panel>h4),.app-shell dialog>.dialog-head,.app-shell dialog>h3{padding:12px 14px}.app-shell .table-heading{gap:12px;flex-wrap:wrap}}
