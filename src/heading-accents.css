@@ -14,3 +14,12 @@
 .app-shell .activity-participants>h4,.app-shell .activity-section-field>span,.app-shell .activity-upload-title{display:block;box-sizing:border-box;padding:9px 12px;border-left:3px solid var(--heading-accent);border-radius:5px;background:var(--heading-fill-start);color:#173451;font-weight:600;line-height:1.5}
 .app-shell .activity-section-field>span,.app-shell .activity-upload-title{background:color-mix(in srgb,var(--heading-fill-start) 65%,#edf4fc)}
 @media(max-width:700px){.app-shell :is(.panel>.panel-head,.panel>.table-heading,.panel>h3,.panel>h4),.app-shell dialog>.dialog-head,.app-shell dialog>h3{padding:12px 14px}.app-shell .table-heading{gap:12px;flex-wrap:wrap}}
+
+/* Secondary headings stay quiet; only primary section and dialog headers use a color band. */
+.app-shell :is(.panel>h3,.panel>h4,.person-detail>h3,.kpi-section-title,.kpi-person>div>h3,.kpi-export>div>h3,.pilot-toolbar>h3),.app-shell .activity-participants>h4,.app-shell .activity-section-field>span,.app-shell .activity-upload-title{padding:0 0 10px;border:0;border-bottom:1px solid #d5e3ea;border-radius:0;background:none;color:#173451;font-weight:600}
+.app-shell .handover-job-detail>h4,.app-shell .handover-section-title{margin:0 0 14px;padding:0 0 10px;border-bottom:1px solid #d5e3ea;font-size:16px;color:#173451}
+.handover-job-detail dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;background:#f5f7f9;border-radius:8px;padding:18px;margin:0}
+.handover-job-detail dl>div{min-width:0}.handover-job-detail dt{font-size:12px;color:#647b98;margin-bottom:5px}.handover-job-detail dd{margin:0;font-size:14px;line-height:1.6;color:#173451;overflow-wrap:anywhere}
+.activity-dialog .handover-section-title{margin:8px 0 0}
+@media(max-width:600px){.handover-job-detail dl{grid-template-columns:1fr;padding:14px}}
+.app-shell .activity-dialog .activity-check{display:flex;flex-direction:row;justify-content:flex-start;text-align:left;background:none;padding:6px 0}.app-shell .activity-dialog .activity-check input{flex:0 0 20px;margin:0}
