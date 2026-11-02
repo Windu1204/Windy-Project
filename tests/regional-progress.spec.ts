@@ -42,24 +42,19 @@ test('Regional user New/maintenance workflow refreshes every authorized role via
  await user.getByLabel('Company ID',{exact:true}).fill('COMPANY-001');await mkdir('private/regional-workflow-qa',{recursive:true});await user.locator('.task-done-dialog').screenshot({path:'private/regional-workflow-qa/new-company.png'});await user.setViewportSize({width:390,height:844});expect(await user.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);await user.locator('.task-done-dialog').screenshot({path:'private/regional-workflow-qa/new-company-mobile.png'});await user.setViewportSize({width:1440,height:1000});await user.getByRole('button',{name:'Konfirmasi Done',exact:true}).click();await expect(user.locator('.task-done-dialog')).toHaveCount(0);
  for(const role of ['super_admin','department_head','team_leader']){const record=pages.get(role)!.locator('.records tbody tr').filter({hasText:'New A'});await expect(record).toContainText('COMPANY-001');await expect(record).toContainText('Done');}
  await expect(pages.get('other')!.locator('.records')).not.toContainText('COMPANY-001');
- await newTask.getByRole('button',{name:'Handover',exact:true}).click();const doneDate=rows[0].payload.doneDate;await user.getByRole('button',{name:'Konfirmasi Handover',exact:true}).click();await expect(newTask.getByRole('button',{name:'Handover',exact:true})).toHaveCount(0);expect(rows[0].payload.doneDate).toBe(doneDate);
- for(const role of ['super_admin','department_head','team_leader'])await expect(pages.get(role)!.locator('.records tbody tr').filter({hasText:'New A'})).toContainText('Handover');
+ await expect(newTask.getByRole('button',{name:'Handover',exact:true})).toBeVisible(); // Checklist/evidence handover is covered in implementation-activities.spec.ts.
  await maintenance.getByRole('button',{name:'Tandai Done',exact:true}).click();await expect(user.getByLabel('Company ID',{exact:true})).toHaveCount(0);await user.getByRole('button',{name:'Konfirmasi Done',exact:true}).click();await expect(maintenance).toContainText('Done');await expect(maintenance.getByRole('button',{name:'Handover',exact:true})).toHaveCount(0);
  for(const role of ['super_admin','department_head','team_leader'])await expect(pages.get(role)!.locator('.records tbody tr').filter({hasText:'Maintenance A'})).toContainText('Done');
- expect(calls).toBe(3);
- await user.locator('.person-kpis').getByRole('button',{name:'Handover'}).click();
- await expect(user.locator('.my-tasks tbody tr')).toHaveCount(1);
- await expect(user.locator('.my-tasks tbody')).toContainText('New A');
- await expect(user.locator('.my-tasks tbody')).not.toContainText('Maintenance A');
+ expect(calls).toBe(2);
  for(const role of ['super_admin','department_head','team_leader','individual']){
   const page=pages.get(role)!;
   await page.getByRole('button',{name:'Ringkasan',exact:true}).click();
-  const card=page.locator('.kpis .kpi').filter({has:page.locator('small',{hasText:/^Handover$/})});
-  await expect(card.locator('strong')).toHaveText('1');await card.click();
-  await expect(page.locator('.inline-drill-detail .records tbody tr')).toHaveCount(1);
+  const card=page.locator('.kpis .kpi').filter({has:page.locator('small',{hasText:/^Selesai$/})});
+  await expect(card.locator('strong')).toHaveText('2');await card.click();
+  await expect(page.locator('.inline-drill-detail .records tbody tr')).toHaveCount(2);
   await expect(page.locator('.inline-drill-detail .records tbody')).toContainText('New A');
-  await page.getByLabel('Status',{exact:true}).selectOption('Handover');
-  await expect(page.locator('.kpis .kpi').first().locator('strong')).toHaveText('1');
+  await page.getByLabel('Status',{exact:true}).selectOption('Done');
+  await expect(page.locator('.kpis .kpi').first().locator('strong')).toHaveText('2');
  }
  await user.getByRole('button',{name:'My Task',exact:true}).click();
  await user.locator('.my-tasks').screenshot({path:'private/regional-workflow-qa/completed.png'});
