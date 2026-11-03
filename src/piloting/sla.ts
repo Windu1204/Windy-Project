@@ -10,7 +10,7 @@ export function pilotSla(payload: Payload, rules: SlaRule[] = []): SlaResult {
   const source = { id: '', payload, sla: {} as SlaResult };
   // "No New Pipeline" belongs to Maintenance, not a New Project.
   const form = text(payload[field.form]), type = /^maintenance/i.test(form) ? 'Maintenance' : /^baru/i.test(form) ? 'New Project' : form;
-  const result = calculateSla({ product, projectType: type, formType: type, requestType: type, description: [payload['Jenis Permintaan'],payload['Catatan (TL AT / AT)']].map(text).join(' '), assignDate: payload[field.assigned], slaReal: days(source) }, 'corporate', rules, true);
+  const result = calculateSla({ product, projectType: type, formType: type, requestType: text(payload['Jenis Permintaan'])||type, description: [payload['Jenis Permintaan'],payload['Catatan (TL AT / AT)']].map(text).join(' '), assignDate: payload[field.assigned], slaReal: days(source) }, 'corporate', rules, true);
   // Returned and pending work is never counted as completed SLA achievement.
   if (text(payload[field.status]) !== 'Done') return { ...result, real: null, over: null, status: result.target === null ? 'Without SLA' : 'SLA Real Unavailable' };
   return result;

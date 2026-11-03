@@ -1,3 +1,4 @@
+import {SLA_CATALOGUE,resolveSlaProduct,additionalSlaNames,documentSlaTarget,governmentRequest} from './sla-product-match';
 import { corporateProductFallback } from './product-fallback';
 import { type Payload, type Value, type SlaRule, type Match } from '../types';
 const slaNorm = (v: Value) => String(v ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -30,6 +31,10 @@ function customSlaMatch(r: Payload, CUSTOM_SLA_RULES: SlaRule[]): Match | null {
 } if (!best || bestScore < .72)
     return null; const typ = String(r.projectType || r.requestType || r.formType || '').toLowerCase(); const isMaint = /maint|maintenance|existing|perubahan|update/.test(typ); const n = Number(best.newDays), m = Number(best.maintDays); const target = isMaint ? (m || n) : (n || m); return target > 0 ? { target, solution: best.name || best.product, map: 'Custom SLA Setting' } : null; }
 export function memoSemanticMatch(r: Payload, rules: SlaRule[]): Match | null {
+    if(governmentRequest(r))return documentSlaTarget('Restrukturisasi Rek Pemerintah',false);
+    const recognized=resolveSlaProduct(String(r.product||''));
+    if(recognized&&additionalSlaNames.has(recognized.name)&&!(r.slaTarget!=null&&r.slaSolution))return documentSlaTarget(recognized.name,/\bnew\b|baru/i.test([r.projectType,r.formType,r.requestType].join(' ')));
+    if(recognized&&String(r.product)!==recognized.name)return memoSemanticMatch({...r,product:recognized.name},rules);
     const clean = (v: Value) => String(v ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
     const product = clean(r.product), project = clean(r.projectType), form = clean(r.formType), req = clean(r.requestType), desc = clean(r.description), remarks = clean(r.remarks);
     const text = [product, form, req, desc, remarks].join(' ');
@@ -96,19 +101,24 @@ export function memoSemanticMatch(r: Payload, rules: SlaRule[]): Match | null {
     const custom = customSlaMatch(r, rules);
     if (custom) return custom;
     const canonical = product.replace(/\becollection\b|\becolletion\b/g, 'e collection');
-    if (canonical !== product) return memoSemanticMatch({ ...r, product: canonical }, rules);
+    if (canonical !== product && !recognized) return memoSemanticMatch({ ...r, product: canonical }, rules);
     const fallback=corporateProductFallback(String(r.product||''));
-    if(fallback!==String(r.product||''))return memoSemanticMatch({...r,product:fallback},rules);
-    return null;
+    if(!recognized&&fallback!==String(r.product||''))return memoSemanticMatch({...r,product:fallback},rules);
+    return recognized?documentSlaTarget(recognized.name,isNew):null;
 }
 export const REG_SLA_RULES: [
     string,
     number,
     number
 ][] = [['BNIdirect', 3, 2], ['BTO', 3, 3], ['VA eCollection (Portal)', 7, 5], ['Cash Pick Up', 7, 5], ['GB Online', 3, 3], ['Virtual Account (upload iCons/RPA)', 3, 3], ['Intraday Facility iCons', 5, 7], ['JISDOR', 10, 10], ['Cash Card (non CUSTOM)', 14, 14], ['VA Debit berkartu', 14, 14], ['VA Kredit berkartu', 14, 14], ['MT100 (standard)', 10, 10], ['MT940 (Swift/email)', 10, 10], ['FSCM [SCF] New Corporate/Mitra', 3, 3], ['Bill Payment', 14, 10], ['OGP', 7, 5], ['Virtual Account Non SNAP (Integrasi)', 7, 5], ['Virtual Account SNAP', 7, 5], ['OGP SNAP', 7, 5], ['API BNIdirect', 7, 5], ['API OTR', 10, 7], ['API ITR', 7, 5], ['API FSCM', 7, 5], ['API MPN', 7, 5], ['API Notification Account Statement', 7, 5], ['API RDF', 7, 5], ['API RDL', 7, 5], ['API RDN', 7, 5], ['BNIdirect-GFX', 21, 5], ['Notional Pooling', 10, 3], ['SPC', 14, 14], ['MT101', 30, 10]];
+for(const rule of SLA_CATALOGUE)if(additionalSlaNames.has(rule.name)&&rule.maintDays!==null&&!REG_SLA_RULES.some(([name])=>name===rule.name))REG_SLA_RULES.push([rule.name,rule.newDays,rule.maintDays]);
 const REG_SLA_RULE_MAP = Object.fromEntries(REG_SLA_RULES.map(x => [x[0], { newDays: x[1], maintDays: x[2] }]));
 function regSlaResult(solution: string, isNew: boolean) { const x = REG_SLA_RULE_MAP[solution]; return x ? { target: isNew ? x.newDays : x.maintDays, solution } : null; }
 export function regSlaTarget(r: Payload) {
+    if(governmentRequest(r))return documentSlaTarget('Restrukturisasi Rek Pemerintah',false);
+    const recognized=resolveSlaProduct(String(r.product||''));
+    if(recognized&&additionalSlaNames.has(recognized.name))return documentSlaTarget(recognized.name,/\bnew\b|baru/i.test(String(r.type||'')));
+    if(recognized&&String(r.product)!==recognized.name)return regSlaTarget({...r,product:recognized.name});
     const p = slaNorm(r.product), t = slaNorm(r.type), isNew = /\bnew\b|baru/.test(t);
     if (/bni ?direct/.test(p))
         return regSlaResult('BNIdirect', isNew);
@@ -168,5 +178,5 @@ export function regSlaTarget(r: Payload) {
     const compact=p.replace(/[^a-z0-9]/g,'');
     const alias:Record<string,string>={vaecoll:'VA eCollection (Portal)',vaecollection:'VA eCollection (Portal)',vaecolletion:'VA eCollection (Portal)',apinotif:'API Notification Account Statement'};
     const canonical=alias[compact]||REG_SLA_RULES.find(([name])=>slaNorm(name).replace(/[^a-z0-9]/g,'')===compact)?.[0];
-    return canonical?regSlaResult(canonical,isNew):null;
+    return canonical?regSlaResult(canonical,isNew):recognized?documentSlaTarget(recognized.name,isNew):null;
 }

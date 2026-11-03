@@ -1,0 +1,248 @@
+[
+  {
+    "name": "BNIdirect",
+    "newDays": 3,
+    "maintDays": 2,
+    "handoverMonths": 2
+  },
+  {
+    "name": "BNIdirect Bisnis",
+    "newDays": 2,
+    "maintDays": 2,
+    "handoverMonths": 2
+  },
+  {
+    "name": "BNIdirect Overseas",
+    "newDays": 5,
+    "maintDays": 3,
+    "handoverMonths": 2
+  },
+  {
+    "name": "BTO",
+    "newDays": 3,
+    "maintDays": 3,
+    "handoverMonths": 2
+  },
+  {
+    "name": "VA eCollection (Portal)",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 2
+  },
+  {
+    "name": "Cash Pick Up",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 1
+  },
+  {
+    "name": "Cash Pooling manual iCons Cabang",
+    "newDays": 5,
+    "maintDays": 3,
+    "handoverMonths": 1
+  },
+  {
+    "name": "GB Online",
+    "newDays": 3,
+    "maintDays": 3,
+    "handoverMonths": 1
+  },
+  {
+    "name": "Virtual Account (upload iCons/RPA)",
+    "newDays": 3,
+    "maintDays": 3,
+    "handoverMonths": 1
+  },
+  {
+    "name": "Intraday Facility iCons",
+    "newDays": 5,
+    "maintDays": 7,
+    "handoverMonths": 1
+  },
+  {
+    "name": "JISDOR",
+    "newDays": 10,
+    "maintDays": 10,
+    "handoverMonths": 2
+  },
+  {
+    "name": "Cash Card (non CUSTOM)",
+    "newDays": 14,
+    "maintDays": 14,
+    "handoverMonths": 2
+  },
+  {
+    "name": "VA Debit berkartu",
+    "newDays": 14,
+    "maintDays": 14,
+    "handoverMonths": 2
+  },
+  {
+    "name": "VA Kredit berkartu",
+    "newDays": 14,
+    "maintDays": 14,
+    "handoverMonths": 2
+  },
+  {
+    "name": "Cash Deposit Machine",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 2
+  },
+  {
+    "name": "EBS",
+    "newDays": 30,
+    "maintDays": 10,
+    "handoverMonths": 2
+  },
+  {
+    "name": "MT100 (standart)",
+    "newDays": 10,
+    "maintDays": 10,
+    "handoverMonths": 1
+  },
+  {
+    "name": "MT940 - Swift",
+    "newDays": 10,
+    "maintDays": 10,
+    "handoverMonths": 1
+  },
+  {
+    "name": "MT940 - email",
+    "newDays": 10,
+    "maintDays": 10,
+    "handoverMonths": 1
+  },
+  {
+    "name": "FSCM [SCF] New Corporate",
+    "newDays": 3,
+    "maintDays": 3,
+    "handoverMonths": 2
+  },
+  {
+    "name": "FSCM [SCF] New Mitra",
+    "newDays": 3,
+    "maintDays": 3,
+    "handoverMonths": 2
+  },
+  {
+    "name": "Dashboard custom",
+    "newDays": 14,
+    "maintDays": 5,
+    "handoverMonths": 2
+  },
+  {
+    "name": "Restrukturisasi Rek Pemerintah",
+    "newDays": 14,
+    "maintDays": 14,
+    "handoverMonths": 1
+  },
+  {
+    "name": "Bill Payment",
+    "newDays": 14,
+    "maintDays": 10,
+    "handoverMonths": 2
+  },
+  {
+    "name": "OGP",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "Virtual Account Non SNAP (Integrasi)",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "Virtual Account SNAP",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "OGP SNAP",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "API BNIdirect",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "API OTR",
+    "newDays": 10,
+    "maintDays": 7,
+    "handoverMonths": 3
+  },
+  {
+    "name": "API ITR",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "API FSCM",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "API MPN",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "API Notification Account Statement",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "API RDF",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "API RDL",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "API RDN",
+    "newDays": 7,
+    "maintDays": 5,
+    "handoverMonths": 3
+  },
+  {
+    "name": "BNIdirect GFX",
+    "newDays": 21,
+    "maintDays": null,
+    "handoverMonths": 3
+  },
+  {
+    "name": "Notional Pooling",
+    "newDays": 10,
+    "maintDays": 3,
+    "handoverMonths": 2
+  },
+  {
+    "name": "SPC",
+    "newDays": 14,
+    "maintDays": 14,
+    "handoverMonths": 2
+  },
+  {
+    "name": "MT101",
+    "newDays": 30,
+    "maintDays": 10,
+    "handoverMonths": 2
+  }
+]
