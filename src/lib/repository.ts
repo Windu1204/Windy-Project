@@ -47,21 +47,26 @@ export async function loadRows(workspace: string, kind: ApplicationKind, version
 async function readBatch(workspace: string, kind: ApplicationKind, batch: string | null): Promise<StoredRow[]> {
     if (!batch) return [];
     const out: StoredRow[] = [];
-    let total: number | null = null;
-    for (let offset = 0;;) {
-        const { data, error, count } = await client().from('wci_records')
-            .select('id,payload,position', offset === 0 ? { count: 'exact' } : {})
-            .eq('workspace_id', workspace).eq('dataset', kind).eq('batch_id', batch)
-            .order('position').order('id').range(offset, offset + 999);
-        if (error) throw error;
-        if (offset === 0) total = count ?? null;
-        if (!data?.length) {
-            if (total !== null && out.length < total) throw new Error('Data belum termuat lengkap. Silakan muat ulang.');
-            break;
+    // Small indexed cursor pages avoid an expensive full RLS count and growing OFFSET scans.
+    let cursor: number | null = null, pageSize = 200, retries = 0;
+    for (;;) {
+        let query = client().from('wci_records').select('id,payload,position')
+            .eq('workspace_id', workspace).eq('dataset', kind).eq('batch_id', batch);
+        if (cursor !== null) query = query.gt('position', cursor);
+        const { data, error } = await query.order('position').range(0, pageSize - 1);
+        if (error) {
+            if ((error.code === '57014' || /timeout|failed to fetch/i.test(error.message)) && retries < 3) {
+                retries++; pageSize = Math.max(50, Math.floor(pageSize / 2));
+                continue;
+            }
+            throw error;
         }
-        out.push(...data as StoredRow[]);
-        offset += data.length;
-        if (total !== null ? offset >= total : data.length < 1000) break;
+        if (!data?.length) break;
+        const page = data as StoredRow[], last = page.at(-1)!.position;
+        if (!Number.isFinite(last) || (cursor !== null && last <= cursor) || page.some((row,i) => i > 0 && row.position <= page[i-1].position))
+            throw new Error('Urutan data tidak valid. Silakan muat ulang.');
+        out.push(...page); cursor = last; retries = 0;
+        // Continue until an empty page so a lower API cap cannot truncate the dataset.
     }
     return out;
 }
