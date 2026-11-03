@@ -1,3 +1,4 @@
+import {resolveSlaProduct,additionalSlaNames,additionalSlaInText,governmentRequest} from './sla-product-match';
 import {type Payload, text} from '../types';
 
 const clean=(value:unknown)=>String(value??'').toLowerCase().replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
@@ -5,7 +6,9 @@ const clean=(value:unknown)=>String(value??'').toLowerCase().replace(/[^a-z0-9]+
 const bnidirectRequest=/\b(?:rekening|user|pengguna|admin|administrator|pejabat|bendahara|kpa|ppk|payroll|penggajian|gaji|limit|token|mobiletoken|hardtoken|email|e mail|telepon|telpon|telp|tlp|handphone|hand phone|nomor hp|no hp)\b|\bbaterai (?:habis|lemah)\b/;
 /** Resolve a service from the source without assigning a generic VA/API a default SLA. */
 export function corporateService(row:Payload):string|null {
+ if(governmentRequest(row))return 'Restrukturisasi Rek Pemerintah';
  const product=clean(row.product);
+ const recognized=resolveSlaProduct(text(row.product));if(recognized&&additionalSlaNames.has(recognized.name))return recognized.name;
  if(/^auto ?deb(?:et|it)$/.test(product))return 'BNIdirect';
  if(/^auto ?collection$/.test(product))return 'OGP';
  if(/^(integrasi erp|bni ?direct gfx)$/.test(product))return 'BNIdirect-GFX';
@@ -16,6 +19,7 @@ export function corporateService(row:Payload):string|null {
  const generic=!product||/^(virtual account|va|application programming interface(?: api)?|api|others?)$/.test(product);
  if(!generic)return null;
  const source=clean([row.formType,row.requestType,row.description,row.remarks].map(text).join(' ')).replace(/\bvirtualaccount\b/g,'virtual account').replace(/\bva(debit|debet|kredit|credit)\b/g,'va $1');
+ const additional=additionalSlaInText(source);if(additional)return additional.name;
  const va=/\b(?:va|virtual account|vam)\b/.test(product+' '+source)||/\b(?:e ?collection|e ?coll|ecoll)\b/.test(source);
  const debit=/\b(?:debit|debet)\b/.test(source),credit=/\b(?:kredit|credit)\b/.test(source);
  // A VA request may also mention linking the account to BNIdirect. Keep its VA service.
@@ -48,6 +52,7 @@ export function corporateService(row:Payload):string|null {
 
 /** Use the same existing Product field in current dashboards, reports and future uploads. */
 export function corporateProductPayload(row:Payload):Payload {
+ if(governmentRequest(row))return {...row,product:'Restrukturisasi Rek Pemerintah'};
  const product=clean(row.product);
  if(product&&!/^(virtual account|va|application programming interface(?: api)?|api|others?)$/.test(product))return row;
  const service=corporateService(row);
