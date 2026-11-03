@@ -11,3 +11,5 @@ export function readUploadInWorker(file:File,kind:ApplicationKind,attachments:Fi
 }
 
 export function listUploadSheets(files:File[]):Promise<{file:string;sheets:string[]}[]>{return new Promise((resolve,reject)=>{const worker=new Worker(new URL('../domain/upload-worker.ts',import.meta.url),{type:'module'});worker.onmessage=e=>{worker.terminate();e.data.error?reject(new Error(e.data.error)):resolve(e.data.sheets);};worker.onerror=e=>{worker.terminate();reject(new Error(e.message));};worker.postMessage({files});});}
+
+export function combineUploadInWorker(audits:UploadAudit[],kind:ApplicationKind):Promise<UploadAudit>{return new Promise((resolve,reject)=>{const worker=new Worker(new URL('../domain/upload-worker.ts',import.meta.url),{type:'module'});worker.onmessage=e=>{worker.terminate();e.data.error?reject(new Error(e.data.error)):resolve(e.data.audit);};worker.onerror=e=>{worker.terminate();reject(new Error(e.message));};worker.postMessage({audits,kind});});}
