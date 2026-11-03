@@ -41,3 +41,7 @@ it('applies explicit sheet selection without silently including other months',as
  const result=await readUpload(file,'corporate',[],{'months.xlsx':['October']});expect(result.source).toBe(1);expect(result.rows[0].noreg).toBe('October');expect(result.rows[0]._sourceSheet).toBe('October');
  await expect(readUpload(file,'corporate',[],{'months.xlsx':[]})).rejects.toThrow('Header sumber');
 });
+
+it('combines multiple selected files for every standard dashboard',async()=>{
+ for(const kind of ['ijr','regional','corporate'] as const){const header=kind==='ijr'?'Application Number,Status':kind==='regional'?'Company,Produk,Status,Email Sales':'No Register,Company,Produk,Status';const values=kind==='ijr'?['A,Done','B,Done']:kind==='regional'?['A,VA Debit,Done,2026-10-01','B,VA Debit,Done,2026-10-01']:['A,Client,BNIdirect,Done','B,Client,BNIdirect,Done'];const files=values.map((row,i)=>new File([header+'\n'+row],'file'+i+'.csv'));const result=await readUpload(files[0],kind,[files[1]]);expect(result.source).toBe(2);expect(result.rows).toHaveLength(2);expect(result.file).toContain('file0.csv + file1.csv');}
+});

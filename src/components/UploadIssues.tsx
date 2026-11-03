@@ -4,7 +4,7 @@ import {commitUpload,reviewStagedUpload,type UploadReview} from '../lib/upload';
 import {type AccessRole} from '../lib/access';
 import {type ApplicationKind,datasetTitles} from '../types';
 type Issue={id:number;file_name:string;source_row:number|null;sheet:string;reason:string;created_at:string};
-type Summary={uploadId:string;file:string;source:number;valid:number;failed:number;committed:boolean;canResume:boolean;complete:boolean;baselineCurrent:boolean;reasons:{reason:string;count:number}[]};
+type Summary={strategy?:'merge'|'selected';uploadId:string;file:string;source:number;valid:number;failed:number;committed:boolean;canResume:boolean;complete:boolean;baselineCurrent:boolean;reasons:{reason:string;count:number}[]};
 const errorMessage=(error:unknown)=>error&&typeof error==='object'&&'message' in error?String(error.message):String(error);
 export function UploadIssues({workspace,kind,role,revision,preview=false,onApplied}:{workspace:string;kind:ApplicationKind;role:AccessRole;revision:number;preview?:boolean;onApplied?:(file:string)=>Promise<void>}){
  const canRead=role==='admin'||role==='super_admin';
@@ -41,7 +41,7 @@ export function UploadIssues({workspace,kind,role,revision,preview=false,onAppli
    <div className="quality-grid">{[['Baris sumber',summary.source],['Valid',summary.valid],['Perlu diperiksa',summary.failed]].map(([label,n])=><div key={label}><b>{Number(n).toLocaleString()}</b><small>{label}</small></div>)}</div>
    <p className="muted">Tujuan: {datasetTitles[kind]} · Ringkasan file ini · {summary.committed?'Sudah diterapkan':'Belum diterapkan'}. Rincian pemeriksaan hanya tersedia untuk Admin dan Super Admin.</p>
    {resumable&&<div className="admin-upload-review">
-    {!review?<><p>File ini tersimpan, tetapi belum diterapkan. Periksa kembali sebelum menerapkannya. Data akan digabungkan dengan data aktif; pekerjaan lama tetap disimpan.</p><button className="primary" disabled={busy} onClick={continueUpload}>{busy?'Memeriksa…':'Periksa Upload Tersimpan'}</button></>:<>
+    {!review?<><p>File ini tersimpan, tetapi belum diterapkan. Periksa kembali sebelum menerapkannya. Cara penerapan tersimpan: {summary.strategy==='selected'?'hanya data terpilih (ganti data aktif)':'gabungkan dengan data aktif sebelumnya'}. Riwayat lama tetap disimpan.</p><button className="primary" disabled={busy} onClick={continueUpload}>{busy?'Memeriksa…':'Periksa Upload Tersimpan'}</button></>:<>
      <div className="admin-stats">{Object.entries(review).map(([key,n])=><div key={key}><small>{({new:'Baru',updated:'Diperbarui',unchanged:'Tidak berubah',duplicates:'Duplikat identik',conflicts:'Konflik identitas'} as Record<string,string>)[key]}</small><strong>{n.toLocaleString()}</strong></div>)}</div>
      {review.conflicts>0&&<p className="error">Ada konflik identitas. Periksa data sebelum menerapkan upload.</p>}
      <button className="primary" disabled={busy||review.conflicts>0||review.new+review.updated+review.unchanged===0} onClick={applyUpload}>{busy?'Menerapkan…':'Terapkan ke Dashboard'}</button>
