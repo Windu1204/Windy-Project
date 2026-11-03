@@ -23,3 +23,5 @@
 .activity-dialog .handover-section-title{margin:8px 0 0}
 @media(max-width:600px){.handover-job-detail dl{grid-template-columns:1fr;padding:14px}}
 .app-shell .activity-dialog .activity-check{display:flex;flex-direction:row;justify-content:flex-start;text-align:left;background:none;padding:6px 0}.app-shell .activity-dialog .activity-check input{flex:0 0 20px;margin:0}
+
+.upload-workflow fieldset{margin:14px 0;border:1px solid #d5e3ea;border-radius:8px;padding:14px}.upload-workflow .upload-sheet-option{display:flex;flex-direction:row;align-items:center;gap:10px;margin:8px 0}.upload-sheet-option input{width:18px;height:18px;flex:0 0 18px}.upload-workflow section{margin-top:20px}.upload-workflow .table-scroll{max-height:340px;overflow:auto;margin:16px 0}.upload-workflow td{max-width:220px;overflow-wrap:anywhere}

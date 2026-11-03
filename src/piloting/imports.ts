@@ -49,11 +49,11 @@ export function joinDiscrepancy(rows:Payload[],cases:Payload[]):Payload[]{
   return {...row,...patch};
  });
 }
-export async function readPiloting(file:File,attachments:File[]=[]){
+export async function readPiloting(file:File,attachments:File[]=[],selection?:Record<string,string[]>){
  const combined:Payload[]=[],cases:Payload[]=[];
  for(const input of [file,...attachments]){
   const wb=XLSX.read(await input.arrayBuffer(),{type:'array'});
-  for(const name of wb.SheetNames){
+  for(const name of wb.SheetNames){if(selection&&!selection[input.name]?.includes(name))continue;
    const grid=XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[name],{header:1,raw:true,defval:null});
    const index=grid.findIndex(row=>[field.id,field.company,field.person,field.product,field.status,field.assigned].every(h=>row.some(v=>pilotHeader(String(v??''))===h)));
    const discrepancyIndex=grid.findIndex(row=>[field.id,'Alasan Discrepancy','Pemenuhan Discrepancy'].every(h=>row.some(v=>pilotHeader(String(v??''))===h)));

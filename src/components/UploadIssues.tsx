@@ -2,7 +2,7 @@ import {useEffect,useState} from 'react';
 import {supabase} from '../lib/supabase';
 import {commitUpload,reviewStagedUpload,type UploadReview} from '../lib/upload';
 import {type AccessRole} from '../lib/access';
-import {type ApplicationKind} from '../types';
+import {type ApplicationKind,datasetTitles} from '../types';
 type Issue={id:number;file_name:string;source_row:number|null;sheet:string;reason:string;created_at:string};
 type Summary={uploadId:string;file:string;source:number;valid:number;failed:number;committed:boolean;canResume:boolean;complete:boolean;baselineCurrent:boolean;reasons:{reason:string;count:number}[]};
 const errorMessage=(error:unknown)=>error&&typeof error==='object'&&'message' in error?String(error.message):String(error);
@@ -11,7 +11,7 @@ export function UploadIssues({workspace,kind,role,revision,preview=false,onAppli
  const [rows,setRows]=useState<Issue[]>([]),[count,setCount]=useState(0),[page,setPage]=useState(0),[error,setError]=useState('');
  const [summary,setSummary]=useState<Summary|null>(null),[review,setReview]=useState<UploadReview|null>(null),[busy,setBusy]=useState(false),[actionError,setActionError]=useState('');
  useEffect(()=>{
-  let active=true;if(!canRead||preview||!supabase)return;
+  let active=true;setSummary(null);setReview(null);setError('');if(!canRead||preview||!supabase)return;
   supabase.rpc('wci_upload_summary',{p_workspace:workspace,p_kind:kind}).then(({data,error})=>{if(!active)return;if(error){setError(error.message);return;}setSummary(data as Summary|null);});
   return()=>{active=false;};
  },[workspace,kind,revision,preview,canRead]);
@@ -36,15 +36,15 @@ export function UploadIssues({workspace,kind,role,revision,preview=false,onAppli
  if(!canRead||preview||(!count&&!error&&!summary))return null;
  const resumable=summary&&!summary.committed&&summary.canResume&&summary.complete&&summary.baselineCurrent&&summary.valid>0;
  return <details className="panel upload-issues">
-  <summary>Hasil pemeriksaan upload{summary?' · '+summary.file:''}</summary>
+  <summary>Upload tersimpan sebelumnya{summary?' · '+summary.file:''}</summary>
   {summary&&<>
    <div className="quality-grid">{[['Baris sumber',summary.source],['Valid',summary.valid],['Perlu diperiksa',summary.failed]].map(([label,n])=><div key={label}><b>{Number(n).toLocaleString()}</b><small>{label}</small></div>)}</div>
-   <p className="muted">Ringkasan file ini · {summary.committed?'Sudah diterapkan':'Belum diterapkan'}. Rincian pemeriksaan hanya tersedia untuk Admin dan Super Admin.</p>
+   <p className="muted">Tujuan: {datasetTitles[kind]} · Ringkasan file ini · {summary.committed?'Sudah diterapkan':'Belum diterapkan'}. Rincian pemeriksaan hanya tersedia untuk Admin dan Super Admin.</p>
    {resumable&&<div className="admin-upload-review">
-    {!review?<><p>File sudah tersimpan. Lanjutkan pemeriksaan untuk menerapkannya ke dashboard tanpa upload ulang.</p><button className="primary" disabled={busy} onClick={continueUpload}>{busy?'Memeriksa…':'Lanjutkan Upload'}</button></>:<>
+    {!review?<><p>File ini tersimpan, tetapi belum diterapkan. Periksa kembali sebelum menerapkannya. Data akan digabungkan dengan data aktif; pekerjaan lama tetap disimpan.</p><button className="primary" disabled={busy} onClick={continueUpload}>{busy?'Memeriksa…':'Periksa Upload Tersimpan'}</button></>:<>
      <div className="admin-stats">{Object.entries(review).map(([key,n])=><div key={key}><small>{({new:'Baru',updated:'Diperbarui',unchanged:'Tidak berubah',duplicates:'Duplikat identik',conflicts:'Konflik identitas'} as Record<string,string>)[key]}</small><strong>{n.toLocaleString()}</strong></div>)}</div>
      {review.conflicts>0&&<p className="error">Ada konflik identitas. Periksa data sebelum menerapkan upload.</p>}
-     <button className="primary" disabled={busy||review.conflicts>0||review.new+review.updated+review.unchanged===0} onClick={applyUpload}>{busy?'Menerapkan…':'Terapkan Upload'}</button>
+     <button className="primary" disabled={busy||review.conflicts>0||review.new+review.updated+review.unchanged===0} onClick={applyUpload}>{busy?'Menerapkan…':'Terapkan ke Dashboard'}</button>
     </>}
    </div>}
    {!summary.committed&&!summary.complete&&<p className="notice">Upload belum lengkap. Pilih file lagi untuk mengulangi pemeriksaan.</p>}

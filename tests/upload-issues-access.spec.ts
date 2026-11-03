@@ -42,14 +42,14 @@ test('saved upload can be reviewed after reload, retried, and applied without up
  await page.route('**/rest/v1/wci_upload_issues*',route=>route.fulfill({json:new URL(route.request().url()).searchParams.get('upload_id')==='eq.latest'?[]:[{id:1,file_name:'Old.xlsx',reason:'Old error'}]}));
  await page.goto('/');await mount(page);await page.reload();await mount(page);await page.locator('#diagnostic-test summary').click();
  await expect(page.locator('#diagnostic-test')).toContainText('Tidak ada baris bermasalah');await expect(page.locator('#diagnostic-test')).not.toContainText('Old error');
- await page.getByRole('button',{name:'Lanjutkan Upload',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Temporary review failure');
- await page.getByRole('button',{name:'Lanjutkan Upload',exact:true}).click();await expect(page.getByRole('button',{name:'Terapkan Upload',exact:true})).toBeEnabled();
- await page.getByRole('button',{name:'Terapkan Upload',exact:true}).click();await expect(page.locator('#diagnostic-test')).toContainText('Sudah diterapkan');expect(commits).toBe(1);expect(reviews).toBe(2);expect(await page.evaluate(()=>(window as any).uploadApplied)).toBe(true);
+ await page.getByRole('button',{name:'Periksa Upload Tersimpan',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Temporary review failure');
+ await page.getByRole('button',{name:'Periksa Upload Tersimpan',exact:true}).click();await expect(page.getByRole('button',{name:'Terapkan ke Dashboard',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Terapkan ke Dashboard',exact:true}).click();await expect(page.locator('#diagnostic-test')).toContainText('Sudah diterapkan');expect(commits).toBe(1);expect(reviews).toBe(2);expect(await page.evaluate(()=>(window as any).uploadApplied)).toBe(true);
 });
 
 for(const state of [{canResume:false},{baselineCurrent:false},{complete:false}])test('cannot resume a foreign, stale or incomplete upload '+JSON.stringify(state),async({page})=>{
  await mockClient(page);await page.route('**/rest/v1/rpc/wci_upload_summary',route=>route.fulfill({json:{...latest,...state}}));await page.route('**/rest/v1/wci_upload_issues*',route=>route.fulfill({json:[]}));
- await page.goto('/');await mount(page);await page.locator('#diagnostic-test summary').click();await expect(page.getByRole('button',{name:'Lanjutkan Upload',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Terapkan Upload',exact:true})).toHaveCount(0);
+ await page.goto('/');await mount(page);await page.locator('#diagnostic-test summary').click();await expect(page.getByRole('button',{name:'Periksa Upload Tersimpan',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Terapkan ke Dashboard',exact:true})).toHaveCount(0);
 });
 
 test('upload diagnostics are absent from every dashboard and Admin summary',async({page})=>{
