@@ -22,7 +22,7 @@ test('Regional user New/maintenance workflow refreshes every authorized role via
    else if(url.pathname.endsWith('/wci_access'))body=[{workspace_id:'workspace',user_id:user.id,dataset:'regional',source:'AT',team_id:null,pic:role==='individual'?'Person A':role==='other'?'Person B':''}];
    else if(url.pathname.endsWith('/wci_datasets'))body={active_batch:'batch',data_mode:'reference'};
    else if(url.pathname.endsWith('/wci_events'))body={revision};
-   else if(url.pathname.endsWith('/wci_records')){const scoped=url.searchParams.get('dataset')==='eq.regional'?rows.filter(r=>role==='individual'?r.payload.implementor==='Person A':role==='other'?r.payload.implementor==='Person B':true):[];body=structuredClone(scoped);count=scoped.length;}
+   else if(url.pathname.endsWith('/wci_records')){const scoped=url.searchParams.get('dataset')==='eq.regional'?rows.filter(r=>role==='individual'?r.payload.implementor==='Person A':role==='other'?r.payload.implementor==='Person B':true):[];body=structuredClone(scoped.filter(r=>!url.searchParams.has('position')||r.position>Number(url.searchParams.get('position')!.slice(3))));count=scoped.length;}
    else if(url.pathname.endsWith('/wci_regional_progress')){
     calls++;const update=route.request().postDataJSON();const row=rows.find(r=>r.id===update.p_id)!;expect(role).toBe('individual');expect(row.payload.implementor).toBe('Person A');
     if(update.p_action==='done'){if(row.payload.type==='New')row.payload.companyId=update.p_company_id;else expect(update.p_company_id).toBeNull();Object.assign(row.payload,{status:'Done',doneDate:'2026-10-29',dashboardUpdatedAt:new Date().toISOString()});}

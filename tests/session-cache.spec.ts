@@ -15,6 +15,7 @@ test('verified tab cache reuses rows, refreshes upload/Done, reports failures an
   else if(url.pathname.endsWith('/wci_datasets'))body={active_batch:'batch',data_mode:'reference'};
   else if(url.pathname.endsWith('/wci_events')){if(offline)return route.fulfill({status:400,json:{message:'Offline test'}});body={revision};}
   else if(url.pathname.endsWith('/wci_records')){reads++;body=[{id:owner,position:1,payload:url.searchParams.get('dataset')==='eq.regional'?payload:{...payload,'Application Number':'A','Applicant Name':payload.company,Status:'Dalam Proses',Wilayah:'W01'}}];}
+  if(url.pathname.endsWith('/wci_records')&&url.searchParams.has('position'))body=[];
   return route.fulfill({status:200,json:body});
  });
  await page.goto('/');await page.getByLabel('Email',{exact:true}).fill('first@example.invalid');await page.getByLabel('Password',{exact:true}).fill('fake-password');await page.getByRole('button',{name:'Login',exact:true}).click();

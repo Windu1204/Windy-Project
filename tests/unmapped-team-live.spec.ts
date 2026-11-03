@@ -33,7 +33,7 @@ for(const role of ['team_leader','individual'])for(const kind of ['ijr','regiona
   else if(url.pathname.endsWith('/wci_records')){
    if(url.searchParams.get('dataset')==='eq.'+kind)requestedBatch=url.searchParams.get('batch_id')||'';
    const names=url.searchParams.get('dataset')==='eq.'+kind?(mapped?members.filter(name=>name==='Person A'):members):[];
-   body=names.map((name,index)=>({id:name,position:index+1,payload:payload(name,index)}));count=names.length;
+   body=names.map((name,index)=>({id:name,position:index+1,payload:payload(name,index)}));body=(body as {position:number}[]).filter(r=>!url.searchParams.has('position')||r.position>Number(url.searchParams.get('position')!.slice(3)));count=names.length;
   }
   await route.fulfill({status:200,json:body,headers:count===undefined?{}:{'content-range':count?`0-${count-1}/${count}`:'*/0'}});
  });

@@ -28,7 +28,7 @@ test('implementation activities: six simultaneous sessions, evidence, pasted nam
     else if(url.pathname.endsWith('/wci_access'))body=url.searchParams.has('user_id')?grants.filter(g=>g.user_id===user.id):grants;
     else if(url.pathname.endsWith('/wci_datasets'))body={active_batch:'batch',data_mode:'reference'};
     else if(url.pathname.endsWith('/wci_events'))body={revision};
-    else if(url.pathname.endsWith('/wci_records')){const k=url.searchParams.get('dataset')?.slice(3)||'ijr';const scoped=records(k).filter(r=>role==='individual'?r.position===1:role==='other'?r.position===2:true);body=scoped;count=scoped.length;}
+    else if(url.pathname.endsWith('/wci_records')){const k=url.searchParams.get('dataset')?.slice(3)||'ijr';const scoped=records(k).filter(r=>role==='individual'?r.position===1:role==='other'?r.position===2:true);body=scoped.filter(r=>!url.searchParams.has('position')||r.position>Number(url.searchParams.get('position')!.slice(3)));count=scoped.length;}
     else if(url.pathname.endsWith('/wci_activity_read')){const args=route.request().postDataJSON();body=activities.filter(a=>a.dataset===args.p_dataset&&(['individual','other'].includes(role)?a.owner_id===user.id:true));}
     else if(url.pathname.endsWith('/wci_activity_save')){
      const args=route.request().postDataJSON(),old=activities.find(a=>a.id===args.p_id);expect(role).toBe('individual');expect(args.p_payload.implementor).toBe('Person A');
