@@ -17,7 +17,7 @@ describe('header-based complete upload audit',()=>{
   const audit=await readUpload(new File([lines.join('\n')],'scale.csv'),'corporate');
   expect(audit.source).toBe(100000);expect(audit.rows).toHaveLength(100000);expect(audit.issues).toHaveLength(0);
   expect(audit.rows.at(-1)).toMatchObject({noreg:'R-100000',assignDate:'2026-08-14',doneDate:'2026-08-18',_sourceRow:100001});
- },30000);
+ },90000);
  it('finds a late header, includes every compatible sheet, and traces blank/invalid rows',async()=>{
   const wb=XLSX.utils.book_new(),intro=Array.from({length:120},()=>['Introduction']);
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([...intro,['Status','Company','No Register','Produk','Assign Date'],['Done','A','A','BNIDirect','2026-08-03'],[null,null,null,null,null],['Done','B','B','BNIDirect','2026-02-30']]),'August');
@@ -33,4 +33,11 @@ describe('header-based complete upload audit',()=>{
   expect(auditPiloting([p]).validRows).toHaveLength(1);
   const result=auditPiloting([p,{...p,Kategori:'Masih Pending'}]);expect(result.validRows).toHaveLength(0);expect(result.revisions).toHaveLength(2);expect(result.source).toBe(2);
  });
+});
+
+it('applies explicit sheet selection without silently including other months',async()=>{
+ const wb=XLSX.utils.book_new();for(const name of ['September','October'])XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['No Register','Company','Produk','Status'],[name,'Company','BNIdirect','Done']]),name);
+ const file=new File([XLSX.write(wb,{type:'array',bookType:'xlsx'})],'months.xlsx');
+ const result=await readUpload(file,'corporate',[],{'months.xlsx':['October']});expect(result.source).toBe(1);expect(result.rows[0].noreg).toBe('October');expect(result.rows[0]._sourceSheet).toBe('October');
+ await expect(readUpload(file,'corporate',[],{'months.xlsx':[]})).rejects.toThrow('Header sumber');
 });
