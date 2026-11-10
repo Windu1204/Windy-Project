@@ -25,3 +25,17 @@
 .app-shell .activity-dialog .activity-check{display:flex;flex-direction:row;justify-content:flex-start;text-align:left;background:none;padding:6px 0}.app-shell .activity-dialog .activity-check input{flex:0 0 20px;margin:0}
 
 .upload-workflow fieldset{margin:14px 0;border:1px solid #d5e3ea;border-radius:8px;padding:14px}.upload-workflow .upload-sheet-option{display:flex;flex-direction:row;align-items:center;gap:10px;margin:8px 0}.upload-sheet-option input{width:18px;height:18px;flex:0 0 18px}.upload-workflow section{margin-top:20px}.upload-workflow .table-scroll{max-height:340px;overflow:auto;margin:16px 0}.upload-workflow td{max-width:220px;overflow-wrap:anywhere}
+
+/* Existing five themes, with a visible title fill and accessible action contrast. */
+.theme-root{--heading-accent:#006873;--heading-fill-start:#B8E3E3;--heading-fill-end:#D5EEEE;--button-fill:#007A83;--button-ink:#fff}
+.theme-root[data-theme="blue"]{--heading-accent:#215D88;--heading-fill-start:#BBDDF2;--heading-fill-end:#D4E9F7;--button-fill:#246A97;--button-ink:#fff}
+.theme-root[data-theme="pink"]{--heading-accent:#AD3665;--heading-fill-start:#F4C4D6;--heading-fill-end:#F9DCE7;--button-fill:#AD3665;--button-ink:#fff}
+.theme-root[data-theme="gray"]{--heading-accent:#495D6A;--heading-fill-start:#CCD5DC;--heading-fill-end:#E2E7EB;--button-fill:#536876;--button-ink:#fff}
+.theme-root[data-theme="yellow"]{--heading-accent:#947000;--heading-fill-start:#F6DF94;--heading-fill-end:#FAEDBB;--button-fill:#E3BA3A;--button-ink:#173451}
+.app-shell .records{--heading-fill-start:inherit;--heading-fill-end:inherit}
+.theme-root[data-theme] .app-shell .primary,.theme-root[data-theme] .app-shell .sidebar nav .nav.active,.theme-root[data-theme] .app-shell .sidebar .individual-navigation button.active{background:var(--button-fill)!important;border-color:var(--button-fill)!important;color:var(--button-ink)!important}
+.theme-root[data-theme] .app-shell .primary:disabled{opacity:.55}
+.theme-root[data-theme] .app-shell .primary:not(:disabled):hover{filter:brightness(.94)}
+.handover-approval{display:grid;gap:10px;padding:12px 0;color:#173451;font-size:14px}.handover-approval p{margin:0}.handover-approval .primary{justify-self:start}
+.my-tasks .handover-approval{font-size:12px;padding:0 0 8px}
+.legacy-call-reports{margin-top:20px}.legacy-call-reports .secondary{margin:0 8px 8px 0}
