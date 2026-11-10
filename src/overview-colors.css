@@ -1,0 +1,27 @@
+/* Color only: preserve every existing dimension, shape, font, gradient direction and layout. */
+.theme-root{--shell-light:#E4F3F4;--shell-mid:#CEE7E9;--shell-end:#ABD4D9;--shell-wave:#65ADB333;--top-light:#DCEFF0;--top-mid:#C4E4E6;--top-end:#7DBBC2;--filter-fill:#DEEEEE;--filter-line:#A1C9CD;--active-fill:#B8DEE1;--page-fill:#F0F5F6}
+.theme-root[data-theme="blue"]{--shell-light:#E8F2FB;--shell-mid:#D2E6F6;--shell-end:#AFD1EA;--shell-wave:#689FC533;--top-light:#DFEDF9;--top-mid:#C6E0F3;--top-end:#8ABBDC;--filter-fill:#E0EDF8;--filter-line:#ABCBDD;--active-fill:#BEDBF0;--page-fill:#F1F5F9}
+.theme-root[data-theme="pink"]{--shell-light:#FBEAF1;--shell-mid:#F3D7E3;--shell-end:#E7B6CB;--shell-wave:#C77C9B33;--top-light:#F8E3ED;--top-mid:#F0CDDD;--top-end:#DDA4BC;--filter-fill:#F8E5EE;--filter-line:#DCAFC2;--active-fill:#EFC9D9;--page-fill:#F8F3F6}
+.theme-root[data-theme="gray"]{--shell-light:#EBEFF2;--shell-mid:#D9E1E6;--shell-end:#BDC9D2;--shell-wave:#798F9C33;--top-light:#E4EBF0;--top-mid:#D0DBE2;--top-end:#9FAFBB;--filter-fill:#E7EDF1;--filter-line:#B6C5CE;--active-fill:#CCD8E0;--page-fill:#F2F5F7}
+.theme-root[data-theme="yellow"]{--shell-light:#FBF4DE;--shell-mid:#F5E9BD;--shell-end:#E8D48F;--shell-wave:#BA9A3333;--top-light:#FAEFCB;--top-mid:#F4E3A7;--top-end:#DDC16F;--filter-fill:#FAF0CF;--filter-line:#DCC888;--active-fill:#F3E1A3;--page-fill:#F8F6EF}
+.theme-root[data-theme] .app-shell>.main{background-color:var(--page-fill)!important}
+.theme-root[data-theme] .app-shell .side.sidebar{background:radial-gradient(ellipse 150% 38% at -35% 105%,var(--shell-wave) 0%,var(--shell-wave) 64%,transparent 65%),radial-gradient(ellipse 145% 40% at 120% 108%,var(--shell-wave) 0%,var(--shell-wave) 63%,transparent 64%),linear-gradient(165deg,var(--shell-light) 0%,var(--shell-mid) 48%,var(--shell-end) 100%)!important}
+.theme-root[data-theme="tosca"] .app-shell .topbar{background:linear-gradient(105deg,var(--top-light) 0%,var(--top-mid) 40%,#A0CFD4 78%,var(--top-end) 100%)!important}
+.theme-root:not([data-theme="tosca"]) .app-shell .topbar{background:linear-gradient(105deg,var(--top-light) 0%,var(--top-mid) 40%,var(--top-end) 100%)!important}
+.theme-root[data-theme] .app-shell .filter-panel{background-color:var(--filter-fill);border-color:var(--filter-line)}
+.theme-root[data-theme] .app-shell .filter-panel :is(input,select,.period-trigger){background-color:#fff;border-color:var(--filter-line);color:#17365D}
+.theme-root[data-theme] .app-shell .filter-panel :is(label,.filter-label){color:#28465E}
+.theme-root[data-theme] .dashboard-content .tabs button.active{background-color:var(--active-fill);border-color:var(--heading-accent);color:#17365D}
+.theme-root[data-theme] .app-shell :is(.secondary,.icon-button){border-color:var(--filter-line);color:var(--heading-accent)}
+.theme-root[data-theme] .app-shell :is(.secondary,.icon-button):not(:disabled):hover{background-color:var(--active-fill)}
+.theme-root[data-theme] .sidebar :is(.nav,.individual-navigation button):not(.active):hover{background-color:var(--active-fill)!important;color:#17365D!important}
+.theme-root[data-theme] .dashboard-content .kpi{--card-fill:#C8DFEF;--card-line:#92B7D3;background:linear-gradient(180deg,var(--card-fill) 0%,var(--card-fill) 36%,#fff 36%,#fff 100%);border-color:var(--card-line)}
+.theme-root[data-theme] .dashboard-content .kpi.source-blue{--card-fill:#C8DFEF;--card-line:#92B7D3;--kpi-accent:#3179BE}
+.theme-root[data-theme] .dashboard-content .kpi.source-green{--card-fill:#C5E4D7;--card-line:#9AC9B4;--kpi-accent:#278562}
+.theme-root[data-theme] .dashboard-content .kpi.source-teal{--card-fill:#BFE2E3;--card-line:#8ABEC2;--kpi-accent:#087F8C}
+.theme-root[data-theme] .dashboard-content .kpi.source-amber{--card-fill:#F6E2AD;--card-line:#DBBF7A;--kpi-accent:#AF781D}
+.theme-root[data-theme] .dashboard-content .kpi.source-red{--card-fill:#F1CBD2;--card-line:#D6A1AB;--kpi-accent:#BC4E62}
+.theme-root[data-theme] .dashboard-content .kpi.source-purple{--card-fill:#DED2EC;--card-line:#B9A5CF;--kpi-accent:#7B609A}
+.theme-root[data-theme] .dashboard-content .kpis:not(.sla-kpis)>.kpi:first-child{--card-fill:var(--heading-fill-start);--card-line:var(--filter-line);--kpi-accent:var(--heading-accent)}
+.theme-root[data-theme] .dashboard-content .kpi:not(:disabled):hover{background:linear-gradient(180deg,color-mix(in srgb,var(--card-fill) 92%,var(--kpi-accent)) 0%,color-mix(in srgb,var(--card-fill) 92%,var(--kpi-accent)) 36%,#fff 36%,#fff 100%);border-color:var(--kpi-accent)}
+.theme-root[data-theme] .dashboard-content .kpi small{color:#17365D}
