@@ -4,8 +4,8 @@ export type ActivityDataset='ijr'|'regional';
 export type ActivityKind='calendar'|'training'|'call'|'handover';
 export interface Participant{name:string;attended:boolean}
 export interface ActivityFile{path:string;name:string}
-export interface ActivityBody{implementor:string;date:string;time?:string;place?:string;remarks?:string;product?:string;bni?:Participant[];customers?:Participant[];feedback?:string;discussion?:string;title?:string;company?:string;start?:string;end?:string;mode?:string;potential?:string;followup?:string;measure?:'volume'|'item';quantity?:string;informed?:boolean;reference?:string;recordId?:string}
-export interface Activity{id:string;workspace_id:string;dataset:ActivityDataset;kind:ActivityKind;owner_id:string;pic:string;job_key:string|null;data_mode:string|null;payload:ActivityBody;attachments:ActivityFile[];created_at:string;updated_at:string}
+export interface ActivityBody{implementor:string;date:string;time?:string;place?:string;remarks?:string;product?:string;bni?:Participant[];customers?:Participant[];feedback?:string;discussion?:string;title?:string;company?:string;start?:string;end?:string;mode?:string;potential?:string;followup?:string;measure?:'volume'|'item';quantity?:string;informed?:boolean;reference?:string;recordId?:string;calendarId?:string}
+export interface Activity{id:string;workspace_id:string;dataset:ActivityDataset;kind:ActivityKind;owner_id:string;pic:string;job_key:string|null;data_mode:string|null;payload:ActivityBody;attachments:ActivityFile[];created_at:string;updated_at:string;approval_status?:'pending'|'approved'|'legacy';approved_at?:string|null;approved_by?:string|null;approver_name?:string|null}
 export function pastedParticipants(source:string,previous:Participant[]=[]):Participant[]{
  const history=new Map<string,boolean[]>();for(const p of previous){const key=p.name.trim().toLocaleLowerCase();history.set(key,[...(history.get(key)||[]),p.attended]);}
  return source.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(name=>({name,attended:history.get(name.toLocaleLowerCase())?.shift()??true}));
@@ -16,7 +16,7 @@ export const presentCount=(rows:Participant[]=[])=>rows.filter(p=>p.attended).le
 export function calendarBody(body:ActivityBody):ActivityBody{return {...body,start:body.start||body.time||'',end:body.end||''};}
 export function calendarTimeLabel(body:ActivityBody){return (body.start||body.time||'—')+' – '+(body.end||'—');}
 export function activityJobKey(kind:ActivityDataset,p:Payload){if(kind==='ijr')return 'ijr:'+text(p['Application Number']).trim().toLowerCase();return 'regional:['+['company','cid','product','type','salesDate'].map(k=>JSON.stringify(text(p[k]).trim().toLowerCase())).join(', ')+']';}
-export function handoverEligible(kind:ActivityDataset,p:Payload){return requestCategory(p[kind==='ijr'?'Application Type':'type'])==='N'&&(kind==='regional'?/^done$/i.test(text(p.status))&&!!text(p.companyId):/^(proses selesai|registered,\s*delivered|delivered|done)$/i.test(text(p.Status)))&&!text(p.dashboardHandoverAt)&&!/^handover$/i.test(text(p.handover));}
+export function handoverEligible(kind:ActivityDataset,p:Payload){return requestCategory(p[kind==='ijr'?'Application Type':'type'])==='N'&&(kind==='regional'?/^done$/i.test(text(p.status))&&!!text(p.companyId):/^(proses selesai|registered,\s*delivered|delivered|done)$/i.test(text(p.Status)))&&!text(p.handoverActivityId)&&!text(p.handoverDate)&&!text(p.dashboardHandoverAt)&&!/^handover$/i.test(text(p.handover));}
 export function validateActivity(kind:ActivityKind,b:ActivityBody,files:ActivityFile[]){
  if(!b.implementor.trim())return 'Implementor wajib diisi.';
  if(kind==='handover'){const n=Number(b.quantity);if(!b.quantity||!Number.isFinite(n)||n<=0||n>1e18||b.measure==='item'&&!Number.isInteger(n))return 'Isi volume atau jumlah item positif; item harus bilangan bulat.';if(!b.informed)return 'Konfirmasi bahwa nasabah sudah diinformasikan.';if(!files.length)return 'Bukti email ke nasabah wajib diunggah.';return '';}
@@ -33,7 +33,8 @@ export function validateActivity(kind:ActivityKind,b:ActivityBody,files:Activity
  if(b.end!<b.start!)return 'Waktu selesai tidak boleh sebelum waktu mulai.';
  if(!files.length)return 'Lampiran Call Report wajib diunggah.';return '';
 }
+export function handoverApprovalLabel(a:Activity){return a.approval_status==='pending'?'Menunggu persetujuan TL':a.approval_status==='approved'?'Disetujui TL':'Handover tercatat sebelumnya';}
 export function overlayHandovers<T extends {payload:Payload}>(rows:T[],kind:ActivityDataset,activities:Activity[],mode:string){
  const handovers=new Map(activities.filter(a=>a.kind==='handover'&&a.data_mode===mode).map(a=>[a.job_key,a]));
- return rows.map(row=>{const a=handovers.get(activityJobKey(kind,row.payload));return a?{...row,payload:{...row.payload,handover:'Handover',dashboardHandoverAt:a.created_at,handoverMeasure:a.payload.measure,handoverQuantity:a.payload.quantity,handoverInformed:a.payload.informed,handoverActivityId:a.id}}:row;});
+ return rows.map(row=>{const a=handovers.get(activityJobKey(kind,row.payload));return a?{...row,payload:{...row.payload,handover:a.approval_status==='pending'?row.payload.handover:'Handover',dashboardHandoverAt:a.approval_status==='pending'?row.payload.dashboardHandoverAt:(a.approved_at||a.created_at),handoverApproval:handoverApprovalLabel(a),handoverMeasure:a.payload.measure,handoverQuantity:a.payload.quantity,handoverInformed:a.payload.informed,handoverActivityId:a.id}}:row;});
 }

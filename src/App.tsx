@@ -1,3 +1,5 @@
+import {completionDates} from './domain/completion-dates';
+import {useSessionLimit} from './lib/use-session-limit';
 import {useActivities} from './lib/use-activities';
 import {overlayHandovers} from './domain/activities';
 import {type ActivityContext} from './components/Activities';
@@ -30,6 +32,9 @@ export default function App() { const { t, language, setLanguage } = useLanguage
     const [account,setAccount]=useState<access.Profile|null>(null),[grants,setGrants]=useState<access.Grant[]>([]),[teamPeople,setTeamPeople]=useState<{team_id:string;pic:string}[]>([]),[adminView,setAdminView]=useState(false),[kpiView,setKpiView]=useState(false),[personalView,setPersonalView]=useState('overview'),[version,setVersion]=useState(''),[versions,setVersions]=useState<access.Batch[]>([]),[dataMode,setDataMode]=useState('reference'),[source,setSource]=useState<'AT'|'PM'>('AT'),[viewAs,setViewAs]=useState<{profile:access.Profile;directory:Awaited<ReturnType<typeof access.adminDirectory>>}|null>(null),[recovery,setRecovery]=useState(false);
     const [lastUpdated,setLastUpdated]=useState<Date|null>(null),[connected,setConnected]=useState(false);
     const loadedScope=useRef('');
+    const [sessionNotice,setSessionNotice]=useState('');
+    const expireSession=useCallback(()=>{repository.clearSessionCache();setUser(null);setRaw([]);setOriginal([]);setRules([]);setProfile(false);setRecovery(false);setSessionNotice('Sesi login 15 menit telah berakhir. Silakan login kembali.');},[]);
+    useSessionLimit(user?.id,preview,expireSession);
     useEffect(() => { repository.clearSessionCache(); loadedScope.current=''; setRaw([]); setOriginal([]); setRules([]); return () => repository.clearSessionCache(); }, [user?.id, preview]);
     const localProfile:access.Profile={workspace_id:'local',user_id:'local',name:'Local Preview',email:'',role:'super_admin',active:true};
     const currentProfile=viewAs?.profile||(preview?localProfile:account);
@@ -68,7 +73,7 @@ export default function App() { const { t, language, setLanguage } = useLanguage
     } let active = true; supabase.auth.getUser().then(({ data }) => { if (active) {
         setUser(data.user);
         setAuthLoading(false);
-    } }); const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user || null); setAuthLoading(false); if(_event==='PASSWORD_RECOVERY')setRecovery(true); }); return () => { active = false; subscription.unsubscribe(); }; }, []);
+    } }); const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user || null); setAuthLoading(false); if(_event==='PASSWORD_RECOVERY')setRecovery(true); if(_event==='SIGNED_IN')setSessionNotice(''); }); return () => { active = false; subscription.unsubscribe(); }; }, []);
     useEffect(() => { if (!user) {
         setMembers([]);setAccount(null);setGrants([]);setViewAs(null);setAdminView(false);setKpiView(false);setPersonalView('overview');
         setWorkspace('');
@@ -94,7 +99,7 @@ export default function App() { const { t, language, setLanguage } = useLanguage
         setLoading(false); }); return () => { active = false; }; }, [kind, workspace, preview, refresh,version,user?.id]);
     const activityData=useActivities(workspace,kind,refresh,viewAs?.profile.user_id,preview||!user,user?.id);
     const visibleRaw=useMemo(()=>viewAs?access.scopedRows(raw,kind,viewAs.profile,viewAs.directory.grants.filter(g=>g.user_id===viewAs.profile.user_id),viewAs.directory.teams,viewAs.directory.people):raw,[raw,kind,viewAs]);
-    const rows = useMemo<MonitoringRecord[]>(() => (effectiveSource==='PM'?[]:!version&&(kind==='ijr'||kind==='regional')?overlayHandovers(visibleRaw,kind,activityData.rows,dataMode):visibleRaw).map(r => {const payload=kind==='corporate'?corporateStatusPayload(corporateProductPayload(r.payload)):r.payload;return { id: r.id, payload, sla: kind === 'piloting' ? pilotSla(payload, rules) : calculateSla(payload, kind, rules) };}), [visibleRaw, kind, rules,effectiveSource,version,activityData.rows,dataMode]);
+    const rows = useMemo<MonitoringRecord[]>(() => (effectiveSource==='PM'?[]:!version&&(kind==='ijr'||kind==='regional')?overlayHandovers(visibleRaw,kind,activityData.rows,dataMode):visibleRaw).map(r => {const payload=kind==='corporate'?corporateStatusPayload(corporateProductPayload(r.payload)):kind==='ijr'||kind==='regional'?completionDates(r.payload):r.payload;return { id: r.id, payload, sla: kind === 'piloting' ? pilotSla(payload, rules) : calculateSla(payload, kind, rules) };}), [visibleRaw, kind, rules,effectiveSource,version,activityData.rows,dataMode]);
     const membership = members.find(m => m.workspace_id === workspace), canEdit = !viewAs&&(preview||account?.role==='super_admin'), canDone=!viewAs&&!version&&kind==='regional'&&account?.role==='individual'&&grants.some(g=>g.dataset==='regional'&&g.source==='AT'&&g.pic.trim());
     const reload = useCallback(() => { repository.clearSessionCache(); setRefresh(n => n + 1); }, []);
     async function apply(payload: Payload[], name: string) { if (preview) {
@@ -118,7 +123,7 @@ export default function App() { const { t, language, setLanguage } = useLanguage
         return;
     } await repository.deleteRule(workspace, product,kind); setRules(await repository.loadRules(workspace,kind)); }
     async function logout() { if (supabase && !preview) {
-        const { error } = await supabase.auth.signOut();
+        const { error } = await supabase.auth.signOut({scope:'local'});
         if (error) {
             setError(error.message);
             return;
@@ -136,7 +141,7 @@ export default function App() { const { t, language, setLanguage } = useLanguage
     if (authLoading)
         return <div className="loading-page">{t("Memuat workspace…")}</div>;
     if (!user && !preview)
-        return <Auth onPreview={() => { setPreview(true); setError(''); }}/>;
+        return <Auth notice={sessionNotice} onPreview={() => { setPreview(true); setError(''); }}/>;
     const name = viewAs?viewAs.profile.name:preview?'Local Preview':account?.name||user?.user_metadata.display_name||user?.email||'User';
     if(!preview&&(recovery||user?.app_metadata.must_change_password))return <PasswordSetup required={!!user?.app_metadata.must_change_password} onSaved={()=>{setRecovery(false);setError('');supabase!.auth.getUser().then(r=>setUser(r.data.user));reload();}} onClose={()=>user?.app_metadata.must_change_password?void logout():setRecovery(false)}/>;
     if(!preview&&!account)return <p className="loading-page">{error||t('Memuat hak akses…')}</p>;

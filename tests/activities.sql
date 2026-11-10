@@ -1,7 +1,7 @@
 -- Rollback-only fixtures: no real accounts, files, records or audit data are changed.
 begin;
 create temporary table activity_ids(name text primary key,id uuid default gen_random_uuid());
-insert into activity_ids(name) values('w'),('a'),('b'),('head'),('tl'),('admin'),('super'),('team'),('cal-a'),('cal-b'),('training'),('call'),('h-reg'),('h-ijr');
+insert into activity_ids(name) values('w'),('a'),('b'),('head'),('tl'),('admin'),('super'),('team'),('cal-a'),('cal-b'),('training'),('call'),('h-reg'),('h-ijr'),('cal-call');
 grant select on activity_ids to authenticated;
 insert into auth.users(id,email) select id,'activity-'||name||'@qa.invalid' from activity_ids where name in('a','b','head','tl','admin','super');
 insert into public.wci_workspaces(id,name) select id,'Activity rollback fixture' from activity_ids where name='w';
@@ -29,8 +29,10 @@ do $$declare w uuid:=(select id from activity_ids where name='w');a uuid:=(selec
  f:=jsonb_build_array(jsonb_build_object('path',w||'/ijr/'||a||'/'||(select id from activity_ids where name='training')||'/proof.pdf','name','proof.pdf'));
  perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='training'),'training','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[{"name":"Person A","attended":true}],"customers":[{"name":"Sari","attended":true},{"name":"Sari","attended":false}]}',f);
  f:=jsonb_build_array(jsonb_build_object('path',w||'/ijr/'||a||'/'||(select id from activity_ids where name='call')||'/proof.pdf','name','proof.pdf'));
- begin perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='call'),'call','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[],"customers":[],"title":"Call fixture","company":"Example","start":"10:00","end":"11:00","mode":"Online","place":"Teams","discussion":"Discussion","feedback":"Feedback","potential":"Potential","followup":"Follow up"}','[]');raise exception 'BUG optional Call Report attachment';exception when others then if sqlerrm='BUG optional Call Report attachment' then raise;end if;end;
- perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='call'),'call','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[],"customers":[],"title":"Call fixture","company":"Example","start":"10:00","end":"11:00","mode":"Online","place":"Teams","discussion":"Discussion","feedback":"Feedback","potential":"Potential","followup":"Follow up"}',f);
+ begin perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='cal-call'),'calendar','{"implementor":"Person A","date":"2026-11-04","start":"10:00","end":"11:00","place":"Teams"}','[]');
+ perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='call'),'call','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[],"customers":[],"title":"Call fixture","company":"Example","start":"10:00","end":"11:00","mode":"Online","place":"Teams","discussion":"Discussion","feedback":"Feedback","potential":"Potential","followup":"Follow up"}','[]');raise exception 'BUG optional Call Report attachment';exception when others then if sqlerrm='BUG optional Call Report attachment' then raise;end if;end;
+ perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='cal-call'),'calendar','{"implementor":"Person A","date":"2026-11-04","start":"10:00","end":"11:00","place":"Teams"}','[]');
+ perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='call'),'call','{"implementor":"Person A","date":"2026-11-04","product":"BNIdirect","bni":[],"customers":[],"title":"Call fixture","company":"Example","start":"10:00","end":"11:00","mode":"Online","place":"Teams","discussion":"Discussion","feedback":"Feedback","potential":"Potential","followup":"Follow up"}'::jsonb||jsonb_build_object('calendarId',(select id from activity_ids where name='cal-call')),f);
  f:=jsonb_build_array(jsonb_build_object('path',w||'/regional/'||a||'/'||(select id from activity_ids where name='h-reg')||'/proof.pdf','name','proof.pdf'));
  begin perform public.wci_activity_save(w,'regional',(select id from activity_ids where name='h-reg'),'handover','{"implementor":"Person A","measure":"item","quantity":"5","informed":false}',f,null,(select id from activity_ids where name='regional1'));raise exception 'BUG checklist';exception when others then if sqlerrm='BUG checklist' then raise;end if;end;
  v:=public.wci_activity_save(w,'regional',(select id from activity_ids where name='h-reg'),'handover','{"implementor":"Person A","measure":"item","quantity":"5","informed":true}',f,null,(select id from activity_ids where name='regional1'));
@@ -41,7 +43,7 @@ do $$declare w uuid:=(select id from activity_ids where name='w');a uuid:=(selec
  begin perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='h-ijr'),'handover','{"implementor":"Person A","measure":"volume","quantity":"3.5","informed":true}',f,null,(select id from activity_ids where name='ijr3'));raise exception 'BUG pending';exception when others then if sqlerrm='BUG pending' then raise;end if;end;
  perform public.wci_activity_save(w,'ijr',(select id from activity_ids where name='h-ijr'),'handover','{"implementor":"Person A","measure":"volume","quantity":"3.5","informed":true}',f,null,(select id from activity_ids where name='ijr1'));
  if exists(select 1 from public.wci_records where workspace_id=w and dataset='ijr' and position=1 and payload->>'Status'<>'Proses Selesai') then raise exception 'source status changed';end if;
- if (select count(*) from public.wci_activities where workspace_id=w)<>5 then raise exception 'activity count mismatch';end if;
+ if (select count(*) from public.wci_activities where workspace_id=w)<>6 then raise exception 'activity count mismatch';end if;
  if not exists(select 1 from storage.objects where bucket_id='wci-activity-files' and name=w||'/ijr/'||a||'/'||(select id from activity_ids where name='h-ijr')||'/proof.pdf') then raise exception 'storage RLS blocks owner';end if;
  if not wci_private.activity_file_access(w||'/ijr/'||a||'/'||(select id from activity_ids where name='h-ijr')||'/proof.pdf') then raise exception 'owner cannot download';end if;
 end $$;
@@ -69,7 +71,7 @@ do $$declare w uuid:=(select id from activity_ids where name='w');source jsonb;b
  perform set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='head'),true);
  if (select count(*) from public.wci_activity_read(w,'regional'))<>3 then raise exception 'DH scope mismatch';end if;
  perform set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='admin'),true);
- if (select count(*) from public.wci_activity_read(w,'ijr'))<>3 then raise exception 'Admin scope mismatch';end if;
+ if (select count(*) from public.wci_activity_read(w,'ijr'))<>4 then raise exception 'Admin scope mismatch';end if;
  perform set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='super'),true);
  if (select count(*) from public.wci_activity_read(w,'regional',(select id from activity_ids where name='b')))<>1 then raise exception 'Super Admin preview wrong';end if;
  select jsonb_agg(r.payload) into source from public.wci_records r join public.wci_datasets d on d.workspace_id=r.workspace_id and d.kind=r.dataset and d.active_batch=r.batch_id where r.workspace_id=w and r.dataset='regional';
@@ -90,4 +92,45 @@ do $$declare old public.wci_activities;updated public.wci_activities;begin
  updated:=public.wci_activity_save(old.workspace_id,'regional',old.id,'calendar',old.payload||'{"end":"09:00"}','[]',old.updated_at);
  if updated.id<>old.id or updated.payload->>'start'<>'08:00' or updated.payload->>'time'<>'08:00' or updated.payload->>'end'<>'09:00' then raise exception 'legacy edit corrupted source';end if;
 end $$;
+
+-- TL-only approval: pending does not mutate source status or completion dates.
+do $$declare w uuid:=(select id from activity_ids where name='w');a public.wci_activities;approved public.wci_activities;before_payload jsonb;actor text;begin
+ select * into a from public.wci_activities x where x.workspace_id=w and x.kind='handover' and x.dataset='regional';
+ if a.approval_status<>'pending' or a.approved_at is not null then raise exception 'Handover was automatically approved';end if;
+ select payload into before_payload from public.wci_records where workspace_id=w and dataset='regional' and job_key=a.job_key order by position limit 1;
+ foreach actor in array array['a','b','head','admin','super'] loop
+  perform set_config('request.jwt.claim.sub',(select id::text from activity_ids where name=actor),true);
+  begin perform public.wci_handover_approve(w,a.id,a.updated_at);raise exception 'BUG non TL approved';exception when others then if sqlerrm='BUG non TL approved' then raise;end if;end;
+ end loop;
+ perform set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='tl'),true);
+ begin perform public.wci_handover_approve(w,a.id,null);raise exception 'BUG stale approval';exception when others then if sqlerrm='BUG stale approval' then raise;end if;end;
+ approved:=public.wci_handover_approve(w,a.id,a.updated_at);
+ if approved.approval_status<>'approved' or approved.approved_at is null or approved.approved_by is distinct from auth.uid() then raise exception 'Approval metadata missing';end if;
+ begin perform public.wci_handover_approve(w,a.id,approved.updated_at);raise exception 'BUG approved twice';exception when others then if sqlerrm='BUG approved twice' then raise;end if;end;
+ perform set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='a'),true);
+ begin perform public.wci_activity_save(w,a.dataset,a.id,a.kind,a.payload,a.attachments,approved.updated_at);raise exception 'BUG owner overwrote approval';exception when others then if sqlerrm='BUG owner overwrote approval' then raise;end if;end;
+ if exists(select 1 from public.wci_records where workspace_id=w and dataset='regional' and job_key=a.job_key and payload is distinct from before_payload) then raise exception 'Approval changed source data';end if;
+ -- A mapped TL cannot approve a PIC outside the team.
+ perform set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='tl'),true);
+ if wci_private.activity_access(w,'regional',(select id from activity_ids where name='b'),'Person B',auth.uid()) then raise exception 'TL sees another team';end if;
+end $$;
+reset role;
+-- Absolute session deadline remains based on creation, independent of refreshed JWT iat.
+insert into auth.sessions(id,user_id,created_at,updated_at)
+ select gen_random_uuid(),id,now()-interval '14 minutes',now() from activity_ids where name='a';
+select set_config('request.jwt.claim.sub',(select id::text from activity_ids where name='a'),true);
+select set_config('request.jwt.claims',jsonb_build_object('sub',(select id from activity_ids where name='a'),'role','authenticated','session_id',(select s.id from auth.sessions s where s.user_id=(select id from activity_ids where name='a')),'iat',extract(epoch from now()))::text,true);
+set local role authenticated;
+do $$declare d jsonb;begin
+ d:=public.wci_session_deadline();
+ if (d->>'expires_at')::timestamptz>now()+interval '61 seconds' then raise exception 'Token refresh extended absolute session';end if;
+ perform public.wci_check_session();
+end $$;
+reset role;
+update auth.sessions set created_at=now()-interval '16 minutes' where user_id=(select id from activity_ids where name='a');
+set local role authenticated;
+do $$begin
+ begin perform public.wci_check_session();raise exception 'BUG expired login allowed';exception when sqlstate 'PT401' then null;end;
+end $$;
+reset role;
 rollback;

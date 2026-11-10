@@ -18,4 +18,4 @@ export function kpiReturnSections(kind:string,individual:boolean,pm=false):strin
  return addActivitySections([['overview','Ringkasan'],[kind==='corporate'||kind==='regional'&&!pm?'status':'process','Proses Implementasi'],...(!pm&&['ijr','regional'].includes(kind)?[['regional','Wilayah']]:[]),['people','Kinerja & Beban Kerja'],['projects','Project Berjalan & Overdue'],['report','Report'],['data','Data']],pm?'':kind);
 }
 
-export function addActivitySections(items:string[][],kind:string):string[][]{if(!['ijr','regional'].includes(kind))return items;const next=items.map(item=>[...item]);const at=next.findIndex(([id])=>id==='data');next.splice(at<0?next.length:at,0,['calendar','Calendar'],...(kind==='ijr'?[['training','BNIdirect Online Training']]:[]),['call','Call Report']);return next;}
+export function addActivitySections(items:string[][],kind:string):string[][]{if(!['ijr','regional'].includes(kind))return items;const next=items.map(item=>[...item]);const at=next.findIndex(([id])=>id==='data');next.splice(at<0?next.length:at,0,['calendar','Calendar'],...(kind==='ijr'?[['training','BNIdirect Online Training']]:[]),['handover','Handover']);return next;}

@@ -13,3 +13,5 @@ export async function uploadActivityFile(workspace:string,dataset:ActivityDatase
 export async function openActivityFile(file:ActivityFile){const {data,error}=await db().storage.from(activityBucket).download(file.path);if(error)throw error;saveBlob(data,file.name);}
 
 export async function discardActivityFiles(files:ActivityFile[]){if(!files.length||!supabase)return;await supabase.storage.from(activityBucket).remove(files.map(f=>f.path)).catch(()=>{});}
+
+export async function approveHandover(workspace:string,id:string,expected:string){const {data,error}=await db().rpc('wci_handover_approve',{p_workspace:workspace,p_id:id,p_expected:expected});if(error)throw error;return data as Activity;}
