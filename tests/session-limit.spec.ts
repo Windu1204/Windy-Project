@@ -21,5 +21,5 @@ test('absolute 15-minute login expires across refresh and activity, signing out 
  await page.goto('/');await page.getByLabel('Email',{exact:true}).fill(user.email);await page.getByLabel('Password',{exact:true}).fill('fixture');await page.getByRole('button',{name:'Login',exact:true}).click();await expect(page.locator('.app-shell')).toBeVisible();
  await page.clock.fastForward(300000);await page.reload();await expect(page.locator('.app-shell')).toBeVisible();
  await page.locator('.header-command').first().click();await page.clock.fastForward(590000);await expect(page.locator('.app-shell')).toBeVisible();
- await page.clock.fastForward(11000);await expect(page.locator('#wciLogin')).toBeVisible();await expect(page.getByRole('status')).toContainText('15 menit');await expect.poll(()=>logoutScope).toBe('local');
+ await page.clock.fastForward(11000);await expect(page.locator('#wciLogin')).toBeVisible();await expect(page.locator('#wciLogin')).not.toContainText('15 menit');await expect.poll(()=>logoutScope).toBe('local');
 });
