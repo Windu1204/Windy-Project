@@ -39,3 +39,10 @@
 .handover-approval{display:grid;gap:10px;padding:12px 0;color:#173451;font-size:14px}.handover-approval p{margin:0}.handover-approval .primary{justify-self:start}
 .my-tasks .handover-approval{font-size:12px;padding:0 0 8px}
 .legacy-call-reports{margin-top:20px}.legacy-call-reports .secondary{margin:0 8px 8px 0}
+
+/* Unboxed heading wash fades fully into its parent; retain existing spacing. */
+.theme-root[data-theme] .app-shell :is(.panel>.panel-head,.panel>.table-heading,.panel>h3,.panel>h4,.person-detail>h3,.kpi-section-title,.kpi-intro>div>h2,.kpi-person>div>h3,.kpi-export>div>h3,.pilot-toolbar>h3),
+.theme-root[data-theme] .app-shell dialog>.dialog-head,.theme-root[data-theme] .app-shell dialog>h3{
+ background:linear-gradient(90deg,var(--heading-fill-start) 0%,color-mix(in srgb,var(--heading-fill-start) 48%,transparent) 35%,transparent 80%);
+ border-color:transparent!important;border-radius:0;box-shadow:none
+}

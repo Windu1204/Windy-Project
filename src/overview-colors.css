@@ -15,3 +15,15 @@
 .theme-root[data-theme] .app-shell :is(.secondary,.icon-button){border-color:var(--filter-line);color:var(--heading-accent)}
 .theme-root[data-theme] .app-shell :is(.secondary,.icon-button):not(:disabled):hover{background-color:var(--active-fill)}
 .theme-root[data-theme] .sidebar :is(.nav,.individual-navigation button):not(.active):hover{background-color:var(--active-fill)!important;color:#17365D!important}
+
+/* Stronger edges retain the original widths and white card backgrounds. */
+.theme-root{--edge-color:#538E97;--input-edge:#6B9EA7}
+.theme-root[data-theme="blue"]{--edge-color:#577FA4;--input-edge:#7299B9}
+.theme-root[data-theme="pink"]{--edge-color:#AA6785;--input-edge:#BB829C}
+.theme-root[data-theme="gray"]{--edge-color:#687F8F;--input-edge:#8297A5}
+.theme-root[data-theme="yellow"]{--edge-color:#A38832;--input-edge:#B59D54}
+.theme-root[data-theme] .app-shell :is(.side.sidebar,.topbar,.filter-panel,.panel,.person-list,.person-detail,.coverage-counts button){border-color:var(--edge-color)!important}
+.theme-root[data-theme] .app-shell :is(input,select,textarea,.period-trigger,.secondary,.icon-button){border-color:var(--input-edge)}
+.theme-root[data-theme] .app-shell .filter-panel :is(input,select,.period-trigger){border-color:var(--input-edge)}
+.theme-root[data-theme] .dashboard-content .kpi{border-color:color-mix(in srgb,var(--kpi-accent) 72%,#70838E)}
+.theme-root[data-theme] .dashboard-content .kpi::before{background:color-mix(in srgb,var(--kpi-accent) 86%,#17365D)}
